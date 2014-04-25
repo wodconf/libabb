@@ -1,9 +1,4 @@
-/*
- * Connection.cpp
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
+
 
 #include "connection.hpp"
 #include <unistd.h>

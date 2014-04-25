@@ -1,9 +1,4 @@
-/*
- * buffer.hpp
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
+
 
 #ifndef BUFFER_HPP_
 #define BUFFER_HPP_

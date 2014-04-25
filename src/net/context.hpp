@@ -1,9 +1,3 @@
-/*
- * context.hpp
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
 
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
@@ -18,7 +12,7 @@ public:
 	~Context();
 	void Run();
 	void WaitAndStop();
-	void GetThreadPool
+	base::ThreadPool& GetThreadPool
 private:
 	int num_io_thread;
 	Poller* pollers;

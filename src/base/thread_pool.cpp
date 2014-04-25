@@ -1,9 +1,4 @@
-/*
- * thread_pool.cpp
- *
- *  Created on: 2014Äê4ÔÂ24ÈÕ
- *      Author: goalworld
- */
+
 
 #include "abb/base/thread_pool.hpp"
 namespace abb {

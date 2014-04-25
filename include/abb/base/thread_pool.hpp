@@ -1,9 +1,4 @@
-/*
- * thread_pool.hpp
- *
- *  Created on: 2014Äê4ÔÂ24ÈÕ
- *      Author: goalworld
- */
+
 
 #ifndef THREAD_POOL_HPP_
 #define THREAD_POOL_HPP_

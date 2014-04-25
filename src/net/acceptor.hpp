@@ -1,10 +1,5 @@
-/*
- * Acceptor.h
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
 
+ 
 #ifndef ACCEPTOR_H_
 #define ACCEPTOR_H_
 #include "abb/net/addr.hpp"
