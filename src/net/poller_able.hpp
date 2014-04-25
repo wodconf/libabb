@@ -10,65 +10,54 @@
 #include "poller.hpp"
 namespace abb {
 namespace net {
-enum{
-	POLLER_READ = 0x01,
-	POLLER_WRITE = 0x02
-};
+
 class Poller;
 class PollerAble {
 public:
-	PollerAble(int fd,Poller& p):fd_(fd),event_(0),poller_(p),badd(false){
-
-	}
-	virtual ~PollerAble(){
-
-	}
+	PollerAble(int fd,Poller& p)
+	:fd_(fd),event_(0),poller_(p),badd_(false){}
+	virtual ~PollerAble(){}
 	void Emitter(int revent){
 		int ev = revent&event_;
 		this->OnEvent(revent&event_);
-	}
-	int GetEvent(){
-		return event_;
-	}
-	void SetAdd(bool b){
-		badd = b;
-	}
-	bool IsAdd(){
-		return badd;
-	}
-	int GetFd(){
-		return fd_;
 	}
 protected:
 	void SetRead(){
 		if(event_& POLLER_READ){
 			return;
 		}
-		poller_.SetRead(this);
+		badd_ = true;
+		event_|=POLLER_READ;
 	}
 	void SetWirte(){
 		if(event_& POLLER_WRITE){
 			return;
 		}
-		poller_.SetWirte(this);
+		badd_ = true;
+		event_|=POLLER_WRITE;
 	}
 	void UnSetRead(){
 		if(event_& POLLER_READ){
-			poller_.UnSetRead(this);
-			return;
+			event_ &= ~POLLER_READ;
 		}
 	}
 	void UnSetWrite(){
 		if(event_& POLLER_WRITE){
-			poller_.UnSetWrite(this);
-			return;
+			event_ &= ~POLLER_WRITE;
+		}
+	}
+	void Flush(){
+		if(bneedflush_){
+			bneedflush_ = false;
+			poller_.SetEvent(fd_,event_,this,badd_);
 		}
 	}
 private:
 	virtual void OnEvent(int event);
 private:
 	int fd_;
-	bool badd;
+	bool bneedflush_;
+	bool badd_;
 	Poller& poller_;
 	int event_;
 };

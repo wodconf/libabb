@@ -10,15 +10,18 @@
 
 namespace abb {
 namespace net {
+
 class PollerAble;
+enum{
+	POLLER_READ = 0x01,
+	POLLER_WRITE = 0x02
+};
 class Poller {
 public:
 	Poller();
 	~Poller();
-	void SetRead(PollerAble* proxy);
-	void UnSetRead(PollerAble* proxy);
-	void SetWirte(PollerAble* proxy);
-	void UnSetWrite(PollerAble* proxy);
+	void SetEvent(int fd,int event,PollerAble* arg,bool bneedadd);
+	void Poll();
 private:
 	int error;
 	int efd_;

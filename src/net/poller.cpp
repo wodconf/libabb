@@ -22,76 +22,28 @@ Poller::Poller() {
 Poller::~Poller() {
 	close(efd_);
 }
-
-void Poller::SetRead(PollerAble* proxy){
-	int mod = EPOLL_CTL_MOD;
-	if(proxy->IsAdd()){
-		mod = EPOLL_CTL_ADD;
-		proxy->SetAdd(true);
-	}
+void Poller::SetEvent(int fd,int event,PollerAble* arg,bool bneedadd){
+	int mod = bneedadd?EPOLL_CTL_ADD:EPOLL_CTL_MOD;
 	struct epoll_event ep_ev;
-	ep_ev.data.ptr = proxy;
-	ep_ev.events =  EPOLLERR | EPOLLIN | EPOLLHUP;
-	if(proxy->GetEvent() & POLLER_WRITE){
+	ep_ev.data.ptr = arg;
+	ep_ev.events = 0;
+	if(event & POLLER_WRITE){
+		ep_ev.events |=  EPOLLERR | EPOLLIN | EPOLLHUP;
+	}
+	if(event & POLLER_READ){
 		ep_ev.events |= EPOLLOUT;
 	}
-	int rc = epoll_ctl(efd_,mod,proxy->GetFd(),&ep_ev);
-	if(rc !=  0){
-		int err = errno;
-		LOG(WARN)<< "Poller::SetRead Fial" << "code:" << err << strerror(err);
-	}
-}
-void Poller::UnSetRead(PollerAble* proxy){
-	int mod = EPOLL_CTL_MOD;
-	struct epoll_event ep_ev;
-	ep_ev.data.ptr = proxy;
-	ep_ev.events  = 0;
-	if(proxy->GetEvent() & POLLER_WRITE){
-		ep_ev.events |= EPOLLOUT;
-	}else{
+	if(ep_ev.events == 0){
 		mod = EPOLL_CTL_DEL;
-		proxy->SetAdd(false);
 	}
-	int rc = epoll_ctl(efd_,mod,proxy->GetFd(),&ep_ev);
+	int rc = epoll_ctl(efd_,mod,fd,&ep_ev);
 	if(rc !=  0){
 		int err = errno;
-		LOG(WARN)<< "Poller::UnSetRead Fial" << "code:" << err << strerror(err);
+		LOG(WARN)<< "Poller::SetEvent Fial event:" << event << << "code:" << err <<"desc:"<< strerror(err);
 	}
 }
-void Poller::SetWrite(PollerAble* proxy){
-	int mod = EPOLL_CTL_MOD;
-	if(proxy->IsAdd()){
-		mod = EPOLL_CTL_ADD;
-		proxy->SetAdd(true);
-	}
-	struct epoll_event ep_ev;
-	ep_ev.data.ptr = proxy;
-	ep_ev.events  = EPOLLOUT;
-	if(proxy->GetEvent() & POLLER_READ){
-		ep_ev.events |= EPOLLIN;
-	}
-	int rc = epoll_ctl(efd_,mod,proxy->GetFd(),&ep_ev);
-	if(rc !=  0){
-		int err = errno;
-		LOG(WARN)<< "Poller::SetWrite Fial" << "code:" << err << strerror(err);
-	}
-}
-void Poller::UnSetWrite(PollerAble* proxy){
-	int mod = EPOLL_CTL_MOD;
-	struct epoll_event ep_ev;
-	ep_ev.data.ptr = proxy;
-	ep_ev.events  = 0;
-	if(proxy->GetEvent() & POLLER_READ){
-		ep_ev.events |= EPOLLIN;
-	}else{
-		mod = EPOLL_CTL_DEL;
-		proxy->SetAdd(false);
-	}
-	int rc = epoll_ctl(efd_,mod,proxy->GetFd(),&ep_ev);
-	if(rc !=  0){
-		int err = errno;
-		LOG(WARN)<< "Poller::UnSetWrite Fial" << "code:" << err << strerror(err);
-	}
+void Poller::Poll(){
+	
 }
 
 } /* namespace base */
