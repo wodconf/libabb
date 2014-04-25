@@ -22,7 +22,7 @@ namespace net{
 }
 class SockAddr {
 public:
-	inline int AddrLength() {
+	inline int Length() {
 	  switch (this->family) {
 	    case AF_UNIX:
 	      return sizeof(this->sa.nix);

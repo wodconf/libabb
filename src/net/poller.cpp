@@ -33,7 +33,7 @@ void Poller::SetEvent(int fd,int event,PollerAble* arg,bool bneedadd){
 	int rc = epoll_ctl(efd_,mod,fd,&ep_ev);
 	if(rc !=  0){
 		int err = errno;
-		LOG(WARN)<< "Poller::SetEvent Fial event:" << event << << "code:" << err <<"desc:"<< strerror(err);
+		LOG(WARN)<< "Poller::SetEvent Fial event:" << event << << "code:" << err <<"desc:"<< (const char*)strerror(err);
 	}
 }
 void Poller::Poll(){

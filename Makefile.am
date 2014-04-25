@@ -1,0 +1,14 @@
+INCLUDES=-I./include
+
+lib_LTLIBRARIES=libabb.la
+
+libabb_la_SOURCES=src/base/buffer.cpp\
+			src/base/log.cpp\
+			src/base/thread_pool.cpp\
+			src/net/socket.cpp\
+			src/net/acceptor.cpp\
+			src/net/connection.cpp\
+			src/net/context.cpp\
+			src/net/poller.cpp
+
+libabb_la_LIBADD=-lpthread

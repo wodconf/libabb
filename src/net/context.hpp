@@ -5,6 +5,7 @@
 #include "abb/base/thread_pool.hpp"
 namespace abb {
 namespace net {
+
 class Poller;
 class Context {
 public:
@@ -12,7 +13,8 @@ public:
 	~Context();
 	void Run();
 	void WaitAndStop();
-	base::ThreadPool& GetThreadPool
+	base::ThreadPool& GetThreadPool();
+	Poller& GetFreePoller();
 private:
 	int num_io_thread;
 	Poller* pollers;
@@ -20,7 +22,7 @@ private:
 	bool brund;
 	base::ThreadPool pool;
 };
-
+extern Context* ctx;
 } /* namespace translate */
 } /* namespace adcloud */
 

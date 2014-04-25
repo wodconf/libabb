@@ -25,7 +25,7 @@ bool Socket::Write(int fd,void*inbuf,int size,int* nwr,int* save_err){
 				continue;
 			}else{
 				if(save_err){
-					save_err = err;
+					*save_err = err;
 				}
 				return false;
 			}
@@ -55,7 +55,7 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 				continue;
 			}else{
 				if(save_err){
-					save_err = err;
+					*save_err = err;
 				}
 				return false;
 			}
@@ -86,7 +86,7 @@ void Socket::SetNoBlock(int fd,bool b){
 		oflag &= (~O_NONBLOCK);
 	}
 
-	if( fcntl(sock, F_SETFL, oflag) < 0){
+	if( fcntl(fd, F_SETFL, oflag) < 0){
 		//
 	}
 }

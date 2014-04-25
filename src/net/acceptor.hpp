@@ -14,12 +14,20 @@ public:
 		virtual ~IEvent(){}
 		virtual void Acceptor_Event(Acceptor*,Connection*) = 0;
 	};
-	Acceptor();
+	Acceptor(IEvent* lis);
 	~Acceptor();
 	bool Bind(const SockAddr& addr);
 	void SetEnable(bool benable);
 private:
+	struct Dispatch:public base::ThreadPool::Runer{
+		virtual ~Dispatch(){}
+		virtual void Execute();
+		Acceptor* self;
+	};
+	friend struct Dispatch;
+	Dispatch dis_;
 	virtual void OnEvent(int event);
+	IEvent* lis_;
 	bool enable_;
 	SockAddr addr_;
 	int fd_;

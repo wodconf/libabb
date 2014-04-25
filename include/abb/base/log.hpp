@@ -39,7 +39,7 @@ namespace internal{
 		LogRecord& operator<< (long long val);
 		LogRecord& operator<< (unsigned long long val);
 		LogRecord& operator<< (double val);
-		LogRecord& LogRecord::operator<<( bool b);
+		LogRecord& operator<<( bool b);
 	private:
 		friend class LogEnd;
 		void End();
