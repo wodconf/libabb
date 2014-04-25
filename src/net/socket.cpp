@@ -1,9 +1,4 @@
-/*
- * socket.cpp
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
+
 
 #include "socket.hpp"
 #include <sys/socket.h>

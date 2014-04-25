@@ -1,9 +1,3 @@
-/*
- * poller_proxy.hpp
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
 
 #ifndef POLLER_PROXY_HPP_
 #define POLLER_PROXY_HPP_

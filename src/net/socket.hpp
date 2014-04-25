@@ -1,9 +1,4 @@
-/*
- * socket.h
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
+
 
 #ifndef SOCKET_H_
 #define SOCKET_H_

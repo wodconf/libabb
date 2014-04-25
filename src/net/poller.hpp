@@ -1,9 +1,4 @@
-/*
- * poller.h
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
+
 
 #ifndef POLLER_H_
 #define POLLER_H_

@@ -1,9 +1,3 @@
-/*
- * poller.cpp
- *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
- *      Author: goalworld
- */
 
 #include "poller.hpp"
 #include "abb/base/log.hpp"
