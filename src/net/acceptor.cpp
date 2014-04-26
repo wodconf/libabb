@@ -4,6 +4,7 @@
 #include "context.hpp"
 #include <unistd.h>
 #include "socket.hpp"
+#include "connection.hpp"
 namespace abb {
 namespace net {
 
@@ -12,13 +13,14 @@ Acceptor::Acceptor()
 fd_(-1),
 dispatch_(ctx->GetThreadPool()),
 poller_(ctx->GetFreePoller()),
-entry_(this)
+entry_(this),
+enable_(false)
 {
 
 }
 Acceptor::~Acceptor() {
 	if(fd_ != -1){
-		close(fd_)
+		close(fd_);
 	}
 }
 bool Acceptor::Bind(const IPAddr& addr){
@@ -34,6 +36,7 @@ bool Acceptor::Bind(const IPAddr& addr){
 	}
 	addr_ = addr;
 	this->entry_.SetFd(fd_);
+	return true;
 }
 void Acceptor::SetEnable(bool benable){
 	if(this->enable_ == benable){
@@ -63,7 +66,7 @@ void Acceptor::DispatchRunner::Execute(){
 	delete this;
 }
 void Acceptor::Dispatch(Connection* conn){
-	this->AddRef();
+	this->Ref();
 	DispatchRunner* runer = new DispatchRunner();
 	runer->conn = conn;
 	this->dispatch_.Execute(runer);

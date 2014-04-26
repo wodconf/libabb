@@ -80,11 +80,11 @@ bool IPAddr::SetUnix(const char *path,unsigned int pathlen){
 	}
 	/* Linux defines UNIX_PATH_MAX, but there is no POSIX requirement.
 	 * Let's just ask the compiler for the size */
-	if (pathlen + 1 /* \0 */ >= sizeof(addr->sa.nix.sun_path)) {
+	if (pathlen + 1 /* \0 */ >= sizeof(this->sa.nix.sun_path)) {
 		return false;
 	}
 
-	memset(addr, 0, sizeof(*addr));
+	memset(&sa, 0, sizeof(sa));
 	this->family = AF_UNIX;
 	this->sa.nix.sun_family = AF_UNIX;
 

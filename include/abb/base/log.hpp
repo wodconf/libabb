@@ -10,7 +10,7 @@ namespace abb { namespace base{
 
 enum LogLevel {
   LOGLEVEL_INFO,
-  LOGLEVEL_WARNING,
+  LOGLEVEL_WARN,
   LOGLEVEL_ERROR,
   LOGLEVEL_FATAL,
 #ifdef NDEBUG
@@ -63,7 +63,7 @@ LogHandler * SetLogHandler(LogHandler * new_handler);
 }}
 
 
-#define LOG(lvl) ::wod::core::internal::LogEnd() = ::abb::base::internal::LogRecord(::abb::base::LOGLEVEL_##lvl,__FILE__,__LINE__)
+#define LOG(lvl) ::abb::base::internal::LogEnd() = ::abb::base::internal::LogRecord(::abb::base::LOGLEVEL_##lvl,__FILE__,__LINE__)
 
 #define LOG_IF(lvl,condition) !(condition)?void(0) : LOG(lvl)
 

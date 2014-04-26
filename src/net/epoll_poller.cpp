@@ -8,7 +8,7 @@
 namespace abb {
 namespace net {
 
-Poller::Poller() {
+Poller::Poller():error_(0) {
 	this->efd_ = epoll_create(10240);
 }
 
@@ -19,13 +19,13 @@ void Poller::AddRead(Entry* arg){
 	if(arg->event_&POLLER_READ){
 		return;
 	}
-	if( this->SetEvent(arg->fd_,arg->event_&POLLER_READ,arg->badd_) ){
+	if( this->SetEvent(arg->fd_,arg->event_&POLLER_READ,arg,arg->badd_) ){
 		arg->event_&=POLLER_READ;
 	}
 }
 void Poller::DelRead(Entry* arg){
 	if(arg->event_&POLLER_READ){
-		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_READ),arg->badd_) ){
+		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_READ),arg,arg->badd_) ){
 			arg->event_|=~POLLER_READ;
 		}
 	}
@@ -34,28 +34,28 @@ void Poller::AddWrite(Entry* arg){
 	if(arg->event_&POLLER_WRITE){
 		return;
 	}
-	if( this->SetEvent(arg->fd_,arg->event_&POLLER_WRITE,arg->badd_) ){
+	if( this->SetEvent(arg->fd_,arg->event_&POLLER_WRITE,arg,arg->badd_) ){
 		arg->event_&=POLLER_WRITE;
 	}
 }
 void Poller::DelWrite(Entry* arg){
 	if(arg->event_&POLLER_WRITE){
-		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_WRITE),arg->badd_) ){
+		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_WRITE),arg,arg->badd_) ){
 			arg->event_|=~POLLER_WRITE;
 		}
 	}
 }
 void Poller::AddReadWrite(Entry* arg){
-	if(arg->event_&POLLER_READ && arg->event_&POLLER_WRITE){
+	if((arg->event_&POLLER_READ) && (arg->event_&POLLER_WRITE)){
 		return;
 	}
-	if( this->SetEvent(arg->fd_,POLLER_READ&POLLER_WRITE,arg->badd_) ){
+	if( this->SetEvent(arg->fd_,POLLER_READ&POLLER_WRITE,arg,arg->badd_) ){
 		arg->event_&=POLLER_READ;
 	}
 }
 void Poller::DelReadWrite(Entry* arg){
-	if(arg->event_&POLLER_READ && arg->event_&POLLER_WRITE){
-		if( this->SetEvent(arg->fd_,0,arg->badd_) ){
+	if((arg->event_&POLLER_READ)|| (arg->event_&POLLER_WRITE)){
+		if( this->SetEvent(arg->fd_,0,arg,arg->badd_) ){
 			arg->event_&=POLLER_READ;
 		}
 	}
@@ -76,8 +76,8 @@ bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd){
 	}
 	int rc = epoll_ctl(efd_,mod,fd,&ep_ev);
 	if(rc !=  0){
-		int err = errno;
-		LOG(WARN)<< "Poller::SetEvent Fial event:" << event << << "code:" << err <<"desc:"<< (const char*)strerror(err);
+		error_ = errno;
+		LOG(WARN)<< "Poller::SetEvent Fial event:" << event  << "code:" << error_ <<"desc:"<< strerror(error_);
 	}
 	return rc == 0;
 }

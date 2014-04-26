@@ -1,7 +1,7 @@
 /*
  * addr.hpp
  *
- *  Created on: 2014Äê4ÔÂ25ÈÕ
+ *  Created on: 2014ï¿½ï¿½4ï¿½ï¿½25ï¿½ï¿½
  *      Author: goalworld
  */
 
@@ -22,7 +22,7 @@ namespace net{
 }
 class IPAddr {
 public:
-	inline int Length() {
+	 inline unsigned int Length() const{
 	  switch (this->family) {
 	    case AF_UNIX:
 	      return sizeof(this->sa.nix);

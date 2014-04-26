@@ -11,12 +11,13 @@
 #include "abb/base/buffer.hpp"
 #include "abb/base/define.hpp"
 #include "abb/net/ip_addr.hpp"
+#include "poller.hpp"
+#include <sys/socket.h>
 namespace abb {
 namespace net {
-class Poller;
 class Connection :public IPollerEvent,base::RefObject{
 public:
-	Connection* New(int fd,const IPAddr& local,const IPAddr& peer){
+	static Connection* New(int fd,const IPAddr& local,const IPAddr& peer){
 		return new Connection(fd,local,peer);
 	}
 private:
@@ -24,21 +25,21 @@ private:
 	virtual ~Connection();
 public:
 	enum{
-			EVENT_READ = 0x01,
-			EVENT_DRAN = 0x02,
-			EVENT_ERROR = 0x04,
-		};
+		EVENT_READ = 0x01,
+		EVENT_DRAN = 0x02,
+		EVENT_ERROR = 0x04,
+	};
 	class IEvent{
 	public:
 		virtual void Connection_Event(int)=0;
 	};
 	typedef void(*OpBuffer)(void*arg,base::Buffer&buf);
 	void SetEventCallBack(IEvent* event){ev_ = event;}
-	bool Write(void*buf,int size,int* nread);
-	void Read(void*buf,int size,int* nread);
+	bool Write(void*buf,int size,int* nwr);
+	bool ReadSize(void*buf,int size,int* nwr);
 	void OpReadBuf(OpBuffer fn,void*arg);
 	int ShutDown(int how){
-		return shutdown(this->GetFd(),how);
+		return shutdown(this->fd_,how);
 	}
 	void SetEnable(bool enable);
 	void Free(){
@@ -83,7 +84,7 @@ private:
 	base::Buffer wr_buf_;
 	base::ThreadPool& dispatch_;
 	Poller& poller_;
-	Poller::Entry entry;
+	Poller::Entry entry_;
 	bool enable_;
 	int err_;
 	IEvent* ev_;

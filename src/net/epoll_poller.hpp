@@ -16,7 +16,7 @@ enum{
 class Poller {
 public:
 	struct Entry {
-		Entry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(false)
+		Entry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(false){}
 		Entry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(false){}
 		~Entry(){}
 		void Emitter(int revent){
@@ -44,9 +44,9 @@ public:
 	void DelReadWrite(Entry* arg);
 	void Poll();
 private:
-	bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd);
+	bool SetEvent(int fd,int event,Entry* arg,bool bneedadd);
 private:
-	int error;
+	int error_;
 	int efd_;
 };
 
