@@ -1,0 +1,89 @@
+
+#include "poller.hpp"
+#include "abb/base/log.hpp"
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/epoll.h>
+namespace abb {
+namespace net {
+
+Poller::Poller() {
+	this->efd_ = epoll_create(10240);
+}
+
+Poller::~Poller() {
+	close(efd_);
+}
+void Poller::AddRead(Entry* arg){
+	if(arg->event_&POLLER_READ){
+		return;
+	}
+	if( this->SetEvent(arg->fd_,arg->event_&POLLER_READ,arg->badd_) ){
+		arg->event_&=POLLER_READ;
+	}
+}
+void Poller::DelRead(Entry* arg){
+	if(arg->event_&POLLER_READ){
+		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_READ),arg->badd_) ){
+			arg->event_|=~POLLER_READ;
+		}
+	}
+}
+void Poller::AddWrite(Entry* arg){
+	if(arg->event_&POLLER_WRITE){
+		return;
+	}
+	if( this->SetEvent(arg->fd_,arg->event_&POLLER_WRITE,arg->badd_) ){
+		arg->event_&=POLLER_WRITE;
+	}
+}
+void Poller::DelWrite(Entry* arg){
+	if(arg->event_&POLLER_WRITE){
+		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_WRITE),arg->badd_) ){
+			arg->event_|=~POLLER_WRITE;
+		}
+	}
+}
+void Poller::AddReadWrite(Entry* arg){
+	if(arg->event_&POLLER_READ && arg->event_&POLLER_WRITE){
+		return;
+	}
+	if( this->SetEvent(arg->fd_,POLLER_READ&POLLER_WRITE,arg->badd_) ){
+		arg->event_&=POLLER_READ;
+	}
+}
+void Poller::DelReadWrite(Entry* arg){
+	if(arg->event_&POLLER_READ && arg->event_&POLLER_WRITE){
+		if( this->SetEvent(arg->fd_,0,arg->badd_) ){
+			arg->event_&=POLLER_READ;
+		}
+	}
+}
+bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd){
+	int mod = bneedadd?EPOLL_CTL_ADD:EPOLL_CTL_MOD;
+	struct epoll_event ep_ev;
+	ep_ev.data.ptr = arg;
+	ep_ev.events = 0;
+	if(event & POLLER_WRITE){
+		ep_ev.events |=  EPOLLERR | EPOLLIN | EPOLLHUP;
+	}
+	if(event & POLLER_READ){
+		ep_ev.events |= EPOLLOUT;
+	}
+	if(ep_ev.events == 0){
+		mod = EPOLL_CTL_DEL;
+	}
+	int rc = epoll_ctl(efd_,mod,fd,&ep_ev);
+	if(rc !=  0){
+		int err = errno;
+		LOG(WARN)<< "Poller::SetEvent Fial event:" << event << << "code:" << err <<"desc:"<< (const char*)strerror(err);
+	}
+	return rc == 0;
+}
+void Poller::Poll(){
+	
+}
+
+} /* namespace base */
+} /* namespace abb */

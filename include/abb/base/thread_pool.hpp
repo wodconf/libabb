@@ -18,7 +18,11 @@ public:
 public:
 	ThreadPool();
 	~ThreadPool();
-	bool Start(int num);
+	void SetNumThread(int num){
+		if( num > 0 )
+			num_thread_ = num;
+	}
+	bool Start();
 	void Wait();
 	void Stop();
 	void Execute(Runer* runer);

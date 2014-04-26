@@ -3,15 +3,28 @@
 #include "connection.hpp"
 #include <unistd.h>
 #include "socket.hpp"
+#include "context.hpp"
 namespace abb {
 namespace net {
 
-Connection::Connection(int fd,Poller& p,base::ThreadPool& pool)
-:PollerAble(fd_,p),dispatch_(pool),ev_(NULL),err_(0),enable_(false),em_ev_(0),is_exe_(false) {
+Connection::Connection(int fd,const IPAddr& local,const IPAddr& peer)
+:poller_(ctx->GetFreePoller()),
+dispatch_(ctx->GetThreadPool()),
+local_addr_(local),
+peer_addr_(peer),
+ev_(NULL),
+err_(0),
+enable_(false),
+em_ev_(0),
+is_exe_(false),
+entry_(fd,this),
+fd_(fd)
+{
 }
 
 Connection::~Connection() {
-
+	poller_->DelReadWrite(&this->entry_);
+	close(fd_);
 }
 bool Connection::Write(void*buf,int size,int* nwr){
 	base::Mutex::Locker lock(wr_lock_);
@@ -20,7 +33,7 @@ bool Connection::Write(void*buf,int size,int* nwr){
 		ret = this->Writer(buf,size);
 		if(ret < size && !this->err_ && this->enable_){
 			this->wr_buf_.Write((char*)buf+ret,size);
-			this->SetWirte();
+			poller_->AddWrite(&this->entry_);
 		}
 		if(this->err_){
 			if(nwr)*nwr = ret;
@@ -48,8 +61,7 @@ void Connection::SetEnable(bool enable){
 	}
 	this->enable_ = enable;
 	if(this->enable_){
-		this->SetRead();
-		this->SetWirte();
+		poller_->AddReadWrite(&this->entry_);
 	}
 }
 int Connection::Reader(void*buf,int size){
@@ -62,17 +74,15 @@ int Connection::Writer(void*buf,int size){
 	Socket::Write(this->GetFd(),buf,size,&nwd,&this->err_);
 	return nwd;
 }
-void Connection::OnEvent(int event){
+virtual void PollerEvent_OnRead(){
 	if(this->err_){
 		em_ev_ |= EVENT_ERROR;
 		this->Dispatch();
-		this->UnSetRead();
-		this->UnSetWrite();
+		poller_->DelReadWrite(&this->entry_);
 		return;
 	}
 	if(!this->enable_) return;
-	if(event&POLLER_READ){
-		rd_lock_.Lock();
+	rd_lock_.Lock();
 		this->rd_buf_.WriteFromeReader(StaticReader,this);
 		if(this->rd_buf_.Size() > 0){
 			rd_lock_.UnLock();
@@ -83,24 +93,29 @@ void Connection::OnEvent(int event){
 			em_ev_ |= EVENT_ERROR;
 			this->Dispatch();
 		}
-
+}
+virtual void PollerEvent_OnWrite(){
+	if(this->err_){
+		em_ev_ |= EVENT_ERROR;
+		this->Dispatch();
+		poller_->DelReadWrite(&this->entry_);
+		return;
 	}
-	if(event&POLLER_WRITE){
-		wr_lock_.Lock();
+	if(!this->enable_) return;	
+	wr_lock_.Lock();
 		if(this->wr_buf_.Size() > 0){
 			this->wr_buf_.ReadToWriter(StaticWriter,this);
 			if(this->wr_buf_.Size() == 0){
 				em_ev_ |= EVENT_DRAN;
 				wr_lock_.UnLock();
 				this->Dispatch();
-				this->UnSetWrite();
+				poller_->DelWrite(&this->entry_);
 			}
 			wr_lock_.UnLock();
 		}else{
 			wr_lock_.UnLock();
-			this->UnSetWrite();
+			poller_->DelWrite(&this->entry_);
 		}
-	}
 }
 virtual void Connection::EventDispatch::Execute(){
 	if(self->em_ev_&EVENT_READ){

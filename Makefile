@@ -57,7 +57,7 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
-	acceptor.lo connection.lo context.lo poller.lo
+	acceptor.lo connection.lo context.lo poller.lo ip_addr.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -213,7 +213,8 @@ libabb_la_SOURCES = src/base/buffer.cpp\
 			src/net/acceptor.cpp\
 			src/net/connection.cpp\
 			src/net/context.cpp\
-			src/net/poller.cpp
+			src/net/poller.cpp\
+			src/net/ip_addr.cpp
 
 libabb_la_LIBADD = -lpthread
 all: all-am
@@ -293,6 +294,7 @@ include ./$(DEPDIR)/acceptor.Plo
 include ./$(DEPDIR)/buffer.Plo
 include ./$(DEPDIR)/connection.Plo
 include ./$(DEPDIR)/context.Plo
+include ./$(DEPDIR)/ip_addr.Plo
 include ./$(DEPDIR)/log.Plo
 include ./$(DEPDIR)/poller.Plo
 include ./$(DEPDIR)/socket.Plo
@@ -374,6 +376,13 @@ poller.lo: src/net/poller.cpp
 #	source='src/net/poller.cpp' object='poller.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o poller.lo `test -f 'src/net/poller.cpp' || echo '$(srcdir)/'`src/net/poller.cpp
+
+ip_addr.lo: src/net/ip_addr.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ip_addr.lo -MD -MP -MF $(DEPDIR)/ip_addr.Tpo -c -o ip_addr.lo `test -f 'src/net/ip_addr.cpp' || echo '$(srcdir)/'`src/net/ip_addr.cpp
+	mv -f $(DEPDIR)/ip_addr.Tpo $(DEPDIR)/ip_addr.Plo
+#	source='src/net/ip_addr.cpp' object='ip_addr.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ip_addr.lo `test -f 'src/net/ip_addr.cpp' || echo '$(srcdir)/'`src/net/ip_addr.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

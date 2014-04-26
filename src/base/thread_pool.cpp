@@ -20,15 +20,11 @@ ThreadPool::~ThreadPool() {
 		delete []threads;
 	}
 }
-bool ThreadPool::Start(int num){
-	if(num < 0){
-		return false;
-	}
+bool ThreadPool::Start(){
 	if(this->threads != NULL){
 		return false;
 	}
-	threads = new pthread_t[num];
-	this->num_thread_ = num;
+	threads = new pthread_t[num_thread_];
 	for(int i=0;i<this->num_thread_;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,this);
 	}

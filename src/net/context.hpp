@@ -5,12 +5,14 @@
 #include "abb/base/thread_pool.hpp"
 namespace abb {
 namespace net {
-
+class Acceptor;
 class Poller;
 class Context {
 public:
 	Context();
 	~Context();
+	void SetNumPollThread(int num);
+	void SetNumDispatchThread(int num);
 	void Run();
 	void WaitAndStop();
 	base::ThreadPool& GetThreadPool();

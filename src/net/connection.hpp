@@ -3,23 +3,24 @@
 #ifndef CONNECTION_H_
 #define CONNECTION_H_
 
-#include "poller_able.hpp"
+#include "i_poller_event.hpp"
 #include "abb/base/ref_object.hpp"
 #include "abb/base/thread_pool.hpp"
 #include "abb/base/mutex.hpp"
 #include "abb/base/rw_lock.hpp"
 #include "abb/base/buffer.hpp"
 #include "abb/base/define.hpp"
+#include "abb/net/ip_addr.hpp"
 namespace abb {
 namespace net {
 class Poller;
-class Connection :public PollerAble,base::RefObject{
+class Connection :public IPollerEvent,base::RefObject{
 public:
-	Connection* New(int fd,Poller& p,base::ThreadPool& pool){
-		return new Connection(fd,p,pool);
+	Connection* New(int fd,const IPAddr& local,const IPAddr& peer){
+		return new Connection(fd,local,peer);
 	}
 private:
-	Connection(int fd,Poller& p,base::ThreadPool& pool);
+	Connection(int fd,const IPAddr& local,const IPAddr& peer);
 	virtual ~Connection();
 public:
 	enum{
@@ -43,6 +44,8 @@ public:
 	void Free(){
 		this->UnRef();
 	}
+	virtual void PollerEvent_OnRead();
+	virtual void PollerEvent_OnWrite();
 private:
 	static int StaticReader(void*arg,void*buf,int size){
 		Connection* con = (Connection*)arg;
@@ -54,7 +57,6 @@ private:
 	}
 	int Reader(void*buf,int size);
 	int Writer(void*buf,int size);
-	virtual void OnEvent(int event);
 	void Dispatch(){
 		if(is_exe_){
 			is_exe_ = true;
@@ -70,6 +72,8 @@ private:
 		virtual void Execute();
 	};
 	friend struct EventDispatch;
+	IPAddr local_addr_;
+	IPAddr peer_addr_;
 	bool is_exe_;
 	EventDispatch dis;
 	int fd_;
@@ -78,6 +82,8 @@ private:
 	base::Mutex wr_lock_;
 	base::Buffer wr_buf_;
 	base::ThreadPool& dispatch_;
+	Poller& poller_;
+	Poller::Entry entry;
 	bool enable_;
 	int err_;
 	IEvent* ev_;

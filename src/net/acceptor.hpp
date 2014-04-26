@@ -2,34 +2,45 @@
  
 #ifndef ACCEPTOR_H_
 #define ACCEPTOR_H_
-#include "abb/net/addr.hpp"
-#include "poller_able.hpp"
+#include "abb/net/ip_addr.hpp"
+#include "i_poller_event.hpp"
+#include "abb/base/ref_object.hpp"
+#include "abb/base/thread_pool.hpp"
+#include "poller.hpp"
 namespace abb {
 namespace net {
 class Connection;
-class Acceptor :public PollerAble{
+class Acceptor :public IPollerEvent,base::RefObject{
 public:
 	class IEvent{
 	public:
 		virtual ~IEvent(){}
 		virtual void Acceptor_Event(Acceptor*,Connection*) = 0;
 	};
-	Acceptor(IEvent* lis);
+	Acceptor();
 	~Acceptor();
-	bool Bind(const SockAddr& addr);
+	void SetListener(IEvent* lis){
+		lis_ = lis;
+	}
+	bool Bind(const IPAddr& addr);
 	void SetEnable(bool benable);
+	virtual void PollerEvent_OnRead();
+	virtual void PollerEvent_OnWrite(){}
 private:
-	struct Dispatch:public base::ThreadPool::Runer{
-		virtual ~Dispatch(){}
+	void Dispatch(Connection* conn);
+private:
+	struct DispatchRunner:public base::ThreadPool::Runer{
+		virtual ~DispatchRunner(){}
 		virtual void Execute();
-		Acceptor* self;
+		Connection* conn;
+		Acceptor* ac;
 	};
-	friend struct Dispatch;
-	Dispatch dis_;
-	virtual void OnEvent(int event);
+	base::ThreadPool& dispatch_;
+	Poller& poller_;
+	Poller::Entry entry_;
 	IEvent* lis_;
 	bool enable_;
-	SockAddr addr_;
+	IPAddr addr_;
 	int fd_;
 };
 
