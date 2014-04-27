@@ -81,7 +81,7 @@ bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd){
 	}
 	return rc == 0;
 }
-void Poller::Poll(){
+void Poller::Poll(int timeout){
 	
 }
 

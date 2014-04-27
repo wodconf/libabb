@@ -58,7 +58,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
 	acceptor.lo connector.lo connection.lo context.lo poller.lo \
-	ip_addr.lo
+	io_thread.lo ip_addr.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -216,6 +216,7 @@ libabb_la_SOURCES = src/base/buffer.cpp\
 			src/net/connection.cpp\
 			src/net/context.cpp\
 			src/net/poller.cpp\
+			src/net/io_thread.cpp\
 			src/net/ip_addr.cpp
 
 libabb_la_LIBADD = -lpthread
@@ -297,6 +298,7 @@ include ./$(DEPDIR)/buffer.Plo
 include ./$(DEPDIR)/connection.Plo
 include ./$(DEPDIR)/connector.Plo
 include ./$(DEPDIR)/context.Plo
+include ./$(DEPDIR)/io_thread.Plo
 include ./$(DEPDIR)/ip_addr.Plo
 include ./$(DEPDIR)/log.Plo
 include ./$(DEPDIR)/poller.Plo
@@ -386,6 +388,13 @@ poller.lo: src/net/poller.cpp
 #	source='src/net/poller.cpp' object='poller.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o poller.lo `test -f 'src/net/poller.cpp' || echo '$(srcdir)/'`src/net/poller.cpp
+
+io_thread.lo: src/net/io_thread.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT io_thread.lo -MD -MP -MF $(DEPDIR)/io_thread.Tpo -c -o io_thread.lo `test -f 'src/net/io_thread.cpp' || echo '$(srcdir)/'`src/net/io_thread.cpp
+	mv -f $(DEPDIR)/io_thread.Tpo $(DEPDIR)/io_thread.Plo
+#	source='src/net/io_thread.cpp' object='io_thread.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o io_thread.lo `test -f 'src/net/io_thread.cpp' || echo '$(srcdir)/'`src/net/io_thread.cpp
 
 ip_addr.lo: src/net/ip_addr.cpp
 	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ip_addr.lo -MD -MP -MF $(DEPDIR)/ip_addr.Tpo -c -o ip_addr.lo `test -f 'src/net/ip_addr.cpp' || echo '$(srcdir)/'`src/net/ip_addr.cpp

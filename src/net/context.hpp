@@ -3,9 +3,10 @@
 #define CONTEXT_HPP_
 #include <pthread.h>
 #include "abb/base/thread_pool.hpp"
+#include "io_thread.hpp"
 namespace abb {
 namespace net {
-class Poller;
+
 class Context {
 public:
 	Context();
@@ -22,8 +23,7 @@ public:
 	Poller& GetFreePoller();
 private:
 	int num_io_thread;
-	Poller* pollers;
-	pthread_t threads;
+	IOThread* threads;
 	bool brund;
 	base::ThreadPool pool;
 };

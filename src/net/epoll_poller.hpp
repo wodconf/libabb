@@ -42,7 +42,7 @@ public:
 	void DelWrite(Entry* arg);
 	void AddReadWrite(Entry* arg);
 	void DelReadWrite(Entry* arg);
-	void Poll();
+	void Poll(int timeout);
 private:
 	bool SetEvent(int fd,int event,Entry* arg,bool bneedadd);
 private:

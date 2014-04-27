@@ -11,6 +11,7 @@ libabb_la_SOURCES=src/base/buffer.cpp\
 			src/net/connection.cpp\
 			src/net/context.cpp\
 			src/net/poller.cpp\
+			src/net/io_thread.cpp\
 			src/net/ip_addr.cpp
 
 libabb_la_LIBADD=-lpthread
