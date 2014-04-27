@@ -12,14 +12,17 @@ public:
 	Context();
 	~Context();
 	void SetNumPollThread(int num){
-		this->num_io_thread = num;
+		if(threads == NULL)
+			this->num_io_thread = num;
 	}
 	void SetNumDispatchThread(int num){
 		this->pool.SetNumThread(num);
 	}
 	void Run();
 	void WaitAndStop();
-	base::ThreadPool& GetThreadPool();
+	base::ThreadPool& GetThreadPool(){
+		return pool;
+	}
 	Poller& GetFreePoller();
 private:
 	int num_io_thread;
@@ -27,6 +30,7 @@ private:
 	Loop* loops_;
 	Poller poller;
 	base::ThreadPool pool;
+	int cur_;
 };
 extern Context* ctx;
 } /* namespace translate */

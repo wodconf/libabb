@@ -1,9 +1,3 @@
-/*
- * loop.cpp
- *
- *  Created on: 2014年4月27日
- *      Author: wd
- */
 
 #include "loop.hpp"
 using namespace abb::net;

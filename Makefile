@@ -58,7 +58,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
 	acceptor.lo connector.lo connection.lo context.lo poller.lo \
-	loop.lo ip_addr.lo
+	loop.lo ip_addr.lo abb.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -217,7 +217,8 @@ libabb_la_SOURCES = src/base/buffer.cpp\
 			src/net/context.cpp\
 			src/net/poller.cpp\
 			src/net/loop.cpp\
-			src/net/ip_addr.cpp
+			src/net/ip_addr.cpp\
+			src/abb.cpp
 
 libabb_la_LIBADD = -lpthread
 all: all-am
@@ -293,6 +294,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/abb.Plo
 include ./$(DEPDIR)/acceptor.Plo
 include ./$(DEPDIR)/buffer.Plo
 include ./$(DEPDIR)/connection.Plo
@@ -402,6 +404,13 @@ ip_addr.lo: src/net/ip_addr.cpp
 #	source='src/net/ip_addr.cpp' object='ip_addr.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ip_addr.lo `test -f 'src/net/ip_addr.cpp' || echo '$(srcdir)/'`src/net/ip_addr.cpp
+
+abb.lo: src/abb.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT abb.lo -MD -MP -MF $(DEPDIR)/abb.Tpo -c -o abb.lo `test -f 'src/abb.cpp' || echo '$(srcdir)/'`src/abb.cpp
+	mv -f $(DEPDIR)/abb.Tpo $(DEPDIR)/abb.Plo
+#	source='src/abb.cpp' object='abb.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o abb.lo `test -f 'src/abb.cpp' || echo '$(srcdir)/'`src/abb.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
