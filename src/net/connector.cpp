@@ -6,7 +6,7 @@
 using namespace abb::net;
 
 
-Connector::Connector():fd_(-1),lis_(NULL),poller_(ctx->GetFreePoller()){
+Connector::Connector():fd_(-1),lis_(NULL),poller_(ctx->GetFreePoller()),entry_(this){
 
 }
 Connector::~Connector(){
@@ -34,7 +34,6 @@ void Connector::Reset(){
 		fd_ = -1;
 	}
 }
-void Connector::SetEventCallback(IEvent* ev){lis_=ev;}
 void Connector::PollerEvent_OnRead(){}
 void Connector::PollerEvent_OnWrite(){
 	int err;

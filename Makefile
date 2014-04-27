@@ -57,7 +57,8 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
-	acceptor.lo connection.lo context.lo poller.lo ip_addr.lo
+	acceptor.lo connector.lo connection.lo context.lo poller.lo \
+	ip_addr.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -211,6 +212,7 @@ libabb_la_SOURCES = src/base/buffer.cpp\
 			src/base/thread_pool.cpp\
 			src/net/socket.cpp\
 			src/net/acceptor.cpp\
+			src/net/connector.cpp\
 			src/net/connection.cpp\
 			src/net/context.cpp\
 			src/net/poller.cpp\
@@ -293,6 +295,7 @@ distclean-compile:
 include ./$(DEPDIR)/acceptor.Plo
 include ./$(DEPDIR)/buffer.Plo
 include ./$(DEPDIR)/connection.Plo
+include ./$(DEPDIR)/connector.Plo
 include ./$(DEPDIR)/context.Plo
 include ./$(DEPDIR)/ip_addr.Plo
 include ./$(DEPDIR)/log.Plo
@@ -355,6 +358,13 @@ acceptor.lo: src/net/acceptor.cpp
 #	source='src/net/acceptor.cpp' object='acceptor.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o acceptor.lo `test -f 'src/net/acceptor.cpp' || echo '$(srcdir)/'`src/net/acceptor.cpp
+
+connector.lo: src/net/connector.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connector.lo -MD -MP -MF $(DEPDIR)/connector.Tpo -c -o connector.lo `test -f 'src/net/connector.cpp' || echo '$(srcdir)/'`src/net/connector.cpp
+	mv -f $(DEPDIR)/connector.Tpo $(DEPDIR)/connector.Plo
+#	source='src/net/connector.cpp' object='connector.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connector.lo `test -f 'src/net/connector.cpp' || echo '$(srcdir)/'`src/net/connector.cpp
 
 connection.lo: src/net/connection.cpp
 	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connection.lo -MD -MP -MF $(DEPDIR)/connection.Tpo -c -o connection.lo `test -f 'src/net/connection.cpp' || echo '$(srcdir)/'`src/net/connection.cpp

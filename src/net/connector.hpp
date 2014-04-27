@@ -18,7 +18,7 @@ public:
 	bool Connect(const IPAddr& addr);
 	void Reset();
 	void SetEventCallback(IEvent* ev){lis_=ev;}
-	virtual void PollerEvent_OnRead(){}
+	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:
 	int fd_;
