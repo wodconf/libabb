@@ -3,20 +3,16 @@
 
 #include "abb/net/ip_addr.hpp"
 #include <memory>
-
+using namespace abb::net;
 bool IPAddr::SetV4(const char *addr, uint16_t port){
 	int res = 1;
 
 	if (addr) {
 		res = inet_pton(AF_INET, addr, &this->sa.v4.sin_addr);
 	}
-	/* the memset above zeroes out the struct, which is the same
-	 * bit pattern as the any address
-	  else {
-	    sa.v4.sin_addr.s_addr = INADDR_ANY;
-	  }
-	 */
-
+	else {
+		sa.v4.sin_addr.s_addr = INADDR_ANY;
+	}
 	if (res > 0) {
 		this->family = AF_INET;
 		this->sa.v4.sin_family = AF_INET;
@@ -109,22 +105,22 @@ bool IPAddr::SetFromAddrInfo(struct addrinfo* ai){
 
 bool IPAddr::SetFromHostent(struct hostent *ent)
 {
-  this->family = ent->h_addrtype;
+	this->family = ent->h_addrtype;
 
-  switch (this->family) {
-    case AF_INET6:
-      this->sa.v6.sin6_family = this->family;
-      memcpy(&this->sa.v6.sin6_addr, ent->h_addr_list[0],
-          sizeof(this->sa.v6.sin6_addr));
-      return true;
+	switch (this->family) {
+	case AF_INET6:
+		this->sa.v6.sin6_family = this->family;
+		memcpy(&this->sa.v6.sin6_addr, ent->h_addr_list[0],
+				sizeof(this->sa.v6.sin6_addr));
+		return true;
 
-    case AF_INET:
-      this->sa.v4.sin_family = this->family;
-      memcpy(&this->sa.v4.sin_addr, ent->h_addr_list[0],
-          sizeof(this->sa.v4.sin_addr));
-      return true;
+	case AF_INET:
+		this->sa.v4.sin_family = this->family;
+		memcpy(&this->sa.v4.sin_addr, ent->h_addr_list[0],
+				sizeof(this->sa.v4.sin_addr));
+		return true;
 
-    default:
-      return false;
-  }
+	default:
+		return false;
+	}
 }

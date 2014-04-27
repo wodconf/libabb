@@ -1,9 +1,3 @@
-/*
- * addr.hpp
- *
- *  Created on: 2014��4��25��
- *      Author: goalworld
- */
 
 #ifndef ADDR_HPP_
 #define ADDR_HPP_
@@ -17,9 +11,6 @@
 #include <netdb.h>
 namespace abb{
 namespace net{
-
-}
-}
 class IPAddr {
 public:
 	 inline unsigned int Length() const{
@@ -48,6 +39,9 @@ public:
     struct sockaddr_in6 v6;
   } sa;
 };
+}
+}
+
 
 
 #endif /* ADDR_HPP_ */

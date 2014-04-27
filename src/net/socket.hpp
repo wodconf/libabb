@@ -16,6 +16,7 @@ public:
 	static void SetSndBufSize(int fd,int size);
 	static void SetRuseAddr(int fd,bool b);
 	static void SetKeepAlive(int fd,bool b);
+	static bool GetSockError(int fd,int*err);
 };
 
 } /* namespace net */

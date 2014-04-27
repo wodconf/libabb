@@ -19,7 +19,7 @@ public:
 	};
 	Acceptor();
 	~Acceptor();
-	void SetListener(IEvent* lis){
+	void SetEventCallback(IEvent* lis){
 		lis_ = lis;
 	}
 	bool Bind(const IPAddr& addr);

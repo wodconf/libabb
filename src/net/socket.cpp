@@ -100,5 +100,9 @@ void Socket::SetRcvBufSize(int fd,int size){
 void Socket::SetSndBufSize(int fd,int size){
 	setsockopt( fd, SOL_SOCKET, SO_SNDBUF, (const char*)&size, sizeof(int));
 }
+bool GetSockError(int fd,int*err){
+	unsigned size = sizeof(int);
+	return getsockopt(fd,SOL_SOCKET,SO_ERROR,(void*)err,&size) == 0;
+}
 } /* namespace translate */
 } /* namespace adcloud */
