@@ -3,7 +3,7 @@
 #define CONTEXT_HPP_
 #include <pthread.h>
 #include "abb/base/thread_pool.hpp"
-#include "io_thread.hpp"
+#include "loop.hpp"
 namespace abb {
 namespace net {
 
@@ -23,8 +23,9 @@ public:
 	Poller& GetFreePoller();
 private:
 	int num_io_thread;
-	IOThread* threads;
-	bool brund;
+	pthread_t* threads;
+	Loop* loops_;
+	Poller poller;
 	base::ThreadPool pool;
 };
 extern Context* ctx;
