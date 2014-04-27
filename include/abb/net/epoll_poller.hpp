@@ -16,8 +16,8 @@ enum{
 class Poller {
 public:
 	struct Entry {
-		Entry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(false){}
-		Entry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(false){}
+		Entry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(true){}
+		Entry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(true){}
 		~Entry(){}
 		void Emitter(int revent){
 			if(event_&revent&POLLER_READ){

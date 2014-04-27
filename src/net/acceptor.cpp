@@ -1,20 +1,21 @@
 
-
+#include "abb/base/log.hpp"
 #include "abb/net/acceptor.hpp"
 #include "context.hpp"
 #include <unistd.h>
 #include "socket.hpp"
 #include "abb/net/connection.hpp"
+#include <errno.h>
 namespace abb {
 namespace net {
 
 Acceptor::Acceptor()
 :lis_(NULL),
-fd_(-1),
-dispatch_(ctx->GetThreadPool()),
-poller_(ctx->GetFreePoller()),
-entry_(this),
-enable_(false)
+ fd_(-1),
+ dispatch_(ctx->GetThreadPool()),
+ poller_(ctx->GetFreePoller()),
+ entry_(this),
+ enable_(false)
 {
 
 }
@@ -24,13 +25,17 @@ Acceptor::~Acceptor() {
 	}
 }
 bool Acceptor::Bind(const IPAddr& addr){
-	int fd_ = socket(addr.family,SOCK_STREAM,0);
+	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
+		int err = errno;
+		LOG(INFO)<< errno << strerror(errno);
 		return false;
 	}
 	Socket::SetRuseAddr(fd_,true);
 	Socket::SetNoBlock(fd_,true);
 	if( bind(fd_,&addr.sa.sa,addr.Length()) != 0){
+		int err = errno;
+		LOG(INFO)<< errno << strerror(errno);
 		close(fd_);
 		return false;
 	}
@@ -42,9 +47,17 @@ void Acceptor::SetEnable(bool benable){
 	if(this->enable_ == benable){
 		return;
 	}
+	if(fd_ < 0){
+		return ;
+	}
 	enable_ = benable;
+	LOG(INFO)<< enable_ << fd_;
 	if(enable_){
-		listen(fd_,10);
+		if( 0 > listen(fd_,10) ){
+			int err = errno;
+			LOG(INFO)<< errno << strerror(errno);
+			return;
+		}
 		this->poller_.AddRead(&this->entry_);
 	}else{
 		this->poller_.DelRead(&this->entry_);

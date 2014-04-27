@@ -1,11 +1,11 @@
 
 
 #include "context.hpp"
-
+#include "abb/base/log.hpp"
 namespace abb {
 namespace net {
-extern Context* ctx = NULL;
-Context::Context():num_io_thread(1),threads(NULL),loops_(NULL),cur_(0) {
+Context* ctx = NULL;
+Context::Context():num_io_thread(1),threads(NULL),loops_(NULL),cur_(0),brun(false) {
 
 }
 Context::~Context() {
@@ -17,17 +17,22 @@ Poller& Context::GetFreePoller(){
 }
 static void* ThreadMain(void* arg){
 	Loop* lp = (Loop*)(arg);
-	lp->loop();
+	lp->Start();
 	return NULL;
 }
-void Context::Run(){
+void Context::Init(){
 	if(threads)return;
 	threads = new pthread_t[this->num_io_thread];
 	loops_ = new Loop[this->num_io_thread+1];
+}
+void Context::Run(){
+	if(!threads || brun)return;
+	LOG(INFO)<<"RUN";
+	brun = true;
 	for(int i=0;i<this->num_io_thread;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
 	}
-	loops_[this->num_io_thread].loop();
+	loops_[this->num_io_thread].Start();
 	this->pool.Start();
 }
 void Context::WaitAndStop(){

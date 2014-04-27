@@ -8,7 +8,7 @@ class Loop {
 public:
 	Loop();
 	virtual ~Loop();
-	void loop();
+	void Start();
 	void Stop(){
 		stop_ = true;
 	}

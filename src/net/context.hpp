@@ -18,6 +18,7 @@ public:
 	void SetNumDispatchThread(int num){
 		this->pool.SetNumThread(num);
 	}
+	void Init();
 	void Run();
 	void WaitAndStop();
 	base::ThreadPool& GetThreadPool(){
@@ -31,6 +32,7 @@ private:
 	Poller poller;
 	base::ThreadPool pool;
 	int cur_;
+	bool brun;
 };
 extern Context* ctx;
 } /* namespace translate */

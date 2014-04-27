@@ -19,12 +19,13 @@ namespace internal{
 			struct tm *p;
 			t = time(NULL);
 			p = localtime(&t);
-			if(!file){
+			/*if(!file){
 				file = fopen(".\\loger.txt","w");
 				if(!file){
 					file = stdout;
 				}
-			}
+			}*/
+			file = stdout;
 			sprintf(date_str, "%d-%02d-%02d %02d:%02d:%02d", p->tm_year + 1900, p->tm_mon+1, p->tm_mday , p->tm_hour, p->tm_min, p->tm_sec);
 			fprintf(file, "[wul %s %s %s:%d] %s\r\n",date_str, level_names[level], filename, line, message.c_str());
 			fflush(file);  // Needed on MSVC.
