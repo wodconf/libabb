@@ -10,10 +10,11 @@ namespace abb{
 namespace net{
 class Connection;
 class Loop;
+class Context;
 class Connector:public IPollerEvent,private base::RefObject{
 public:
-	static Connector* New(){
-		return new Connector();
+	static Connector* Create(Context* ctx){
+		return new Connector(ctx);
 	}
 public:
 	class IEvent{
@@ -28,9 +29,9 @@ public:
 	void SetEventCallback(IEvent* ev){lis_=ev;}
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
-	void Delete();
+	void Destroy();
 private:
-	Connector();
+	Connector(Context* ctx);
 	virtual ~Connector();
 	static void StaticDelete(void*arg){
 		Connector* c = (Connector*)arg;
@@ -52,6 +53,7 @@ private:
 	IPAddr addr_;
 	Poller::Entry entry_;
 	Loop& loop_;
+	Context* ctx_;
 };
 }
 }

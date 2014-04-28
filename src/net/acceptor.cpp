@@ -10,14 +10,14 @@
 namespace abb {
 namespace net {
 
-Acceptor::Acceptor()
+Acceptor::Acceptor(Context* ctx)
 :lis_(NULL),
  fd_(-1),
- dispatch_(ctx->GetThreadPool()),
  loop_(ctx->GetFreeLoop()),
  entry_(this),
  enable_(false),
- bfreed_(false)
+ bfreed_(false),
+ctx_(ctx)
 {
 
 }
@@ -26,7 +26,7 @@ Acceptor::~Acceptor() {
 		close(fd_);
 	}
 }
-void Acceptor::Delete(){
+void Acceptor::Destroy(){
 	if(bfreed_) return;
 	bfreed_ = true;
 	enable_ = false;
@@ -80,7 +80,7 @@ void Acceptor::PollerEvent_OnRead(){
 	if(fd < 0){
 		return;
 	}
-	Connection* conn = Connection::New(fd,addr_,addr);
+	Connection* conn = Connection::Create(ctx_,fd,addr_,addr);
 	this->Dispatch(conn);
 }
 void Acceptor::DispatchRunner::Execute(){
@@ -92,7 +92,7 @@ void Acceptor::DispatchRunner::Execute(){
 void Acceptor::Dispatch(Connection* conn){
 	this->Ref();
 	DispatchRunner* runer = new DispatchRunner(this,conn);
-	this->dispatch_.Execute(runer);
+	ctx_->GetThreadPool().Execute(runer);
 }
 } /* namespace translate */
 } /* namespace adcloud */

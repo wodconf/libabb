@@ -16,13 +16,14 @@
 namespace abb {
 namespace net {
 class Loop;
+class Context;
 class Connection :public IPollerEvent,base::RefObject{
 public:
-	static Connection* New(int fd,const IPAddr& local,const IPAddr& peer){
-		return new Connection(fd,local,peer);
+	static Connection* Create(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer){
+		return new Connection(ctx,fd,local,peer);
 	}
 private:
-	Connection(int fd,const IPAddr& local,const IPAddr& peer);
+	Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer);
 	virtual ~Connection();
 public:
 	enum{
@@ -43,7 +44,7 @@ public:
 		return shutdown(this->fd_,how);
 	}
 	void SetEnable(bool enable);
-	void Delete();
+	void Destroy();
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:
@@ -61,13 +62,7 @@ private:
 	}
 	int Reader(void*buf,int size);
 	int Writer(void*buf,int size);
-	void Dispatch(){
-		if(is_exe_){
-			is_exe_ = true;
-			this->Ref();
-			this->dispatch_.Execute(&dis);
-		}
-	}
+	void Dispatch();
 private:
 	struct EventDispatch:public base::ThreadPool::Runer{
 		int ref;
@@ -85,7 +80,7 @@ private:
 	base::Buffer rd_buf_;
 	base::Mutex wr_lock_;
 	base::Buffer wr_buf_;
-	base::ThreadPool& dispatch_;
+	Context* ctx_;
 	Loop& loop_;
 	Poller::Entry entry_;
 	bool enable_;

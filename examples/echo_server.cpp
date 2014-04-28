@@ -11,13 +11,13 @@ public:
 	}
 };
 int main(){
-	abb::Init();
+	abb::net::Context* ctx = abb::NewContext();
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
-	abb::net::Acceptor* ac = abb::net::Acceptor::New();
+	abb::net::Acceptor* ac = abb::net::Acceptor::Create(ctx);
 	EventCb ev;
 	ac->SetEventCallback(&ev);
 	if( !ac->Bind(addr) ){
@@ -26,5 +26,5 @@ int main(){
 	}
 
 	ac->SetEnable(true);
-	abb::Run();
+	abb::RunContext(ctx,true);
 }

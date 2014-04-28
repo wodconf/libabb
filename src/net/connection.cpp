@@ -8,26 +8,26 @@
 namespace abb {
 namespace net {
 
-Connection::Connection(int fd,const IPAddr& local,const IPAddr& peer)
+Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer)
 :loop_(ctx->GetFreeLoop()),
-dispatch_(ctx->GetThreadPool()),
-local_addr_(local),
-peer_addr_(peer),
-ev_(NULL),
-err_(0),
-enable_(false),
-em_ev_(0),
-is_exe_(false),
-entry_(fd,this),
-fd_(fd),
-bfreed_(false)
+ local_addr_(local),
+ peer_addr_(peer),
+ ev_(NULL),
+ err_(0),
+ enable_(false),
+ em_ev_(0),
+ is_exe_(false),
+ entry_(fd,this),
+ fd_(fd),
+ bfreed_(false),
+ ctx_(ctx)
 {
 }
 
 Connection::~Connection() {
 	close(fd_);
 }
-void Connection::Delete(){
+void Connection::Destroy(){
 	if(bfreed_) return;
 	bfreed_ = true;
 	enable_ = false;
@@ -91,16 +91,16 @@ void Connection::PollerEvent_OnRead(){
 	}
 	if(!this->enable_) return;
 	rd_lock_.Lock();
-		this->rd_buf_.WriteFromeReader(StaticReader,this);
-		if(this->rd_buf_.Size() > 0){
-			rd_lock_.UnLock();
-			em_ev_ |= EVENT_READ;
-			this->Dispatch();
-		}
-		if(this->err_){
-			em_ev_ |= EVENT_ERROR;
-			this->Dispatch();
-		}
+	this->rd_buf_.WriteFromeReader(StaticReader,this);
+	if(this->rd_buf_.Size() > 0){
+		rd_lock_.UnLock();
+		em_ev_ |= EVENT_READ;
+		this->Dispatch();
+	}
+	if(this->err_){
+		em_ev_ |= EVENT_ERROR;
+		this->Dispatch();
+	}
 }
 void Connection::PollerEvent_OnWrite(){
 	if(this->err_){
@@ -111,19 +111,26 @@ void Connection::PollerEvent_OnWrite(){
 	}
 	if(!this->enable_) return;	
 	wr_lock_.Lock();
-		if(this->wr_buf_.Size() > 0){
-			this->wr_buf_.ReadToWriter(StaticWriter,this);
-			if(this->wr_buf_.Size() == 0){
-				em_ev_ |= EVENT_DRAN;
-				wr_lock_.UnLock();
-				this->Dispatch();
-				loop_.GetPoller().DelWrite(&this->entry_);
-			}
+	if(this->wr_buf_.Size() > 0){
+		this->wr_buf_.ReadToWriter(StaticWriter,this);
+		if(this->wr_buf_.Size() == 0){
+			em_ev_ |= EVENT_DRAN;
 			wr_lock_.UnLock();
-		}else{
-			wr_lock_.UnLock();
+			this->Dispatch();
 			loop_.GetPoller().DelWrite(&this->entry_);
 		}
+		wr_lock_.UnLock();
+	}else{
+		wr_lock_.UnLock();
+		loop_.GetPoller().DelWrite(&this->entry_);
+	}
+}
+void Connection::Dispatch(){
+	if(is_exe_){
+		is_exe_ = true;
+		this->Ref();
+		this->ctx_->GetThreadPool().Execute(&dis);
+	}
 }
 void Connection::EventDispatch::Execute(){
 	if(self->em_ev_&EVENT_READ){

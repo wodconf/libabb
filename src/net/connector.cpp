@@ -8,13 +8,13 @@
 using namespace abb::net;
 
 
-Connector::Connector()
+Connector::Connector(Context* ctx)
 :fd_(-1),
 lis_(NULL),
  dispatch_(ctx->GetThreadPool()),
 loop_(ctx->GetFreeLoop()),
 entry_(this),
-bfree(false){
+bfree(false),ctx_(ctx){
 
 }
 Connector::~Connector(){
@@ -42,7 +42,7 @@ bool Connector::Connect(const IPAddr& addr){
 	this->loop_.GetPoller().AddWrite(&this->entry_);
 	return true;
 }
-void Connector::Delete(){
+void Connector::Destroy(){
 	if(bfree)return;
 	bfree = true;
 	this->Reset();
@@ -65,7 +65,7 @@ void Connector::PollerEvent_OnWrite(){
 	int err;
 	if( Socket::GetSockError(this->fd_,&err) ){
 		if(err == 0){
-			r->conn = Connection::New(fd_,this->addr_,this->addr_);
+			r->conn = Connection::Create(ctx_,fd_,this->addr_,this->addr_);
 		}
 	}else{
 		err = errno;

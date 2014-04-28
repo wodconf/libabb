@@ -32,7 +32,7 @@ private:
 	Poller poller_;
 	Poller::Entry entry_;
 	bool stop_;
-	int efd_;
+	//int efd_;
 	base::Mutex mtx_;
 	Singler sigler_;
 };

@@ -23,20 +23,19 @@ public:
 	}
 };
 int main(){
-	LOG(INFO) << "init";
-	abb::Init();
+	abb::net::Context* ctx = abb::NewContext();
 	LOG(INFO) << "c";
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4("127.0.0.1",9922) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
-	abb::net::Connector* ac = abb::net::Connector::New();
+	abb::net::Connector* ac = abb::net::Connector::Create(ctx);
 	EventCb ev;
 	ac->SetEventCallback(&ev);
 	if( !ac->Connect(addr) ){
 		LOG(INFO) << "Connect fail";
 		return -1;
 	}
-	abb::Run();
+	abb::RunContext(ctx,true);
 }

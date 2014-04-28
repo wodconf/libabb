@@ -25,7 +25,7 @@ void Context::Init(){
 	threads = new pthread_t[this->num_io_thread];
 	loops_ = new Loop[this->num_io_thread+1];
 }
-void Context::Run(){
+void Context::Run(bool run_cur_thread){
 	if(!threads || brun)return;
 	LOG(INFO)<<"RUN";
 	brun = true;
@@ -33,7 +33,8 @@ void Context::Run(){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
 	}
 	this->pool.Start();
-	loops_[this->num_io_thread].Start();
+	if(run_cur_thread)
+		loops_[this->num_io_thread].Start();
 
 }
 void Context::WaitAndStop(){

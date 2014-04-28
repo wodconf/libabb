@@ -19,7 +19,7 @@ public:
 		this->pool.SetNumThread(num);
 	}
 	void Init();
-	void Run();
+	void Run(bool run_cur_thread);
 	void WaitAndStop();
 	base::ThreadPool& GetThreadPool(){
 		return pool;
