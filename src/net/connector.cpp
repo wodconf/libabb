@@ -50,14 +50,23 @@ void Connector::PollerEvent_OnRead(){}
 void Connector::PollerEvent_OnWrite(){
 	if( fd_ == -1) return;
 	this->loop_.GetPoller().DelWrite(&this->entry_);
+	DispatchRunner* r = new DispatchRunner();
 	int err;
 	if( Socket::GetSockError(this->fd_,&err) ){
 		if(err == 0){
-			this->lis_->Connector_Open(Connection::New(fd_,this->addr_,this->addr_));
-			return;
+			r->conn = Connection::New(fd_,this->addr_,this->addr_);
 		}
 	}else{
 		err = errno;
 	}
-	this->lis_->Connector_OpenFail(err);
+	r->err = err;
+	this->dispatch_.Execute(r);
+}
+void Connector::DispatchRunner::Execute(){
+	if(conn){
+		self->lis_->Connector_Open(Connection::New(fd_,self->addr_,self->addr_));
+	}else{
+		this->lis_->Connector_OpenFail(err);
+	}
+	delete this;
 }

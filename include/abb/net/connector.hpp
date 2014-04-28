@@ -41,8 +41,10 @@ private:
 		virtual ~DispatchRunner(){}
 		virtual void Execute();
 		Connection* conn;
-		Acceptor* ac;
+		Connector* self;
+		int err;
 	};
+	friend DispatchRunner;
 	bool bfree;
 	base::ThreadPool& dispatch_;
 	int fd_;
