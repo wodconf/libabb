@@ -4,7 +4,7 @@
 using namespace abb::net;
 Loop::Loop():stop_(false),entry_(this) {
 	//efd_ = eventfd(0, 0);
-	entry_.SetFd(sigler_->GetReadFd());
+	entry_.SetFd(sigler_.GetReadFd());
 	poller_.AddRead(&entry_);
 }
 
