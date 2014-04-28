@@ -27,7 +27,7 @@ bfreed_(false)
 Connection::~Connection() {
 	close(fd_);
 }
-Connection::Delete(){
+void Connection::Delete(){
 	if(bfreed_) return;
 	bfreed_ = true;
 	enable_ = false;
