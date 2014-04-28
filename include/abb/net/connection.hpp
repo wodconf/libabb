@@ -43,7 +43,7 @@ public:
 		return shutdown(this->fd_,how);
 	}
 	void SetEnable(bool enable);
-	void Free();
+	void Delete();
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:
