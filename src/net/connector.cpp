@@ -7,7 +7,13 @@
 using namespace abb::net;
 
 
-Connector::Connector():fd_(-1),lis_(NULL),loop_(ctx->GetFreeLoop()),entry_(this),bfree(false){
+Connector::Connector()
+:fd_(-1),
+lis_(NULL),
+ dispatch_(ctx->GetThreadPool()),
+loop_(ctx->GetFreeLoop()),
+entry_(this),
+bfree(false){
 
 }
 Connector::~Connector(){
