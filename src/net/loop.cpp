@@ -1,13 +1,15 @@
 
 #include "loop.hpp"
+#include <sys/eventfd.h>
 using namespace abb::net;
 Loop::Loop():stop_(false),entry_(this) {
 	efd_ = eventfd(0, 0);
 	entry_.SetFd(efd_);
-	poller_.AdRead(&entry_);
+	poller_.AddRead(&entry_);
 }
 
 Loop::~Loop() {
+	poller_.DelRead(&entry_);
 	close(efd_);
 }
 void Loop::Start(){
