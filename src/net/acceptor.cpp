@@ -25,7 +25,7 @@ Acceptor::~Acceptor() {
 		close(fd_);
 	}
 }
-void Acceptor::~Acceptor(){
+void Acceptor::Delete(){
 	if(bfreed_) return;
 	bfreed_ = true;
 	enable_ = false;
