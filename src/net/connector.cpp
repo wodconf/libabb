@@ -51,6 +51,8 @@ void Connector::PollerEvent_OnWrite(){
 	if( fd_ == -1) return;
 	this->loop_.GetPoller().DelWrite(&this->entry_);
 	DispatchRunner* r = new DispatchRunner();
+	r->self = this;
+	this->Ref();
 	int err;
 	if( Socket::GetSockError(this->fd_,&err) ){
 		if(err == 0){
@@ -66,7 +68,8 @@ void Connector::DispatchRunner::Execute(){
 	if(conn){
 		self->lis_->Connector_Open(Connection::New(fd_,self->addr_,self->addr_));
 	}else{
-		this->lis_->Connector_OpenFail(err);
+		self->lis_->Connector_OpenFail(err);
 	}
+	self->UnRef();
 	delete this;
 }
