@@ -7,7 +7,7 @@
 using namespace abb::net;
 
 
-Connector::Connector():fd_(-1),lis_(NULL),poller_(ctx->GetFreePoller()),entry_(this){
+Connector::Connector():fd_(-1),lis_(NULL),poller_(ctx->GetFreeLoop().GetPoller()),entry_(this){
 
 }
 Connector::~Connector(){

@@ -30,7 +30,7 @@ void Acceptor::Delete(){
 	if(bfreed_) return;
 	bfreed_ = true;
 	enable_ = false;
-	this->loop_.GetPoller.DelRead(&this->entry_);
+	this->loop_.GetPoller().DelRead(&this->entry_);
 	this->loop_.RunInLoop(StaticDelete,this);
 }
 bool Acceptor::Bind(const IPAddr& addr){
@@ -67,9 +67,9 @@ void Acceptor::SetEnable(bool benable){
 			LOG(INFO)<< "listen:" << errno << strerror(errno);
 			return;
 		}
-		this->loop_.GetPoller.AddRead(&this->entry_);
+		this->loop_.GetPoller().AddRead(&this->entry_);
 	}else{
-		this->loop_.GetPoller.DelRead(&this->entry_);
+		this->loop_.GetPoller().DelRead(&this->entry_);
 	}
 }
 void Acceptor::PollerEvent_OnRead(){
