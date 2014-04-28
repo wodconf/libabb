@@ -4,6 +4,7 @@
 #include "socket.hpp"
 #include "abb/base/log.hpp"
 #include <errno.h>
+#include "loop.hpp"
 using namespace abb::net;
 
 
