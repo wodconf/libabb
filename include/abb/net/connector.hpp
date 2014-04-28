@@ -32,7 +32,7 @@ public:
 private:
 	Connector();
 	virtual ~Connector();
-	static StaticDelete(void*arg){
+	static void StaticDelete(void*arg){
 		Connector* c = (Connector*)arg;
 		c->UnRef();
 	}
