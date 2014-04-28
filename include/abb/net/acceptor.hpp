@@ -9,6 +9,7 @@
 #include "poller.hpp"
 namespace abb {
 namespace net {
+class Loop;
 class Connection;
 class Acceptor :public IPollerEvent,private base::RefObject{
 public:
@@ -46,7 +47,7 @@ private:
 		Acceptor* ac;
 	};
 	base::ThreadPool& dispatch_;
-	Poller& poller_;
+	Loop& loop_;
 	Poller::Entry entry_;
 	IEvent* lis_;
 	bool enable_;

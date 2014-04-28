@@ -6,6 +6,7 @@
 #include "socket.hpp"
 #include "abb/net/connection.hpp"
 #include <errno.h>
+#include "loop.hpp"
 namespace abb {
 namespace net {
 
@@ -13,7 +14,7 @@ Acceptor::Acceptor()
 :lis_(NULL),
  fd_(-1),
  dispatch_(ctx->GetThreadPool()),
- poller_(ctx->GetFreePoller()),
+ loop_(ctx->GetFreeLoop()),
  entry_(this),
  enable_(false),
  bfreed_(false)
@@ -29,7 +30,7 @@ void Acceptor::Delete(){
 	if(bfreed_) return;
 	bfreed_ = true;
 	enable_ = false;
-	this->poller_.DelRead(&this->entry_);
+	this->loop_.GetPoller.DelRead(&this->entry_);
 	this->loop_.RunInLoop(StaticDelete,this);
 }
 bool Acceptor::Bind(const IPAddr& addr){
@@ -66,9 +67,9 @@ void Acceptor::SetEnable(bool benable){
 			LOG(INFO)<< "listen:" << errno << strerror(errno);
 			return;
 		}
-		this->poller_.AddRead(&this->entry_);
+		this->loop_.GetPoller.AddRead(&this->entry_);
 	}else{
-		this->poller_.DelRead(&this->entry_);
+		this->loop_.GetPoller.DelRead(&this->entry_);
 	}
 }
 void Acceptor::PollerEvent_OnRead(){

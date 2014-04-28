@@ -24,7 +24,7 @@ public:
 	base::ThreadPool& GetThreadPool(){
 		return pool;
 	}
-	Poller& GetFreePoller();
+	Loop& GetFreeLoop();
 private:
 	int num_io_thread;
 	pthread_t* threads;

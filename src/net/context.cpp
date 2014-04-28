@@ -13,7 +13,7 @@ Context::~Context() {
 }
 Poller& Context::GetFreePoller(){
 	cur_ = (cur_+1)%(this->num_io_thread+1);
-	return loops_[cur_].GetPoller();
+	return loops_[cur_];
 }
 static void* ThreadMain(void* arg){
 	Loop* lp = (Loop*)(arg);
