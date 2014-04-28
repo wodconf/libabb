@@ -11,7 +11,7 @@ Context::Context():num_io_thread(1),threads(NULL),loops_(NULL),cur_(0),brun(fals
 Context::~Context() {
 	this->WaitAndStop();
 }
-Poller& Context::GetFreeLoop(){
+Loop& Context::GetFreeLoop(){
 	cur_ = (cur_+1)%(this->num_io_thread+1);
 	return loops_[cur_];
 }
