@@ -74,7 +74,7 @@ void Connector::PollerEvent_OnWrite(){
 }
 void Connector::DispatchRunner::Execute(){
 	if(conn){
-		self->lis_->Connector_Open(Connection::New(fd_,self->addr_,self->addr_));
+		self->lis_->Connector_Open(conn);
 	}else{
 		self->lis_->Connector_OpenFail(err);
 	}
