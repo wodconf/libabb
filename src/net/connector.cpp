@@ -7,11 +7,10 @@
 using namespace abb::net;
 
 
-Connector::Connector():fd_(-1),lis_(NULL),poller_(ctx->GetFreeLoop().GetPoller()),entry_(this){
+Connector::Connector():fd_(-1),lis_(NULL),loop_(ctx->GetFreeLoop()),entry_(this),bfree(false){
 
 }
 Connector::~Connector(){
-	this->Reset();
 }
 bool Connector::Connect(const IPAddr& addr){
 	int fd_ = socket(addr.family,SOCK_STREAM,0);
@@ -31,19 +30,26 @@ bool Connector::Connect(const IPAddr& addr){
 	}
 	addr_ = addr;
 	this->entry_.SetFd(fd_);
-	this->poller_.AddWrite(&this->entry_);
+	this->loop_.GetPoller().AddWrite(&this->entry_);
 	return true;
+}
+void Connector::Delete(){
+	if(bfree)return;
+	bfree = true;
+	this->Reset();
+	this->loop_.RunInLoop(StaticDelete,this);
 }
 void Connector::Reset(){
 	if(this->fd_){
-		this->poller_.DelWrite(&this->entry_);
+		this->loop_.GetPoller().DelWrite(&this->entry_);
 		close(fd_);
 		fd_ = -1;
 	}
 }
 void Connector::PollerEvent_OnRead(){}
 void Connector::PollerEvent_OnWrite(){
-	this->poller_.DelWrite(&this->entry_);
+	if( fd_ == -1) return;
+	this->loop_.GetPoller().DelWrite(&this->entry_);
 	int err;
 	if( Socket::GetSockError(this->fd_,&err) ){
 		if(err == 0){
