@@ -28,10 +28,11 @@ bool Connector::Connect(const IPAddr& addr){
 	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
 		if((err == EINPROGRESS) || (err == EAGAIN)){
-			return 0;
+			
 		}else{
 			LOG(INFO)<< "connect:" << errno << strerror(errno);
-			return -1;
+			close(fd_);
+			return false;
 		}
 	}
 	addr_ = addr;
