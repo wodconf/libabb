@@ -9,8 +9,7 @@
 #include "poller.hpp"
 namespace abb {
 namespace net {
-class Loop;
-class Connection;
+
 class Acceptor :public IPollerEvent,private base::RefObject{
 public:
 	static Acceptor* New(){
