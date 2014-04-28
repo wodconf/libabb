@@ -55,7 +55,7 @@ private:
 		Connection* con = (Connection*)arg;
 		return con->Writer(buf,size);
 	}
-	static int StaticFree(void*arg){
+	static void StaticFree(void*arg){
 		Connection* con = (Connection*)arg;
 		con->UnRef();
 	}
