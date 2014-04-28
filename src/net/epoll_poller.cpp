@@ -25,8 +25,8 @@ void Poller::AddRead(Entry* arg){
 }
 void Poller::DelRead(Entry* arg){
 	if(arg->event_&POLLER_READ){
-		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_READ),arg,arg->badd_) ){
-			arg->event_|=~POLLER_READ;
+		if( this->SetEvent(arg->fd_,arg->event_&(~POLLER_READ),arg,arg->badd_) ){
+			arg->event_&=~POLLER_READ;
 		}
 	}
 }
@@ -40,8 +40,8 @@ void Poller::AddWrite(Entry* arg){
 }
 void Poller::DelWrite(Entry* arg){
 	if(arg->event_&POLLER_WRITE){
-		if( this->SetEvent(arg->fd_,arg->event_|(~POLLER_WRITE),arg,arg->badd_) ){
-			arg->event_|=~POLLER_WRITE;
+		if( this->SetEvent(arg->fd_,arg->event_&(~POLLER_WRITE),arg,arg->badd_) ){
+			arg->event_&=~POLLER_WRITE;
 		}
 	}
 }
@@ -50,13 +50,13 @@ void Poller::AddReadWrite(Entry* arg){
 		return;
 	}
 	if( this->SetEvent(arg->fd_,POLLER_READ|POLLER_WRITE,arg,arg->badd_) ){
-		arg->event_&=POLLER_READ;
+		arg->event_=POLLER_READ|POLLER_WRITE;
 	}
 }
 void Poller::DelReadWrite(Entry* arg){
 	if((arg->event_&POLLER_READ)|| (arg->event_&POLLER_WRITE)){
 		if( this->SetEvent(arg->fd_,0,arg,arg->badd_) ){
-			arg->event_&=POLLER_READ;
+			arg->event_ = 0;
 		}
 	}
 }
@@ -89,7 +89,7 @@ void Poller::Poll(int timeout){
 	if(rc <= 0){
 		return;
 	}
-	LOG(INFO) << "epoll_wait" << rc;
+	//LOG(INFO) << "epoll_wait" << rc;
 	int revent;
 	Entry * entry;
 	for(int i =0;i<rc;i++){

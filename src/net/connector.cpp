@@ -18,9 +18,10 @@ bfree(false){
 
 }
 Connector::~Connector(){
+
 }
 bool Connector::Connect(const IPAddr& addr){
-	int fd_ = socket(addr.family,SOCK_STREAM,0);
+	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
 		return false;
 	}

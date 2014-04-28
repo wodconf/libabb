@@ -1,17 +1,17 @@
 
 
 #include "abb/base/thread_pool.hpp"
+
+#include "abb/base/log.hpp"
 namespace abb {
 namespace base {
 
 ThreadPool::ThreadPool():bwait_(false),bstop_(false),num_thread_(1),threads(NULL) {
-	// TODO Auto-generated constructor stub
 	pthread_mutex_init(&mtx_,NULL);
 	pthread_cond_init(&this->cond_,NULL);
 }
 
 ThreadPool::~ThreadPool() {
-	// TODO Auto-generated destructor stub
 	this->Stop();
 	this->Wait();
 	pthread_mutex_destroy(&mtx_);

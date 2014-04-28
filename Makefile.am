@@ -13,14 +13,15 @@ libabb_la_SOURCES=src/base/buffer.cpp\
 			src/net/poller.cpp\
 			src/net/loop.cpp\
 			src/net/ip_addr.cpp\
+			src/net/singler.cpp\
 			src/abb.cpp
 
 libabb_la_LIBADD=-lpthread
 
 bin_PROGRAMS = echo_server
-echo_server_LDADD = libadd.la
+echo_server_LDADD = -labb
 echo_server_SOURCES = examples/echo_server.cpp
 
-bin_PROGRAMS = echo_client
-echo_client_LDADD = libadd.la
+bin_PROGRAMS += echo_client
+echo_client_LDADD = -labb
 echo_client_SOURCES = examples/echo_client.cpp

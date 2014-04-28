@@ -5,14 +5,16 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
-#include <socket.hpp>
+#include "socket.hpp"
+#include "abb/base/log.hpp"
+#include <string.h>
 using namespace abb::net;
 
 Singler::Singler(){
 	int sockfd[2];
 	if(socketpair(AF_LOCAL, SOCK_STREAM, 0, sockfd) == -1){
 		int err = errno;
-		LOG(WARN) << "socketpair" <<　err << strerror(err);
+		LOG(WARN) << "socketpair" <<err << strerror(err);
 	}else{
 		rfd_ = sockfd[0];
 		wfd_ = sockfd[1];
@@ -30,10 +32,10 @@ int Singler::GetReadFd(){
 void Singler::Write(){
 	unsigned char  c = 1;
 	int nwr;
-	Socket::Write(wfd_,&c,sizeof(c),&nwr);
+	Socket::Write(wfd_,&c,sizeof(c),&nwr,NULL);
 }
 void Singler::Read(){
 	unsigned char  c = 1;
 	int nrd;
-	Socket::Read(rfd_,&c,sizeof(c),&nrd);
+	Socket::Read(rfd_,&c,sizeof(c),&nrd,NULL);
 }

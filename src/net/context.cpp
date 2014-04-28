@@ -32,8 +32,9 @@ void Context::Run(){
 	for(int i=0;i<this->num_io_thread;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
 	}
-	loops_[this->num_io_thread].Start();
 	this->pool.Start();
+	loops_[this->num_io_thread].Start();
+
 }
 void Context::WaitAndStop(){
 	if(threads == NULL) return;

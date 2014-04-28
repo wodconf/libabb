@@ -12,14 +12,14 @@ class Connection;
 class Loop;
 class Connector:public IPollerEvent,private base::RefObject{
 public:
-	Connector* New(){
+	static Connector* New(){
 		return new Connector();
 	}
 public:
 	class IEvent{
 	public:
 		virtual ~IEvent(){}
-		virtual void Connector_Open(Connection* conn)=0;
+		virtual void Connector_Open(Connection* )=0;
 		virtual void Connector_OpenFail(int err)=0;
 	};
 	

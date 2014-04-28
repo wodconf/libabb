@@ -15,6 +15,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -33,6 +34,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+bin_PROGRAMS = echo_server$(EXEEXT) echo_client$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
@@ -52,14 +54,22 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(libdir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
 	acceptor.lo connector.lo connection.lo context.lo poller.lo \
-	loop.lo ip_addr.lo abb.lo
+	loop.lo ip_addr.lo singler.lo abb.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
+binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+PROGRAMS = $(bin_PROGRAMS)
+am_echo_client_OBJECTS = echo_client.$(OBJEXT)
+echo_client_OBJECTS = $(am_echo_client_OBJECTS)
+echo_client_DEPENDENCIES =
+am_echo_server_OBJECTS = echo_server.$(OBJEXT)
+echo_server_OBJECTS = $(am_echo_server_OBJECTS)
+echo_server_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -72,8 +82,10 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libabb_la_SOURCES)
-DIST_SOURCES = $(libabb_la_SOURCES)
+SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
+	$(echo_server_SOURCES)
+DIST_SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
+	$(echo_server_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -218,9 +230,14 @@ libabb_la_SOURCES = src/base/buffer.cpp\
 			src/net/poller.cpp\
 			src/net/loop.cpp\
 			src/net/ip_addr.cpp\
+			src/net/singler.cpp\
 			src/abb.cpp
 
 libabb_la_LIBADD = -lpthread
+echo_server_LDADD = -labb
+echo_server_SOURCES = examples/echo_server.cpp
+echo_client_LDADD = -labb
+echo_client_SOURCES = examples/echo_client.cpp
 all: all-am
 
 .SUFFIXES:
@@ -287,6 +304,40 @@ clean-libLTLIBRARIES:
 	done
 libabb.la: $(libabb_la_OBJECTS) $(libabb_la_DEPENDENCIES) 
 	$(CXXLINK) -rpath $(libdir) $(libabb_la_OBJECTS) $(libabb_la_LIBADD) $(LIBS)
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  if test -f $$p \
+	     || test -f $$p1 \
+	  ; then \
+	    f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
+	   echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(binPROGRAMS_INSTALL) '$$p' '$(DESTDIR)$(bindir)/$$f'"; \
+	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(binPROGRAMS_INSTALL) "$$p" "$(DESTDIR)$(bindir)/$$f" || exit 1; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo "$$p" | sed 's,^.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
+	  echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(bindir)/$$f"; \
+	done
+
+clean-binPROGRAMS:
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  echo " rm -f $$p $$f"; \
+	  rm -f $$p $$f ; \
+	done
+echo_client$(EXEEXT): $(echo_client_OBJECTS) $(echo_client_DEPENDENCIES) 
+	@rm -f echo_client$(EXEEXT)
+	$(CXXLINK) $(echo_client_OBJECTS) $(echo_client_LDADD) $(LIBS)
+echo_server$(EXEEXT): $(echo_server_OBJECTS) $(echo_server_DEPENDENCIES) 
+	@rm -f echo_server$(EXEEXT)
+	$(CXXLINK) $(echo_server_OBJECTS) $(echo_server_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -300,10 +351,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/echo_client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/echo_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_addr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poller.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/singler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/socket.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread_pool.Plo@am__quote@
 
@@ -405,12 +459,47 @@ ip_addr.lo: src/net/ip_addr.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ip_addr.lo `test -f 'src/net/ip_addr.cpp' || echo '$(srcdir)/'`src/net/ip_addr.cpp
 
+singler.lo: src/net/singler.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT singler.lo -MD -MP -MF $(DEPDIR)/singler.Tpo -c -o singler.lo `test -f 'src/net/singler.cpp' || echo '$(srcdir)/'`src/net/singler.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/singler.Tpo $(DEPDIR)/singler.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/net/singler.cpp' object='singler.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o singler.lo `test -f 'src/net/singler.cpp' || echo '$(srcdir)/'`src/net/singler.cpp
+
 abb.lo: src/abb.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT abb.lo -MD -MP -MF $(DEPDIR)/abb.Tpo -c -o abb.lo `test -f 'src/abb.cpp' || echo '$(srcdir)/'`src/abb.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/abb.Tpo $(DEPDIR)/abb.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb.cpp' object='abb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o abb.lo `test -f 'src/abb.cpp' || echo '$(srcdir)/'`src/abb.cpp
+
+echo_client.o: examples/echo_client.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT echo_client.o -MD -MP -MF $(DEPDIR)/echo_client.Tpo -c -o echo_client.o `test -f 'examples/echo_client.cpp' || echo '$(srcdir)/'`examples/echo_client.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/echo_client.Tpo $(DEPDIR)/echo_client.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/echo_client.cpp' object='echo_client.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o echo_client.o `test -f 'examples/echo_client.cpp' || echo '$(srcdir)/'`examples/echo_client.cpp
+
+echo_client.obj: examples/echo_client.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT echo_client.obj -MD -MP -MF $(DEPDIR)/echo_client.Tpo -c -o echo_client.obj `if test -f 'examples/echo_client.cpp'; then $(CYGPATH_W) 'examples/echo_client.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/echo_client.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/echo_client.Tpo $(DEPDIR)/echo_client.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/echo_client.cpp' object='echo_client.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o echo_client.obj `if test -f 'examples/echo_client.cpp'; then $(CYGPATH_W) 'examples/echo_client.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/echo_client.cpp'; fi`
+
+echo_server.o: examples/echo_server.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT echo_server.o -MD -MP -MF $(DEPDIR)/echo_server.Tpo -c -o echo_server.o `test -f 'examples/echo_server.cpp' || echo '$(srcdir)/'`examples/echo_server.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/echo_server.Tpo $(DEPDIR)/echo_server.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/echo_server.cpp' object='echo_server.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o echo_server.o `test -f 'examples/echo_server.cpp' || echo '$(srcdir)/'`examples/echo_server.cpp
+
+echo_server.obj: examples/echo_server.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT echo_server.obj -MD -MP -MF $(DEPDIR)/echo_server.Tpo -c -o echo_server.obj `if test -f 'examples/echo_server.cpp'; then $(CYGPATH_W) 'examples/echo_server.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/echo_server.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/echo_server.Tpo $(DEPDIR)/echo_server.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/echo_server.cpp' object='echo_server.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o echo_server.obj `if test -f 'examples/echo_server.cpp'; then $(CYGPATH_W) 'examples/echo_server.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/echo_server.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -602,9 +691,11 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+install-binPROGRAMS: install-libLTLIBRARIES
+
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -633,8 +724,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -661,7 +752,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -703,25 +794,27 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am am--refresh check check-am clean \
-	clean-generic clean-libLTLIBRARIES clean-libtool ctags dist \
-	dist-all dist-bzip2 dist-gzip dist-lzma dist-shar dist-tarZ \
-	dist-zip distcheck distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags \
-	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libLTLIBRARIES install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool ctags dist dist-all dist-bzip2 dist-gzip \
+	dist-lzma dist-shar dist-tarZ dist-zip distcheck distclean \
+	distclean-compile distclean-generic distclean-libtool \
+	distclean-tags distcleancheck distdir distuninstallcheck dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-binPROGRAMS install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am \
+	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-libLTLIBRARIES
+	tags uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

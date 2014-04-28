@@ -84,14 +84,14 @@ void Acceptor::PollerEvent_OnRead(){
 	this->Dispatch(conn);
 }
 void Acceptor::DispatchRunner::Execute(){
+	LOG(INFO)<<"execute";
 	this->ac->lis_->Acceptor_Event(this->ac,this->conn);
 	this->ac->UnRef();
 	delete this;
 }
 void Acceptor::Dispatch(Connection* conn){
 	this->Ref();
-	DispatchRunner* runer = new DispatchRunner();
-	runer->conn = conn;
+	DispatchRunner* runer = new DispatchRunner(this,conn);
 	this->dispatch_.Execute(runer);
 }
 } /* namespace translate */

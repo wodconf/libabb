@@ -1,18 +1,19 @@
 #include <abb/base/log.hpp>
 #include <abb/abb.hpp>
 #include <abb/net/acceptor.hpp>
-
+#include <abb/net/connector.hpp>
+#include <abb/net/connection.hpp>
 class ConnectCB:public abb::net::Connection::IEvent{
-class IEvent{
-	public:
-		virtual void Connection_Event(int ev){
-			LOG(INFO)<< ev;
-		}
-	};
+public:
+	virtual ~ConnectCB(){}
+	virtual void Connection_Event(int ev){
+		LOG(INFO)<< ev;
+	}
+};
 class EventCb:public abb::net::Connector::IEvent{
 public:
 	virtual ~EventCb(){}
-	virtual void Connector_Open(Connection* conn){
+	virtual void Connector_Open(abb::net::Connection* conn){
 		LOG(INFO)<< "Connector_Open";
 		conn->SetEnable(true);
 		conn->SetEventCallBack(new ConnectCB());

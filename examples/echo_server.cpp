@@ -11,9 +11,7 @@ public:
 	}
 };
 int main(){
-	LOG(INFO) << "init";
 	abb::Init();
-	LOG(INFO) << "c";
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";

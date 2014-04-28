@@ -41,6 +41,7 @@ private:
 	void Dispatch(Connection* conn);
 private:
 	struct DispatchRunner:public base::ThreadPool::Runer{
+		DispatchRunner(Acceptor* a,Connection* c):ac(a),conn(c){}
 		virtual ~DispatchRunner(){}
 		virtual void Execute();
 		Connection* conn;
