@@ -10,15 +10,18 @@
 namespace abb {
 namespace net {
 class Connection;
-class Acceptor :public IPollerEvent,base::RefObject{
+class Acceptor :public IPollerEvent,private base::RefObject{
+public:
+	static Acceptor* New(){
+		return new Acceptor();
+	}
 public:
 	class IEvent{
 	public:
 		virtual ~IEvent(){}
 		virtual void Acceptor_Event(Acceptor*,Connection*) = 0;
 	};
-	Acceptor();
-	~Acceptor();
+	
 	void SetEventCallback(IEvent* lis){
 		lis_ = lis;
 	}
@@ -26,7 +29,14 @@ public:
 	void SetEnable(bool benable);
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite(){}
+	void Delete();
 private:
+	static void StaticDelete(void*arg){
+		Acceptor* a = (Acceptor*)arg;
+		a->UnRef();
+	}
+	Acceptor();
+	~Acceptor();
 	void Dispatch(Connection* conn);
 private:
 	struct DispatchRunner:public base::ThreadPool::Runer{
@@ -42,6 +52,7 @@ private:
 	bool enable_;
 	IPAddr addr_;
 	int fd_;
+	bool bfreed_;
 };
 
 }

@@ -14,18 +14,19 @@ int main(){
 	LOG(INFO) << "init";
 	abb::Init();
 	LOG(INFO) << "c";
-	abb::net::Acceptor ac;
-	EventCb ev;
-	ac.SetEventCallback(&ev);
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
-	if( !ac.Bind(addr) ){
+	abb::net::Acceptor* ac = abb::net::Acceptor::New();
+	EventCb ev;
+	ac->SetEventCallback(&ev);
+	if( !ac->Bind(addr) ){
 		LOG(INFO) << "Bind fail";
 		return -1;
 	}
-	ac.SetEnable(true);
+
+	ac->SetEnable(true);
 	abb::Run();
 }

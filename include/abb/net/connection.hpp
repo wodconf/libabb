@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 namespace abb {
 namespace net {
+class Loop;
 class Connection :public IPollerEvent,base::RefObject{
 public:
 	static Connection* New(int fd,const IPAddr& local,const IPAddr& peer){
@@ -42,9 +43,7 @@ public:
 		return shutdown(this->fd_,how);
 	}
 	void SetEnable(bool enable);
-	void Free(){
-		this->UnRef();
-	}
+	void Free();
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:
@@ -55,6 +54,10 @@ private:
 	static int StaticWriter(void*arg,void*buf,int size){
 		Connection* con = (Connection*)arg;
 		return con->Writer(buf,size);
+	}
+	static int StaticFree(void*arg){
+		Connection* con = (Connection*)arg;
+		con->UnRef();
 	}
 	int Reader(void*buf,int size);
 	int Writer(void*buf,int size);
@@ -83,12 +86,13 @@ private:
 	base::Mutex wr_lock_;
 	base::Buffer wr_buf_;
 	base::ThreadPool& dispatch_;
-	Poller& poller_;
+	Loop& loop_;
 	Poller::Entry entry_;
 	bool enable_;
 	int err_;
 	IEvent* ev_;
 	int em_ev_;
+	int bfreed_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 

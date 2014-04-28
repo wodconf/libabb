@@ -15,7 +15,8 @@ Acceptor::Acceptor()
  dispatch_(ctx->GetThreadPool()),
  poller_(ctx->GetFreePoller()),
  entry_(this),
- enable_(false)
+ enable_(false),
+ bfreed_(false)
 {
 
 }
@@ -24,18 +25,25 @@ Acceptor::~Acceptor() {
 		close(fd_);
 	}
 }
+void Acceptor::~Acceptor(){
+	if(bfreed_) return;
+	bfreed_ = true;
+	enable_ = false;
+	this->poller_.DelRead(&this->entry_);
+	this->loop_.RunInLoop(StaticDelete,this);
+}
 bool Acceptor::Bind(const IPAddr& addr){
 	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
 		int err = errno;
-		LOG(INFO)<< errno << strerror(errno);
+		LOG(INFO)<< "socket" << errno << strerror(errno);
 		return false;
 	}
 	Socket::SetRuseAddr(fd_,true);
 	Socket::SetNoBlock(fd_,true);
 	if( bind(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
-		LOG(INFO)<< errno << strerror(errno);
+		LOG(INFO)<< "bind" << errno << strerror(errno);
 		close(fd_);
 		return false;
 	}
@@ -55,7 +63,7 @@ void Acceptor::SetEnable(bool benable){
 	if(enable_){
 		if( 0 > listen(fd_,10) ){
 			int err = errno;
-			LOG(INFO)<< errno << strerror(errno);
+			LOG(INFO)<< "listen:" << errno << strerror(errno);
 			return;
 		}
 		this->poller_.AddRead(&this->entry_);
@@ -64,6 +72,7 @@ void Acceptor::SetEnable(bool benable){
 	}
 }
 void Acceptor::PollerEvent_OnRead(){
+	if(!enable_)return;
 	IPAddr addr;
 	socklen_t alen = sizeof(addr.sa);
 	int fd = accept(this->fd_, &addr.sa.sa, &alen);
