@@ -5,9 +5,10 @@
 #include "abb/net/i_poller_event.hpp"
 #include "abb/base/mutex.hpp"
 #include <queue>
+#include "singler.hpp"
 namespace abb {
 namespace net{
-class Loop {
+class Loop:public IPollerEvent {
 public:
 typedef void(*run_fn)(void* arg);
 	Loop();
@@ -33,6 +34,7 @@ private:
 	bool stop_;
 	int efd_;
 	base::Mutex mtx_;
+	Singler sigler_;
 };
 }
 }

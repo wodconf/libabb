@@ -1,16 +1,16 @@
 
 #include "loop.hpp"
-#include <sys/eventfd.h>
+//#include <sys/eventfd.h>
 using namespace abb::net;
 Loop::Loop():stop_(false),entry_(this) {
-	efd_ = eventfd(0, 0);
-	entry_.SetFd(efd_);
+	//efd_ = eventfd(0, 0);
+	entry_.SetFd(sigler_->GetReadFd());
 	poller_.AddRead(&entry_);
 }
 
 Loop::~Loop() {
 	poller_.DelRead(&entry_);
-	close(efd_);
+	//close(efd_);
 }
 void Loop::Start(){
 	while(!stop_){
@@ -24,15 +24,15 @@ void Loop::RunInLoop(run_fn fn,void*arg){
 	task.arg = arg;
 	queue_.push(task);
 	mtx_.UnLock();
-	write(efd_,1,sizeof(int));
+	sigler_.Write();
 }
 void Loop::PollerEvent_OnRead(){
 	int i;
-	read(efd_,i,sizeof(int));
-	mtx_.Lock()
+	sigler_.Read();
+	mtx_.Lock();
 	if(!queue_.empty()){
 		Task task = queue_.front();
-		queue_.pop()
+		queue_.pop();
 		mtx_.UnLock();
 		task.fn(task.arg);
 	}else{
