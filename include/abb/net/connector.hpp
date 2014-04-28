@@ -44,7 +44,7 @@ private:
 		Connector* self;
 		int err;
 	};
-	friend DispatchRunner;
+	friend struct DispatchRunner;
 	bool bfree;
 	base::ThreadPool& dispatch_;
 	int fd_;
