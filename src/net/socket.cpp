@@ -62,6 +62,9 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 				return false;
 			}
 		}else if(ret == 0){
+			if(save_err){
+				*save_err = errno;
+			}
 			break;
 		}
 		*nrd+=ret;
