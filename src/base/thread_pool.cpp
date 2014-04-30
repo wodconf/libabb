@@ -8,14 +8,14 @@ namespace base {
 
 ThreadPool::ThreadPool():bwait_(false),bstop_(false),num_thread_(1),threads(NULL) {
 	pthread_mutex_init(&mtx_,NULL);
-	//pthread_cond_init(&this->cond_,NULL);
+	pthread_cond_init(&this->cond_,NULL);
 }
 
 ThreadPool::~ThreadPool() {
 	this->Stop();
 	this->Wait();
 	pthread_mutex_destroy(&mtx_);
-	//pthread_cond_destroy(&this->cond_);
+	pthread_cond_destroy(&this->cond_);
 	if(this->threads != NULL){
 		delete []threads;
 	}
@@ -44,14 +44,14 @@ void ThreadPool::Stop(){
 	if(this->bstop_) return;
 	pthread_mutex_lock(&this->mtx_);
 	this->bstop_ = true;
-	//pthread_cond_broadcast(&this->cond_);
+	pthread_cond_broadcast(&this->cond_);
 	pthread_mutex_unlock(&this->mtx_);
 }
 void ThreadPool::Execute(Runer* runer){
 	pthread_mutex_lock(&this->mtx_);
 	if(this->runer_queue_.empty()){
 		this->runer_queue_.push(runer);
-		//pthread_cond_signal(&this->cond_);
+		pthread_cond_signal(&this->cond_);
 	}else{
 		this->runer_queue_.push(runer);
 	}
@@ -60,14 +60,9 @@ void ThreadPool::Execute(Runer* runer){
 }
 ThreadPool::Runer* ThreadPool::PopRuner(){
 	pthread_mutex_lock(&this->mtx_);
-	if(this->runer_queue_.empty()){
-		pthread_mutex_unlock(&this->mtx_);
-		return NULL;
-	}
-	/*
 	while( this->runer_queue_.empty() && !bstop_){
-		//pthread_cond_wait(&this->cond_,&this->mtx_);
-	}*/
+		pthread_cond_wait(&this->cond_,&this->mtx_);
+	}
 	if(bstop_){
 		pthread_mutex_unlock(&this->mtx_);
 		return NULL;
@@ -78,19 +73,12 @@ ThreadPool::Runer* ThreadPool::PopRuner(){
 	return ptr;
 }
 
-static void sleep(int ms){
-	struct timeval tv;
-	tv.tv_sec = ms/1000;
-	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
-	select(0,0,0,0,&tv);
-}
 void ThreadPool::Worker(){
 	while(!bstop_){
 		Runer* ptr = this->PopRuner();
 		if(ptr){
 			ptr->Execute();
 		}
-		sleep(100);
 	}
 }
 void* ThreadPool::ThreadMain(void* arg){
