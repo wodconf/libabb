@@ -16,21 +16,26 @@ public:
 			this->num_io_thread = num;
 	}
 	void SetNumDispatchThread(int num){
-		this->pool.SetNumThread(num);
+		if(pool == NULL)
+			num_dis_thread = num;
 	}
 	void Init();
 	void Run(bool run_cur_thread);
 	void WaitAndStop();
 	void Dispatch(base::ThreadPool::Runer* runer){
-		this->pool.Execute(runer);
+		if(pool){
+			this->pool->Execute(runer);
+		}else{
+			runer->Execute();
+		}
 	}
 	Loop& GetFreeLoop();
 private:
+	int num_dis_thread;
 	int num_io_thread;
 	pthread_t* threads;
 	Loop* loops_;
-	Poller poller;
-	base::ThreadPool pool;
+	base::ThreadPool* pool;
 	int cur_;
 	bool brun;
 };
