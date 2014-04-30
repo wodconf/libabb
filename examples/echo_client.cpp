@@ -13,8 +13,8 @@ public:
 	virtual ~ConnectCB(){}
 	virtual void Connection_Event(int ev){
 		LOG(INFO)<< ev;
-		abb::base::Buffer* buf = conn->LockRead();
-		buf->Clear();
+		abb::base::Buffer& buf = conn->LockRead();
+		buf.Clear();
 		conn->UnLockRead();
 		this->Send();
 	}
