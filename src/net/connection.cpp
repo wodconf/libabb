@@ -155,7 +155,7 @@ void Connection::EventDispatch::Execute(){
 		if(self->ev_)self->ev_->Connection_Event(EVENT_ERROR);
 	}
 	self->is_exe_ = false;
-	if(bfreed_){
+	if(self->bfreed_){
 		self->UnRef();
 		return;
 	}
