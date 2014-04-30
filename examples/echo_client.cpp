@@ -17,7 +17,6 @@ public:
 			int a;
 			buf >> a;
 			conn->UnLockRead();
-			LOG(INFO)<< "RECV:" <<a;
 		}
 		this->Send();
 	}

@@ -27,7 +27,6 @@ public:
 			int a;
 			buf >> a;
 			conn->UnLockRead();
-			LOG(INFO)<< "RECV:" <<a;
 			num_pkt++;
 		}
 		this->Send();
