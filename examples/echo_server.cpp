@@ -13,7 +13,7 @@ void sleep(int ms){
 	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
 	select(0,0,0,0,&tv);
 }
-int num_pkt;
+int num_pkt = 0;
 class ConnectCB:public abb::net::Connection::IEvent{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
@@ -27,7 +27,7 @@ public:
 			int a;
 			buf >> a;
 			conn->UnLockRead();
-			//LOG(INFO)<< "RECV:" <<a;
+			LOG(INFO)<< "RECV:" <<a;
 			num_pkt++;
 		}
 		this->Send();
