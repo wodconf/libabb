@@ -79,11 +79,11 @@ void Connection::UnLockWrite(){
 	wr_lock_.UnLock();
 }
 base::Buffer& Connection::LockRead(){
-//	rd_lock_.Lock();
+	rd_lock_.Lock();
 	return this->rd_buf_;
 }
 void Connection::UnLockRead(){
-//	rd_lock_.UnLock();
+	rd_lock_.UnLock();
 }
 
 void Connection::SetEnable(bool enable){
@@ -118,10 +118,10 @@ void Connection::PollerEvent_OnRead(){
 		return;
 	}
 	if(!this->enable_) return;
-	//rd_lock_.Lock();
+	rd_lock_.Lock();
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	int size = this->rd_buf_.Size();
-	//rd_lock_.UnLock();
+	rd_lock_.UnLock();
 	if(size >  0 || this->err_){
 		this->Dispatch();
 	}
@@ -151,15 +151,14 @@ void Connection::Dispatch(){
 		is_exe_ = true;
 		this->Ref();
 		dis.Execute();
-		return;
 		this->ctx_->GetThreadPool().Execute(&dis);
 	}
 }
 void Connection::DoEmmit(){
 	while(!this->bfreed_ && this->ev_){
-		//this->rd_lock_.Lock();
+		this->rd_lock_.Lock();
 		int sz = this->rd_buf_.Size();
-		//this->rd_lock_.UnLock();
+		this->rd_lock_.UnLock();
 		if( sz > 0){
 			this->ev_->Connection_Event(EVENT_READ);
 		}else{

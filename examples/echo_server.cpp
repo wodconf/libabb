@@ -45,7 +45,7 @@ public:
 	}
 };
 int main(){
-	abb::net::Context* ctx = abb::NewContext();
+	abb::net::Context* ctx = abb::NewContext(4,20);
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";

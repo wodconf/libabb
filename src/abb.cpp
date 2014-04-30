@@ -6,8 +6,8 @@ namespace abb{
 
 net::Context* NewContext(int num_pool,int num_dis){
 	net::Context* ctx = new net::Context();
-	ctx->SetNumDispatchThread(4);
-	ctx->SetNumPollThread(2);
+	ctx->SetNumDispatchThread(num_dis);
+	ctx->SetNumPollThread(num_pool);
 	ctx->Init();
 	return ctx;
 }
