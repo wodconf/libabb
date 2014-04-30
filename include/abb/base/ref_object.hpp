@@ -17,7 +17,6 @@ public:
 		return this;
 	}
 	void UnRef() {
-		LOG(INFO) << "UnRef" << ref_;
 		if (__sync_sub_and_fetch(&ref_,1) == 0)
 			delete this;
 	}

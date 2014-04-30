@@ -95,7 +95,6 @@ void Connection::SetEnable(bool enable){
 int Connection::Reader(void*buf,int size){
 	int nrd;
 	Socket::Read(this->fd_,buf,size,&nrd,&this->err_);
-	LOG(INFO) << "Reader:" <<  nrd;
 	return nrd;
 }
 int Connection::Writer(void*buf,int size){
@@ -104,14 +103,12 @@ int Connection::Writer(void*buf,int size){
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
-	LOG(INFO) << "PollerEvent_OnRead";
 	if(this->err_){
 		this->Dispatch();
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		return;
 	}
 	if(!this->enable_) return;
-	LOG(INFO) << "PollerEvent_OnRead_END";
 	rd_lock_.Lock();
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(this->rd_buf_.Size() > 0){
@@ -151,7 +148,6 @@ void Connection::Dispatch(){
 	}
 }
 void Connection::EventDispatch::Execute(){
-	LOG(INFO) << "Execute" << self->rd_buf_.Size();
 	if(self->rd_buf_.Size() > 0){
 		if(self->ev_)self->ev_->Connection_Event(EVENT_READ);
 	}
