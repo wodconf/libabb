@@ -110,7 +110,7 @@ int Connection::Writer(void*buf,int size){
 }
 void Connection::PollerEvent_OnRead(){
 	LOG(INFO) << "PollerEvent_OnRead";
-	if(this->err_){
+	if(this->err_ != 0){
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		this->Dispatch();
 		return;
@@ -126,7 +126,7 @@ void Connection::PollerEvent_OnRead(){
 	}
 }
 void Connection::PollerEvent_OnWrite(){
-	if(this->err_){
+	if(this->err_ != 0){
 		this->Dispatch();
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		return;
