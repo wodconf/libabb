@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <netinet/tcp.h>
 #include <errno.h>
+#include "abb/base/log.hpp"
+#include <string.h>
 namespace abb {
 namespace net {
 
@@ -88,6 +90,7 @@ void Socket::SetNoBlock(int fd,bool b){
 
 	if( fcntl(fd, F_SETFL, oflag) < 0){
 		//
+		LOG(INFO) <<errno << strerror(errno);
 	}
 }
 void Socket::SetNoDelay(int fd,bool b){

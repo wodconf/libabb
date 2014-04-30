@@ -22,6 +22,7 @@ Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& pee
  ctx_(ctx),
  dis(this)
 {
+	Socket::SetNoBlock(fd_,true);
 }
 
 Connection::~Connection() {

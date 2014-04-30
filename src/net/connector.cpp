@@ -25,7 +25,6 @@ bool Connector::Connect(const IPAddr& addr){
 	if(fd_ < 0){
 		return false;
 	}
-	Socket::SetRuseAddr(fd_,true);
 	Socket::SetNoBlock(fd_,true);
 	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
