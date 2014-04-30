@@ -148,6 +148,7 @@ void Connection::Dispatch(){
 	}
 }
 void Connection::EventDispatch::Execute(){
+	LOG(INFO) << "Execute" << self->rd_buf_.Size();
 	if(self->rd_buf_.Size() > 0){
 		if(self->ev_)self->ev_->Connection_Event(EVENT_READ);
 	}
