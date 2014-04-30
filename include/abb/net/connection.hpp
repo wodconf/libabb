@@ -17,7 +17,7 @@ namespace abb {
 namespace net {
 class Loop;
 class Context;
-class Connection :public IPollerEvent,base::RefObject{
+class Connection :public IPollerEvent,private base::RefObject{
 public:
 	static Connection* Create(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer){
 		return new Connection(ctx,fd,local,peer);
