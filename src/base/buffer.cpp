@@ -3,7 +3,6 @@
 #include "abb/base/buffer.hpp"
 #include <memory.h>
 #include <stdlib.h>
-#include "abb/base/log.hpp"
 using namespace abb::base;
 Buffer::Buffer(){
 	this->size_ = 1024;
@@ -132,7 +131,6 @@ void Buffer::WriteFromeReader(BufferReader reader,void*arg){
 			break;
 		}
 	}
-	LOG(INFO) << "WriteFromeReader:" <<  wr_;
 }
 void Buffer::Grow(int needsize){
 	int fsz = size_ - wr_ + rd_;
