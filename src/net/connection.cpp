@@ -166,9 +166,8 @@ void Connection::DoEmmit(){
 		}else{
 			if( this->err_ != 0 ){
 				this->ev_->Connection_Event(EVENT_ERROR);
-			}else{
-				break;
 			}
+			break;
 		}
 	}
 	this->is_exe_ = false;
