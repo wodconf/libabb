@@ -151,24 +151,24 @@ void Connection::Dispatch(){
 		this->ctx_->GetThreadPool().Execute(&dis);
 	}
 }
+void Connection::DoEmmit(){
+	while(!this->bfreed_ && this->ev_){
+		this->rd_lock_.Lock();
+		if(this->rd_buf_.Size() > 0){
+			this->rd_lock_.UnLock();
+			if(this->ev_)this->ev_->Connection_Event(EVENT_READ);
+		}
+		rd_lock_.Lock();
+		if(this->rd_buf_.Size() == 0 & this->err_ != 0){
+			rd_lock_.UnLock();
+			if(this->ev_)this->ev_->Connection_Event(EVENT_ERROR);
+		}
+	}
+	this->is_exe_ = false;
+	this->UnRef();
+}
+
 void Connection::EventDispatch::Execute(){
-	if(self->bfreed_){
-		self->UnRef();
-		return;
-	}
-	while(!self->bfreed_){
-		rd_lock_.Lock();
-		if(self->rd_buf_.Size() > 0){
-			rd_lock_.UnLock();
-			if(self->ev_)self->ev_->Connection_Event(EVENT_READ);
-		}
-		rd_lock_.Lock();
-		if(self->rd_buf_.Size() == 0 & self->err_ != 0){
-			rd_lock_.UnLock();
-			if(self->ev_)self->ev_->Connection_Event(EVENT_ERROR);
-		}
-	}
-	self->is_exe_ = false;
-	self->UnRef();
+	self->DoEmmit();
 }
 }}

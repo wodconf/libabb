@@ -68,6 +68,7 @@ private:
 	int Reader(void*buf,int size);
 	int Writer(void*buf,int size);
 	void Dispatch();
+	void DoEmmit();
 private:
 	struct EventDispatch:public base::ThreadPool::Runer{
 		EventDispatch(Connection* con){
