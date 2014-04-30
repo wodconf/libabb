@@ -24,8 +24,7 @@ public:
 	virtual void Connection_Event(int ev){
 		if(ev == abb::net::Connection::EVENT_READ){
 			abb::base::Buffer&buf = conn->LockRead();
-			int a;
-			buf >> a;
+			buf.Clear();
 			conn->UnLockRead();
 			num_pkt++;
 		}
