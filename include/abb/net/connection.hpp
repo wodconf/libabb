@@ -33,7 +33,7 @@ public:
 	};
 	class IEvent{
 	public:
-		virtual void ~IEvent(){};
+		virtual ~IEvent(){};
 		virtual void Connection_Event(int)=0;
 	};
 	void SetEventCallBack(IEvent* event){ev_ = event;}
