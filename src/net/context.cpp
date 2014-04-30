@@ -32,6 +32,7 @@ void Context::Init(){
 void Context::Run(bool run_cur_thread){
 	if(!threads || brun)return;
 	LOG(INFO)<<"RUN";
+	run_cur_thread_ = run_cur_thread;
 	brun = true;
 	int num = 0;
 	if(run_cur_thread){
@@ -50,11 +51,16 @@ void Context::Run(bool run_cur_thread){
 }
 void Context::WaitAndStop(){
 	if(threads == NULL) return;
-	for(int i=0;i<this->num_io_thread;i++){
-		loops_[i].Stop();
-		pthread_join(threads[i],NULL);
+	if(brun){
+		for(int i=0;i<this->num_io_thread-1;i++){
+			loops_[i].Stop();
+			pthread_join(threads[i],NULL);
+		}
+		loops_[this->num_io_thread-1].Stop();
+		if(!run_cur_thread_){
+			pthread_join(threads[this->num_io_thread-1],NULL);
+		}
 	}
-	loops_[this->num_io_thread].Stop();
 	delete[] threads;
 	delete []loops_;
 	threads = NULL;
@@ -64,6 +70,7 @@ void Context::WaitAndStop(){
 		delete this->pool;
 		this->pool = NULL;
 	}
+	brun =false;
 }
 } /* namespace translate */
 } /* namespace adcloud */

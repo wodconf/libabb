@@ -38,6 +38,7 @@ private:
 	base::ThreadPool* pool;
 	int cur_;
 	bool brun;
+	bool run_cur_thread_;
 };
 extern Context* ctx;
 } /* namespace translate */
