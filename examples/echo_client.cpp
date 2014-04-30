@@ -19,7 +19,7 @@ public:
 	}
 	void Send(){
 		char buf[] = "hello";
-		LOG(INFO)<< conn->Write(buf,sizeof(buf),NULL);
+		conn->Write(buf,sizeof(buf),NULL);
 	}
 	abb::net::Connection* conn;
 };
