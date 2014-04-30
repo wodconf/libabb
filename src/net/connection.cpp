@@ -100,6 +100,7 @@ int Connection::Reader(void*buf,int size){
 int Connection::Writer(void*buf,int size){
 	int nwd;
 	Socket::Write(this->fd_,buf,size,&nwd,&this->err_);
+	LOG(INFO) << nwd;
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
