@@ -6,25 +6,26 @@
 #include <abb/net/connection.hpp>
 class ConnectCB:public abb::net::Connection::IEvent{
 public:
-	ConnectCB(abb::net::Connection*conn):conn(conn){
+	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
 		conn->SetEnable(true);
 		conn->SetEventCallBack(this);
 	}
 	virtual ~ConnectCB(){}
 	virtual void Connection_Event(int ev){
-		LOG(INFO)<< ev;
 		if(ev == abb::net::Connection::EVENT_READ){
 			abb::base::Buffer&buf = conn->LockRead();
-			buf.Clear();
+			int a;
+			buf >> a;
 			conn->UnLockRead();
+			LOG(INFO)<< "RECV:" <<a;
 		}
 		this->Send();
-		LOG(INFO)<< "Send";
 	}
 	void Send(){
-		char buf[] = "world";
-		conn->Write(buf,sizeof(buf),NULL);
+		index++;
+		conn->Write(&index,sizeof(index),NULL);
 	}
+	int index ;
 	abb::net::Connection* conn;
 };
 class EventCb:public abb::net::Acceptor::IEvent{
