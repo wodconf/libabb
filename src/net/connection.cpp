@@ -150,7 +150,8 @@ void Connection::Dispatch(){
 	if(!is_exe_){
 		is_exe_ = true;
 		this->Ref();
-		this->ctx_->GetThreadPool().Execute(&dis);
+		dis.Execute();
+		//this->ctx_->GetThreadPool().Execute(&dis);
 	}
 }
 void Connection::DoEmmit(){
