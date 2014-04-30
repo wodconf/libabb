@@ -35,7 +35,7 @@ private:
 	bool bstop_;
 	std::queue<Runer*> runer_queue_;
 	pthread_mutex_t mtx_;
-	pthread_cond_t cond_;
+	//pthread_cond_t cond_;
 	int num_thread_;
 	pthread_t *threads;
 };
