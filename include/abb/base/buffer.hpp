@@ -1,7 +1,7 @@
 
 
-#ifndef BUFFER_HPP_
-#define BUFFER_HPP_
+#ifndef ABB_BASE_BUFFER_HPP_
+#define ABB_BASE_BUFFER_HPP_
 
 #include <string>
 #include "define.hpp"

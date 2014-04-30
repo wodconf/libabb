@@ -1,7 +1,7 @@
 
 
-#ifndef THREAD_POOL_HPP_
-#define THREAD_POOL_HPP_
+#ifndef ABB_BASE_THREAD_POOL_HPP_
+#define ABB_BASE_THREAD_POOL_HPP_
 
 #include <pthread.h>
 #include <queue>
