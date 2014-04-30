@@ -49,7 +49,7 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 	char * buf = (char *)inbuf;
 	while(1){
 		ret = read(fd,buf,size);
-		if(ret < 0){
+		if(ret <= 0){
 			int err = errno;
 			if( err == EAGAIN){
 				break;
@@ -59,13 +59,8 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 				if(save_err){
 					*save_err = err;
 				}
-				return false;
+				return (*nrd > 0);
 			}
-		}else if(ret == 0){
-			if(save_err){
-				*save_err = errno;
-			}
-			break;
 		}
 		*nrd+=ret;
 		buf += ret;
