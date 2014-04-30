@@ -22,7 +22,7 @@ public:
 	}
 	void Send(){
 		char buf[] = "world";
-		conn->Write(buf,sizeof(buf),NULL);
+		LOG(INFO)<< conn->Write(buf,sizeof(buf),NULL);
 	}
 	abb::net::Connection* conn;
 };

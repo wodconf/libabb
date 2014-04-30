@@ -36,7 +36,7 @@ void Connection::Destroy(){
 }
 bool Connection::Write(void*buf,int size,int* nwr){
 	base::Mutex::Locker lock(wr_lock_);
-	if(this->err_){
+	if(this->err_ != 0){
 		return false;
 	}
 	int ret = 0;
