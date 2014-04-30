@@ -63,7 +63,9 @@ int main(){
 	ac->SetEnable(true);
 	abb::RunContext(ctx,false);
 	while(true){
-		LOG(INFO) << "num_pkt:" << num_pkt;
+		if(num_pkt)
+			LOG(INFO) << "num_pkt:" << num_pkt;
+		num_pkt = 0;
 		sleep(1000);
 	}
 }
