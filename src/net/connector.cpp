@@ -19,7 +19,7 @@ bfree(false),ctx_(ctx){
 Connector::~Connector(){
 
 }
-bool Connector::Connect(const IPAddr& addr){
+bool Connector::Connect(const IPAddr& addr,int timeout){
 	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
 		return false;

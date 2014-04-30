@@ -24,7 +24,7 @@ public:
 		virtual void Connector_OpenFail(int err)=0;
 	};
 	
-	bool Connect(const IPAddr& addr);
+	bool Connect(const IPAddr& addr,int timeout=3000);
 	void Reset();
 	void SetEventCallback(IEvent* ev){lis_=ev;}
 	virtual void PollerEvent_OnRead();

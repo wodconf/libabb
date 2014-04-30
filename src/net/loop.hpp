@@ -17,6 +17,8 @@ typedef void(*run_fn)(void* arg);
 	void Stop(){
 		stop_ = true;
 	}
+	int SetTimeout();
+	void ClearTimeout();
 	void RunInLoop(run_fn fn,void*arg);
 	Poller& GetPoller(){
 		return poller_;
