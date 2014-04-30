@@ -4,6 +4,15 @@
 #include <abb/abb.hpp>
 #include <abb/net/acceptor.hpp>
 #include <abb/net/connection.hpp>
+#include <sys/select.h>
+#include <sys/time.h>
+#include <unistd.h>
+void sleep(int ms){
+	struct timeval tv;
+	tv.tv_sec = ms/1000;
+	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
+	select(0,0,0,0,&tv);
+}
 int num_pkt;
 class ConnectCB:public abb::net::Connection::IEvent{
 public:
@@ -59,6 +68,6 @@ int main(){
 			LOG(INFO) << "num_pkt:" << num_pkt;
 			num_pkt = 0;
 		}
-		usleep(1000000);
+		sleep(1000);
 	}
 }
