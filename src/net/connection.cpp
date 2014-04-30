@@ -109,6 +109,7 @@ int Connection::Writer(void*buf,int size){
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
+	LOG(INFO) << "PollerEvent_OnRead";
 	if(this->err_){
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		this->Dispatch();
@@ -118,6 +119,7 @@ void Connection::PollerEvent_OnRead(){
 	rd_lock_.Lock();
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	int size = this->rd_buf_.Size();
+	LOG(INFO) << "size:" << size;
 	rd_lock_.UnLock();
 	if(size >  0 || this->err_){
 		this->Dispatch();
