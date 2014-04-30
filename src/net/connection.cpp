@@ -115,8 +115,11 @@ void Connection::PollerEvent_OnRead(){
 		this->Dispatch();
 		return;
 	}
+	LOG(INFO) << "PollerEvent_OnRead 1";
 	if(!this->enable_) return;
+	LOG(INFO) << "PollerEvent_OnRead 2";
 	rd_lock_.Lock();
+	LOG(INFO) << "PollerEvent_OnRead 3";
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	int size = this->rd_buf_.Size();
 	LOG(INFO) << "size:" << size;
