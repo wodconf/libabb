@@ -115,10 +115,13 @@ void Connection::PollerEvent_OnRead(){
 	if(this->rd_buf_.Size() > 0){
 		rd_lock_.UnLock();
 		this->Dispatch();
+	}else{
+		rd_lock_.UnLock();
+		if(this->err_){
+			this->Dispatch();
+		}
 	}
-	if(this->err_){
-		this->Dispatch();
-	}
+
 }
 void Connection::PollerEvent_OnWrite(){
 	if(this->err_){
@@ -149,19 +152,23 @@ void Connection::Dispatch(){
 	}
 }
 void Connection::EventDispatch::Execute(){
-	if(self->rd_buf_.Size() > 0){
-		if(self->ev_)self->ev_->Connection_Event(EVENT_READ);
-	}
-	if(self->rd_buf_.Size() == 0 & self->err_ != 0){
-		if(self->ev_)self->ev_->Connection_Event(EVENT_ERROR);
-	}
-	self->is_exe_ = false;
 	if(self->bfreed_){
 		self->UnRef();
 		return;
 	}
-	if(self->rd_buf_.Size() > 0){
-		self->Dispatch();
+	while(!self->bfreed_){
+		rd_lock_.Lock();
+		if(self->rd_buf_.Size() > 0){
+			rd_lock_.UnLock();
+			if(self->ev_)self->ev_->Connection_Event(EVENT_READ);
+		}
+		rd_lock_.Lock();
+		if(self->rd_buf_.Size() == 0 & self->err_ != 0){
+			rd_lock_.UnLock();
+			if(self->ev_)self->ev_->Connection_Event(EVENT_ERROR);
+		}
 	}
+	self->is_exe_ = false;
+	self->UnRef();
 }
 }}
