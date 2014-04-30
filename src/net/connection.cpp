@@ -158,14 +158,16 @@ void Connection::Dispatch(){
 void Connection::DoEmmit(){
 	while(!this->bfreed_ && this->ev_){
 		this->rd_lock_.Lock();
-		if(this->rd_buf_.Size() > 0){
-			this->rd_lock_.UnLock();
+		int sz = this->rd_buf_.Size();
+		this->rd_lock_.UnLock();
+		if( sz > 0){
 			this->ev_->Connection_Event(EVENT_READ);
-		}
-		rd_lock_.Lock();
-		if(this->rd_buf_.Size() == 0 & this->err_ != 0){
-			rd_lock_.UnLock();
-			this->ev_->Connection_Event(EVENT_ERROR);
+		}else{
+			if( this->err_ != 0 ){
+				this->ev_->Connection_Event(EVENT_ERROR);
+			}else{
+				break;
+			}
 		}
 	}
 	this->is_exe_ = false;
