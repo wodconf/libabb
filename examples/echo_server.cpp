@@ -4,6 +4,7 @@
 #include <abb/abb.hpp>
 #include <abb/net/acceptor.hpp>
 #include <abb/net/connection.hpp>
+int num_pkt;
 class ConnectCB:public abb::net::Connection::IEvent{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
@@ -17,7 +18,8 @@ public:
 			int a;
 			buf >> a;
 			conn->UnLockRead();
-			LOG(INFO)<< "RECV:" <<a;
+			//LOG(INFO)<< "RECV:" <<a;
+			num_pkt++;
 		}
 		this->Send();
 	}
@@ -51,5 +53,12 @@ int main(){
 	}
 
 	ac->SetEnable(true);
-	abb::RunContext(ctx,true);
+	abb::RunContext(ctx,false);
+	while(true){
+		if(num_pkt > 0){
+			LOG(INFO) << "num_pkt:" << num_pkt;
+			num_pkt = 0;
+		}
+		usleep(1000000);
+	}
 }
