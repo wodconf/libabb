@@ -70,7 +70,9 @@ private:
 	void Dispatch();
 private:
 	struct EventDispatch:public base::ThreadPool::Runer{
-		int ref;
+		EventDispatch(Connection* con){
+			self = con;
+		}
 		Connection* self;
 		virtual ~EventDispatch(){};
 		virtual void Execute();

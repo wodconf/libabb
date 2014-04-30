@@ -19,7 +19,8 @@ Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& pee
  entry_(fd,this),
  fd_(fd),
  bfreed_(false),
- ctx_(ctx)
+ ctx_(ctx),
+ dis(this)
 {
 }
 
