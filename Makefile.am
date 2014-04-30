@@ -15,7 +15,8 @@ libabb_la_SOURCES=src/base/buffer.cpp\
 			src/net/ip_addr.cpp\
 			src/net/singler.cpp\
 			src/abb.cpp
-
+INCLUDES=-I ./include 
+export INCLUDES
 libabb_la_LIBADD=-lpthread
 
 bin_PROGRAMS = echo_server
