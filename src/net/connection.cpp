@@ -106,6 +106,7 @@ int Connection::Writer(void*buf,int size){
 	if(this->err_){
 		LOG(INFO) << "Connection::Writer ERROR:" << err_ << strerror(err_);
 	}
+	LOG(INFO) << "Connection::Writer WRITED:" << nwd;
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
