@@ -1,7 +1,7 @@
 
 
-#ifndef ACCEPTOR_H_
-#define ACCEPTOR_H_
+#ifndef ABB_NET_ACCEPTOR_H_
+#define ABB_NET_ACCEPTOR_H_
 #include "abb/net/ip_addr.hpp"
 #include "i_poller_event.hpp"
 #include "abb/base/ref_object.hpp"

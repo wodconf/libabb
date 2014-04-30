@@ -1,6 +1,6 @@
 
-#ifndef ADDR_HPP_
-#define ADDR_HPP_
+#ifndef ABB_NET_ADDR_HPP_
+#define ABB_NET_ADDR_HPP_
 
 #include <sys/types.h>
 #include <sys/socket.h>

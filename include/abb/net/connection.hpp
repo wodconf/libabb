@@ -1,7 +1,7 @@
 
 
-#ifndef CONNECTION_H_
-#define CONNECTION_H_
+#ifndef ABB_NET_CONNECTION_H_
+#define ABB_NET_CONNECTION_H_
 
 #include "i_poller_event.hpp"
 #include "abb/base/ref_object.hpp"
