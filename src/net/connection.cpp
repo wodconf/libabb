@@ -53,10 +53,13 @@ bool Connection::Write(void*buf,int size,int* nwr){
 			if(ret > 0)return true;
 			return false;
 		}
+		return true;
+	}else{
+		if(nwr)*nwr = size;
+		this->wr_buf_.Write(buf,size);
+		return true;
 	}
-	if(nwr)*nwr = size;
-	this->wr_buf_.Write(buf,size);
-	return true;
+
 }
 bool Connection::ReadSize(void*buf,int size,int* nread){
 	base::Mutex::Locker lock(rd_lock_);
@@ -135,7 +138,7 @@ void Connection::PollerEvent_OnWrite(){
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		return;
 	}
-	if(!this->enable_) return;	
+	if(!this->enable_) return;
 	wr_lock_.Lock();
 	if(this->wr_buf_.Size() > 0){
 		this->wr_buf_.ReadToWriter(StaticWriter,this);
