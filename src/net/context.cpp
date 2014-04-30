@@ -29,9 +29,11 @@ void Context::Run(bool run_cur_thread){
 	if(!threads || brun)return;
 	LOG(INFO)<<"RUN";
 	brun = true;
-	int num = this->num_io_thread;
-	if(!run_cur_thread){
-		num -= 1;
+	int num = 0;
+	if(run_cur_thread){
+		num = this->num_io_thread -1;
+	}else{
+		num = this->num_io_thread;
 	}
 	for(int i=0;i<num;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
