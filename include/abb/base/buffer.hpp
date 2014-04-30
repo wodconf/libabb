@@ -4,7 +4,7 @@
 #define BUFFER_HPP_
 
 #include <string>
-
+#include "define.hpp"
 namespace abb {
 namespace base {
 
@@ -87,6 +87,7 @@ private:
 	unsigned int wr_;
 	unsigned int rd_;
 	unsigned int size_;
+	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Buffer);
 };
 
 } /* namespace base */

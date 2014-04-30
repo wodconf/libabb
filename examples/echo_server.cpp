@@ -14,8 +14,8 @@ public:
 	virtual void Connection_Event(int ev){
 		LOG(INFO)<< ev;
 		if(ev == abb::net::Connection::EVENT_READ){
-			abb::base::Buffer buf = conn->LockRead();
-			buf.Clear();
+			abb::base::Buffer* buf = conn->LockRead();
+			buf->Clear();
 			conn->UnLockRead();
 		}
 		this->Send();
