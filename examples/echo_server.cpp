@@ -19,6 +19,7 @@ public:
 			conn->UnLockRead();
 		}
 		this->Send();
+		LOG(INFO)<< "Send";
 	}
 	void Send(){
 		char buf[] = "world";

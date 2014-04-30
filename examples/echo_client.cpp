@@ -13,10 +13,13 @@ public:
 	virtual ~ConnectCB(){}
 	virtual void Connection_Event(int ev){
 		LOG(INFO)<< ev;
-		abb::base::Buffer& buf = conn->LockRead();
-		buf.Clear();
-		conn->UnLockRead();
+		if(ev == abb::net::Connection::EVENT_READ){
+			abb::base::Buffer&buf = conn->LockRead();
+			buf.Clear();
+			conn->UnLockRead();
+		}
 		this->Send();
+		LOG(INFO)<< "Send";
 	}
 	void Send(){
 		char buf[] = "hello";
