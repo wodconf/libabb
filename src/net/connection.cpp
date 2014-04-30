@@ -109,24 +109,18 @@ int Connection::Writer(void*buf,int size){
 	if(this->err_){
 		LOG(INFO) << "Connection::Writer ERROR:" << err_ << strerror(err_);
 	}
-	LOG(INFO) << "Connection::Writer WRITED:" << nwd;
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
-	LOG(INFO) << "PollerEvent_OnRead";
 	if(this->err_ != 0){
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		this->Dispatch();
 		return;
 	}
-	LOG(INFO) << "PollerEvent_OnRead 1";
 	if(!this->enable_) return;
-	LOG(INFO) << "PollerEvent_OnRead 2";
 	rd_lock_.Lock();
-	LOG(INFO) << "PollerEvent_OnRead 3";
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	int size = this->rd_buf_.Size();
-	LOG(INFO) << "size:" << size;
 	rd_lock_.UnLock();
 	if(size >  0 || this->err_){
 		this->Dispatch();
