@@ -95,12 +95,17 @@ void Connection::SetEnable(bool enable){
 int Connection::Reader(void*buf,int size){
 	int nrd;
 	Socket::Read(this->fd_,buf,size,&nrd,&this->err_);
+	if(this->err_){
+		LOG(INFO) << "Connection::Reader ERROR:" << err_ << strerror(err_);
+	}
 	return nrd;
 }
 int Connection::Writer(void*buf,int size){
 	int nwd;
 	Socket::Write(this->fd_,buf,size,&nwd,&this->err_);
-	LOG(INFO) << nwd;
+	if(this->err_){
+		LOG(INFO) << "Connection::Writer ERROR:" << err_ << strerror(err_);
+	}
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
@@ -156,12 +161,12 @@ void Connection::DoEmmit(){
 		this->rd_lock_.Lock();
 		if(this->rd_buf_.Size() > 0){
 			this->rd_lock_.UnLock();
-			if(this->ev_)this->ev_->Connection_Event(EVENT_READ);
+			this->ev_->Connection_Event(EVENT_READ);
 		}
 		rd_lock_.Lock();
 		if(this->rd_buf_.Size() == 0 & this->err_ != 0){
 			rd_lock_.UnLock();
-			if(this->ev_)this->ev_->Connection_Event(EVENT_ERROR);
+			this->ev_->Connection_Event(EVENT_ERROR);
 		}
 	}
 	this->is_exe_ = false;
