@@ -28,8 +28,7 @@ private:
 public:
 	enum{
 		EVENT_READ = 0x01,
-		EVENT_DRAN = 0x02,
-		EVENT_ERROR = 0x04,
+		EVENT_ERROR = 0x02,
 	};
 	class IEvent{
 	public:
@@ -92,7 +91,6 @@ private:
 	bool enable_;
 	int err_;
 	IEvent* ev_;
-	int em_ev_;
 	int bfreed_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };

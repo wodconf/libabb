@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "socket.hpp"
 #include "context.hpp"
-
+#include "abb/base/log.hpp"
 namespace abb {
 namespace net {
 
@@ -15,7 +15,6 @@ Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& pee
  ev_(NULL),
  err_(0),
  enable_(false),
- em_ev_(0),
  is_exe_(false),
  entry_(fd,this),
  fd_(fd),
@@ -102,28 +101,26 @@ int Connection::Writer(void*buf,int size){
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
+	LOG(INFO) << "PollerEvent_OnRead";
 	if(this->err_){
-		em_ev_ |= EVENT_ERROR;
 		this->Dispatch();
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		return;
 	}
 	if(!this->enable_) return;
+	LOG(INFO) << "PollerEvent_OnRead_END";
 	rd_lock_.Lock();
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(this->rd_buf_.Size() > 0){
 		rd_lock_.UnLock();
-		em_ev_ |= EVENT_READ;
 		this->Dispatch();
 	}
 	if(this->err_){
-		em_ev_ |= EVENT_ERROR;
 		this->Dispatch();
 	}
 }
 void Connection::PollerEvent_OnWrite(){
 	if(this->err_){
-		em_ev_ |= EVENT_ERROR;
 		this->Dispatch();
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		return;
@@ -133,7 +130,6 @@ void Connection::PollerEvent_OnWrite(){
 	if(this->wr_buf_.Size() > 0){
 		this->wr_buf_.ReadToWriter(StaticWriter,this);
 		if(this->wr_buf_.Size() == 0){
-			em_ev_ |= EVENT_DRAN;
 			wr_lock_.UnLock();
 			this->Dispatch();
 			loop_.GetPoller().DelWrite(&this->entry_);
@@ -145,22 +141,26 @@ void Connection::PollerEvent_OnWrite(){
 	}
 }
 void Connection::Dispatch(){
-	if(is_exe_){
+	if(!is_exe_){
 		is_exe_ = true;
 		this->Ref();
 		this->ctx_->GetThreadPool().Execute(&dis);
 	}
 }
 void Connection::EventDispatch::Execute(){
-	if(self->em_ev_&EVENT_READ){
+	if(self->rd_buf_.Size() > 0){
 		if(self->ev_)self->ev_->Connection_Event(EVENT_READ);
 	}
-	if(self->em_ev_&EVENT_DRAN){
-		if(self->ev_)self->ev_->Connection_Event(EVENT_DRAN);
-	}
-	if(self->em_ev_&EVENT_ERROR){
+	if(self->rd_buf_.Size() == 0 & self->err_ != 0){
 		if(self->ev_)self->ev_->Connection_Event(EVENT_ERROR);
 	}
-	self->UnRef();
+	self->is_exe_ = false;
+	if(bfreed_){
+		self->UnRef();
+		return;
+	}
+	if(self->rd_buf_.Size() > 0){
+		self->Dispatch();
+	}
 }
 }}
