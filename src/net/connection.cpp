@@ -36,6 +36,9 @@ void Connection::Destroy(){
 }
 bool Connection::Write(void*buf,int size,int* nwr){
 	base::Mutex::Locker lock(wr_lock_);
+	if(this->err_){
+		return false;
+	}
 	int ret = 0;
 	if(this->wr_buf_.Size() != 0){
 		ret = this->Writer(buf,size);
@@ -59,10 +62,25 @@ bool Connection::ReadSize(void*buf,int size,int* nread){
 	if(nread)*nread = ret;
 	return ret > 0;
 }
-void Connection::OpReadBuf(OpBuffer fn,void*arg){
-	base::Mutex::Locker lock(rd_lock_);
-	fn(arg,this->rd_buf_);
+base::Buffer& Connection::LockWrite(){
+	wr_lock_.Lock();
+	return this->wr_buf_;
 }
+void Connection::UnLockWrite(){
+	this->wr_buf_.ReadToWriter(StaticWriter,this);
+	if(this->wr_buf_.Size() != 0){
+		loop_.GetPoller().AddWrite(&this->entry_);;
+	}
+	wr_lock_.UnLock();
+}
+base::Buffer& Connection::LockRead(){
+	rd_lock_.Lock();
+	return this->rd_buf_;
+}
+void Connection::UnLockRead(){
+	rd_lock_.UnLock();
+}
+
 void Connection::SetEnable(bool enable){
 	if(this->enable_ == enable){
 		return ;

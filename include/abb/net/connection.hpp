@@ -33,18 +33,24 @@ public:
 	};
 	class IEvent{
 	public:
+		virtual void ~IEvent(){};
 		virtual void Connection_Event(int)=0;
 	};
-	typedef void(*OpBuffer)(void*arg,base::Buffer&buf);
 	void SetEventCallBack(IEvent* event){ev_ = event;}
 	bool Write(void*buf,int size,int* nwr);
 	bool ReadSize(void*buf,int size,int* nwr);
-	void OpReadBuf(OpBuffer fn,void*arg);
+	base::Buffer& LockWrite();
+	void UnLockWrite();
+	base::Buffer& LockRead();
+	void UnLockRead();
 	int ShutDown(int how){
 		return shutdown(this->fd_,how);
 	}
 	void SetEnable(bool enable);
 	void Destroy();
+	bool IsConnected(){
+		return this->err_ == 0;
+	}
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:
