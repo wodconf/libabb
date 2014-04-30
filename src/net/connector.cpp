@@ -11,7 +11,6 @@ using namespace abb::net;
 Connector::Connector(Context* ctx)
 :fd_(-1),
 lis_(NULL),
- dispatch_(ctx->GetThreadPool()),
 loop_(ctx->GetFreeLoop()),
 entry_(this),
 bfree(false),ctx_(ctx){
@@ -70,7 +69,7 @@ void Connector::PollerEvent_OnWrite(){
 		err = errno;
 	}
 	r->err = err;
-	this->dispatch_.Execute(r);
+	this->ctx_->Dispatch(r);
 }
 void Connector::DispatchRunner::Execute(){
 	if(conn){

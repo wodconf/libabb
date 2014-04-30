@@ -92,7 +92,7 @@ void Acceptor::DispatchRunner::Execute(){
 void Acceptor::Dispatch(Connection* conn){
 	this->Ref();
 	DispatchRunner* runer = new DispatchRunner(this,conn);
-	ctx_->GetThreadPool().Execute(runer);
+	ctx_->Dispatch(runer);
 }
 } /* namespace translate */
 } /* namespace adcloud */

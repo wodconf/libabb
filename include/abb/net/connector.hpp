@@ -47,7 +47,6 @@ private:
 	};
 	friend struct DispatchRunner;
 	bool bfree;
-	base::ThreadPool& dispatch_;
 	int fd_;
 	IEvent* lis_;
 	IPAddr addr_;
