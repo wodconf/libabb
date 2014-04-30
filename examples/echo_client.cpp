@@ -5,18 +5,30 @@
 #include <abb/net/connection.hpp>
 class ConnectCB:public abb::net::Connection::IEvent{
 public:
+	ConnectCB(abb::net::Connection*conn):conn(conn){
+		conn->SetEnable(true);
+		conn->SetEventCallBack(this);
+		this->Send();
+	}
 	virtual ~ConnectCB(){}
 	virtual void Connection_Event(int ev){
 		LOG(INFO)<< ev;
+		abb::base::Buffer buf = conn->LockRead();
+		conn->UnLockRead();
+		this->Send();
 	}
+	void Send(){
+		char buf[] = "hello";
+		conn->Write(buf,sizeof(buf),NULL);
+	}
+	abb::net::Connection* conn;
 };
 class EventCb:public abb::net::Connector::IEvent{
 public:
 	virtual ~EventCb(){}
 	virtual void Connector_Open(abb::net::Connection* conn){
 		LOG(INFO)<< "Connector_Open";
-		conn->SetEnable(true);
-		conn->SetEventCallBack(new ConnectCB());
+		new ConnectCB(conn);
 	}
 	virtual void Connector_OpenFail(int err){
 		LOG(INFO)<< "Connector_OpenFail" << err << strerror(err);

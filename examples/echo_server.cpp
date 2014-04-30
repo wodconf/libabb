@@ -3,11 +3,31 @@
 #include <abb/base/log.hpp>
 #include <abb/abb.hpp>
 #include <abb/net/acceptor.hpp>
+#include <abb/net/connection.hpp>
+class ConnectCB:public abb::net::Connection::IEvent{
+public:
+	ConnectCB(abb::net::Connection*conn):conn(conn){
+		conn->SetEnable(true);
+		conn->SetEventCallBack(this);
+	}
+	virtual ~ConnectCB(){}
+	virtual void Connection_Event(int ev){
+		LOG(INFO)<< ev;
+		abb::base::Buffer buf = conn->LockRead();
+		conn->UnLockRead();
+		this->Send();
+	}
+	void Send(){
+		char buf[] = "world";
+		conn->Write(buf,sizeof(buf),NULL);
+	}
+	abb::net::Connection* conn;
+};
 class EventCb:public abb::net::Acceptor::IEvent{
 public:
 	virtual ~EventCb(){}
-	virtual void Acceptor_Event(abb::net::Acceptor*,abb::net::Connection*){
-		LOG(INFO) << "a";
+	virtual void Acceptor_Event(abb::net::Acceptor*,abb::net::Connection* c){
+		new ConnectCB(c);
 	}
 };
 int main(){
