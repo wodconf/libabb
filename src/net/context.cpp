@@ -12,7 +12,7 @@ Context::~Context() {
 	this->WaitAndStop();
 }
 Loop& Context::GetFreeLoop(){
-	cur_ = (cur_+1)%(this->num_io_thread+1);
+	cur_ = (cur_+1)%(this->num_io_thread);
 	return loops_[cur_];
 }
 static void* ThreadMain(void* arg){
@@ -23,18 +23,22 @@ static void* ThreadMain(void* arg){
 void Context::Init(){
 	if(threads)return;
 	threads = new pthread_t[this->num_io_thread];
-	loops_ = new Loop[this->num_io_thread+1];
+	loops_ = new Loop[this->num_io_thread];
 }
 void Context::Run(bool run_cur_thread){
 	if(!threads || brun)return;
 	LOG(INFO)<<"RUN";
 	brun = true;
-	for(int i=0;i<this->num_io_thread;i++){
+	int num = this->num_io_thread;
+	if(!run_cur_thread){
+		num -= 1;
+	}
+	for(int i=0;i<num;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
 	}
 	this->pool.Start();
 	if(run_cur_thread)
-		loops_[this->num_io_thread].Start();
+		loops_[this->num_io_thread-1].Start();
 
 }
 void Context::WaitAndStop(){
