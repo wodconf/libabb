@@ -80,6 +80,7 @@ void Acceptor::PollerEvent_OnRead(){
 	if(fd < 0){
 		return;
 	}
+	addr.family = addr_.family;
 	Connection* conn = Connection::Create(ctx_,fd,addr_,addr);
 	this->Dispatch(conn);
 }
