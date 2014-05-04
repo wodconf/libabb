@@ -31,8 +31,6 @@ bool Socket::Write(int fd,void*inbuf,int size,int* nwr,int* save_err){
 				}
 				return false;
 			}
-		}else if(ret == 0){
-			break;
 		}
 		*nwr += ret;
 		buf += ret;
@@ -59,8 +57,6 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 				}
 				return false;
 			}
-		}else if(ret == 0){
-			return true;
 		}
 		*nrd+=ret;
 		buf += ret;
