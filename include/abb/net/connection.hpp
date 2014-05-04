@@ -50,6 +50,9 @@ public:
 	bool IsConnected(){
 		return this->err_ == 0;
 	}
+	int GetError(){
+		return this->err_;
+	}
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:

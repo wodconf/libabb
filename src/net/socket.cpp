@@ -51,7 +51,6 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 		ret = read(fd,buf,size);
 		if(ret < 0){
 			int err = errno;
-			LOG(INFO) <<err << strerror(err);
 			if( err == EAGAIN){
 				break;
 			}else if(err == EINTR){
@@ -64,7 +63,6 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 			}
 		}else if(ret == 0){
 			int err = errno;
-						LOG(INFO) <<"read_end" << *nrd << err << strerror(err);
 			if(save_err){
 				*save_err = err;
 			}

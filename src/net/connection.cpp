@@ -98,9 +98,6 @@ void Connection::SetEnable(bool enable){
 int Connection::Reader(void*buf,int size){
 	int nrd;
 	Socket::Read(this->fd_,buf,size,&nrd,&this->err_);
-	if(this->err_){
-		LOG(INFO) << "Connection::Reader ERROR:" << err_ << strerror(err_);
-	}
 	return nrd;
 }
 int Connection::Writer(void*buf,int size){
