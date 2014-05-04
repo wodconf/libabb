@@ -105,18 +105,10 @@ int Connection::Reader(void*buf,int size){
 }
 int Connection::Writer(void*buf,int size){
 	int nwd;
-	Socket::Write(this->fd_,buf,size,&nwd,&this->err_);
-	if(this->err_){
-		LOG(INFO) << "Connection::Writer ERROR:" << err_ << strerror(err_);
-	}
+	Socket::Write(this->fd_,buf,size,&nwd,NULL);
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
-	if(this->err_ != 0){
-		loop_.GetPoller().DelReadWrite(&this->entry_);
-		this->Dispatch();
-		return;
-	}
 	if(!this->enable_) return;
 	rd_lock_.Lock();
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
