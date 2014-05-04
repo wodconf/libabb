@@ -112,6 +112,7 @@ void Connection::PollerEvent_OnRead(){
 	int size = this->rd_buf_.Size();
 	rd_lock_.UnLock();
 	if(size >  0 || this->err_){
+		LOG(INFO) << "Dispatch" <<size << err_;
 		if(this->err_){
 			loop_.GetPoller().DelReadWrite(&this->entry_);
 		}
