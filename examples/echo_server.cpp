@@ -32,7 +32,9 @@ public:
 	}
 	void Send(){
 		index++;
-		conn->Write(&index,sizeof(index),NULL);
+		abb::base::Buffer&buf = conn->LockWrite();
+		buf << "x";
+		conn->UnLockWrite();
 	}
 	int index ;
 	abb::net::Connection* conn;
