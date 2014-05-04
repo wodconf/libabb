@@ -128,8 +128,6 @@ void Connection::PollerEvent_OnRead(){
 }
 void Connection::PollerEvent_OnWrite(){
 	if(this->err_ != 0){
-		this->Dispatch();
-		loop_.GetPoller().DelReadWrite(&this->entry_);
 		return;
 	}
 	if(!this->enable_) return;
