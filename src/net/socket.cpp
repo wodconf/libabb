@@ -47,14 +47,14 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 		ret = read(fd,buf,size);
 		if(ret < 0){
 			int err = errno;
+			if(save_err){
+				*save_err = err;
+			}
 			if( err == EAGAIN){
 				break;
 			}else if(err == EINTR){
 				continue;
 			}else{
-				if(save_err){
-					*save_err = err;
-				}
 				return false;
 			}
 		}
