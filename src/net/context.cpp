@@ -31,7 +31,6 @@ void Context::Init(){
 }
 void Context::Run(bool run_cur_thread){
 	if(!threads || brun)return;
-	LOG(INFO)<<"RUN";
 	run_cur_thread_ = run_cur_thread;
 	brun = true;
 	int num = 0;

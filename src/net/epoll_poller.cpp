@@ -81,7 +81,6 @@ bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd){
 		error_ = errno;
 		LOG(WARN)<< "Poller::SetEvent Fial event:" << event  << "code:" << error_ <<"desc:"<< strerror(error_);
 	}
-	LOG(WARN)<< "Poller::SetEvent SUCCESS event:" << event  ;
 	return rc == 0;
 }
 void Poller::Poll(int timeout){
