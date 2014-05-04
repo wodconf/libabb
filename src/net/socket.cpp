@@ -66,7 +66,7 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 			int err = errno;
 						LOG(INFO) <<"read_end" << err << strerror(err);
 			if(save_err){
-				*save_err = err;
+				*save_err = 33;
 			}
 			return (*nrd > 0);
 		}
