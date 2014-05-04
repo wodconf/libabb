@@ -37,9 +37,7 @@ bool Socket::Write(int fd,void*inbuf,int size,int* nwr,int* save_err){
 		*nwr += ret;
 		buf += ret;
 		size  = size - ret;
-		if(*nwr == size){
-			break;
-		}
+		break;
 	}
 	return true;
 }
@@ -47,7 +45,7 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 	int ret;
 	*nrd = 0;
 	char * buf = (char *)inbuf;
-	while(1){
+	while(true){
 		ret = read(fd,buf,size);
 		if(ret < 0){
 			int err = errno;
@@ -67,9 +65,7 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 		*nrd+=ret;
 		buf += ret;
 		size  = size - ret;
-		if(*nrd == size){
-			break;
-		}
+		break;
 	}
 	return true;
 }
