@@ -104,6 +104,7 @@ int Connection::Reader(void*buf,int size){
 	int nrd;
 	if( Socket::Read(this->fd_,buf,size,&nrd,&this->err_) ){
 		if(nrd == 0){
+			LOG(INFO) << "STATE_CLOSE";
 			state_ = STATE_CLOSE;
 		}
 	}else{
