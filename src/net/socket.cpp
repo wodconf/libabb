@@ -59,15 +59,14 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 				if(save_err){
 					*save_err = err;
 				}
-				return (*nrd > 0);
+				return false;
 			}
 		}else if(ret == 0){
 			int err = errno;
-						LOG(INFO) <<"read_end" << *nrd << err << strerror(err);
 			if(save_err){
 				*save_err = err;
 			}
-			return (*nrd > 0);
+			return true;
 		}
 		*nrd+=ret;
 		buf += ret;

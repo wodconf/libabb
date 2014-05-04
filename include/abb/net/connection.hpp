@@ -48,7 +48,7 @@ public:
 	void SetEnable(bool enable);
 	void Destroy();
 	bool IsConnected(){
-		return this->err_ == 0;
+		return this->state_ == STATE_OPEN;
 	}
 	int GetError(){
 		return this->err_;
@@ -96,6 +96,11 @@ private:
 	Poller::Entry entry_;
 	bool enable_;
 	int err_;
+	enum{
+		STATE_OPEN,
+		STATE_CLOSE,
+		STATE_ERROR
+	}state_;
 	IEvent* ev_;
 	int bfreed_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);

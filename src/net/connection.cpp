@@ -20,7 +20,8 @@ Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& pee
  fd_(fd),
  bfreed_(false),
  ctx_(ctx),
- dis(this)
+ dis(this),
+ state_(STATE_OPEN)
 {
 	Socket::SetNoBlock(fd_,true);
 }
@@ -37,18 +38,18 @@ void Connection::Destroy(){
 }
 bool Connection::Write(void*buf,int size,int* nwr){
 	base::Mutex::Locker lock(wr_lock_);
-	if(this->err_ != 0){
+	if(!this->IsConnected()){
 		return false;
 	}
 	int ret = 0;
 	if(this->wr_buf_.Size() == 0){
 		ret = this->Writer(buf,size);
-		if(ret < size && !this->err_){
+		if(ret < size && this->IsConnected()){
 			this->wr_buf_.Write((char*)buf+ret,size);
 			if(this->enable_)
 				loop_.GetPoller().AddWrite(&this->entry_);
 		}
-		if(this->err_){
+		if(!this->IsConnected()){
 			if(nwr)*nwr = ret;
 			if(ret > 0)return true;
 			return false;
@@ -72,9 +73,13 @@ base::Buffer& Connection::LockWrite(){
 	return this->wr_buf_;
 }
 void Connection::UnLockWrite(){
-	this->wr_buf_.ReadToWriter(StaticWriter,this);
-	if(this->wr_buf_.Size() != 0){
-		loop_.GetPoller().AddWrite(&this->entry_);;
+	if(this->IsConnected()){
+		this->wr_buf_.ReadToWriter(StaticWriter,this);
+		if(this->wr_buf_.Size() != 0){
+			loop_.GetPoller().AddWrite(&this->entry_);;
+		}
+	}else{
+		wr_buf_.Clear();
 	}
 	wr_lock_.UnLock();
 }
@@ -97,7 +102,13 @@ void Connection::SetEnable(bool enable){
 }
 int Connection::Reader(void*buf,int size){
 	int nrd;
-	Socket::Read(this->fd_,buf,size,&nrd,&this->err_);
+	if( Socket::Read(this->fd_,buf,size,&nrd,&this->err_) ){
+		if(nrd == 0){
+			state_ = STATE_CLOSE;
+		}
+	}else{
+		state_ = STATE_ERROR;
+	}
 	return nrd;
 }
 int Connection::Writer(void*buf,int size){
@@ -111,16 +122,15 @@ void Connection::PollerEvent_OnRead(){
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	int size = this->rd_buf_.Size();
 	rd_lock_.UnLock();
-	if(size >  0 || this->err_){
-		if(this->err_){
-			LOG(INFO) << "Dispatch" <<size << err_;
-			loop_.GetPoller().DelReadWrite(&this->entry_);
-		}
+	if(state_ != STATE_OPEN){
+		loop_.GetPoller().DelReadWrite(&this->entry_);
+	}
+	if(size >  0 || state_ != STATE_OPEN){
 		this->Dispatch();
 	}
 }
 void Connection::PollerEvent_OnWrite(){
-	if(this->err_ != 0){
+	if(state_ != STATE_OPEN){
 		return;
 	}
 	if(!this->enable_) return;
@@ -151,7 +161,7 @@ void Connection::DoEmmit(){
 		if( sz > 0){
 			this->ev_->Connection_Event(EVENT_READ);
 		}
-		if( this->err_ != 0 ){
+		if(state_ != STATE_OPEN){
 			this->ev_->Connection_Event(EVENT_ERROR);
 		}
 	}
