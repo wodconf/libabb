@@ -18,7 +18,8 @@ public:
 			buf >> a;
 			conn->UnLockRead();
 			this->Send();
-		}else if(ev == abb::net::Connection::EVENT_ERROR){
+		}
+		if(ev == abb::net::Connection::EVENT_ERROR){
 			if(conn->GetError() != 0){
 				LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
 			}else{
