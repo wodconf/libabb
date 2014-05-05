@@ -29,7 +29,7 @@ public:
 	Buffer& operator << ( long long val);
 	Buffer& operator << ( unsigned long long val);
 	Buffer& operator << ( const std::string& val);
-
+	Buffer& operator << ( const char* val);
 	Buffer& operator >> ( bool& val);
 	Buffer& operator >> ( int& val);
 	Buffer& operator >> ( unsigned int& val);

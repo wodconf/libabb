@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "abb/base/log.hpp"
 #include <sys/uio.h>
+#include <string.h>
 using namespace abb::base;
 Buffer::Buffer(){
 	this->size_ = 1024;
@@ -82,8 +83,10 @@ Buffer& Buffer::operator >> (std::string& str){
 	rd_ = cur;
 	return *this;
 }
+Buffer& Buffer::operator << ( const char* val){
+	this->Write((void*)val,strlen(val)+1);
+}
 Buffer& Buffer::operator <<(const std::string& str){
-	LOG(INFO)<<str.size();
 	this->Write((void*)str.c_str(),str.size());
 	char s = '\0';
 	this->Write(&s,1);
