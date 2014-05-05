@@ -96,7 +96,7 @@ void Poller::Poll(int timeout){
 		if(revs[i].events &	(EPOLLIN | EPOLLHUP | EPOLLERR)){
 			revent = POLLER_READ;
 		}
-		if(revs[i].events &	EPOLLOUT | EPOLLHUP | EPOLLERR){
+		if(revs[i].events &	(EPOLLOUT | EPOLLHUP | EPOLLERR)){
 			revent = POLLER_WRITE;
 		}
 		entry = (Entry*)(revs[i].data.ptr);
