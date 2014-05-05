@@ -79,7 +79,7 @@ bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd){
 	int rc = epoll_ctl(efd_,mod,fd,&ep_ev);
 	if(rc !=  0){
 		error_ = errno;
-		LOG(WARN)<< "Poller::SetEvent Fial event:" << event  << "code:" << error_ <<"desc:"<< strerror(error_);
+		LOG(WARN)<< "Poller::SetEvent Fial event:" << event  << "fd:"<<fd<< "code:" << error_ <<"desc:"<< strerror(error_);
 	}
 	return rc == 0;
 }
