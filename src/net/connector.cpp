@@ -57,9 +57,8 @@ void Connector::PollerEvent_OnRead(){}
 void Connector::PollerEvent_OnWrite(){
 	if( fd_ == -1) return;
 	this->loop_.GetPoller().DelWrite(&this->entry_);
-	DispatchRunner* r = new DispatchRunner();
-	r->self = this;
 	this->Ref();
+	DispatchRunner* r = new DispatchRunner(this);
 	int err;
 	if( Socket::GetSockError(this->fd_,&err) ){
 		if(err == 0){

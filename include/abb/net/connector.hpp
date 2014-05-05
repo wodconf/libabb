@@ -39,7 +39,8 @@ private:
 	}
 private:
 	struct DispatchRunner:public base::CallBack{
-		virtual ~DispatchRunner():err(0),conn(NULL){}
+		DispatchRunner(Connector* c):self(c),err(0),conn(NULL){}
+		virtual ~DispatchRunner(){}
 		virtual void Call();
 		Connection* conn;
 		Connector* self;
