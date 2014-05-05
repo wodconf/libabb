@@ -128,7 +128,7 @@ void Buffer::WriteFromeReader(BufferReader reader,void*arg){
 	io[0].iov_len = size;
 	io[1].iov_base = buf;
 	io[1].iov_len = sizeof(buf);
-	int ret = reader(arg,iovec,2);
+	int ret = reader(arg,io,2);
 	if(ret <= size){
 		this->wr_+= ret;
 	}else if(ret > size){
