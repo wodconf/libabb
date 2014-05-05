@@ -42,6 +42,7 @@ public:
 		index++;
 		abb::base::Buffer&buf = conn->LockWrite();
 		buf << "x";
+		buf.Size();
 		conn->UnLockWrite();
 	}
 	int index ;
