@@ -106,12 +106,8 @@ int Connection::Reader(const struct iovec *iov, int iovcnt){
 	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&this->err_) ){
 		if(nrd == 0 ){
 			if(err_){
-				LOG(INFO) << strerror(err_);
-			}else{
-				LOG(INFO) << "STATE_CLOSE";
 				state_ = STATE_CLOSE;
 			}
-
 		}
 	}else{
 		LOG(INFO) << "STATE_ERROR";
