@@ -102,6 +102,7 @@ void Connection::SetEnable(bool enable){
 }
 int Connection::Reader(void*buf,int size){
 	int nrd;
+	LOG(INFO) << "Reader";
 	if( Socket::Read(this->fd_,buf,size,&nrd,&this->err_) ){
 		if(nrd == 0 && err_ == 0){
 			LOG(INFO) << "STATE_CLOSE";
