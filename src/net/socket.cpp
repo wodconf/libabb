@@ -61,8 +61,6 @@ bool Socket::ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_
 			}
 		}else if(ret == 0){
 			LOG(INFO) << "0000";
-		}else{
-			LOG(INFO) << ret;
 		}
 		*nrd = ret;
 		break;
