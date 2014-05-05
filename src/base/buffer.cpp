@@ -3,6 +3,7 @@
 #include "abb/base/buffer.hpp"
 #include <memory.h>
 #include <stdlib.h>
+#include "abb/base/log.hpp"
 using namespace abb::base;
 Buffer::Buffer(){
 	this->size_ = 1024;
@@ -127,6 +128,7 @@ void Buffer::WriteFromeReader(BufferReader reader,void*arg){
 			if(ret < w){
 				return;
 			}
+			LOG(INFO)<<"WriteFromeReader NEXT" << w;
 		}else{
 			break;
 		}
