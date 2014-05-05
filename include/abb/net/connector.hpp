@@ -40,7 +40,7 @@ private:
 private:
 	struct DispatchRunner:public base::CallBack{
 		virtual ~DispatchRunner(){}
-		virtual void Execute();
+		virtual void Call();
 		Connection* conn;
 		Connector* self;
 		int err;
