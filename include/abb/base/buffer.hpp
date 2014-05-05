@@ -5,9 +5,12 @@
 
 #include <string>
 #include "define.hpp"
+
+struct iovec;
+
 namespace abb {
 namespace base {
-struct iovec;
+
 class Buffer{
 public:
 	typedef int (*BufferWriter)(void*arg,void*buf,int size);
