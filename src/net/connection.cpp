@@ -130,6 +130,7 @@ void Connection::PollerEvent_OnRead(){
 		LOG(INFO) << "PollerEvent_OnRead enable_";
 		return;
 	}
+	LOG(INFO) << "PollerEvent_OnRead";
 	rd_lock_.Lock();
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	int size = this->rd_buf_.Size();
