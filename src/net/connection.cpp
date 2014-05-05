@@ -104,10 +104,7 @@ int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;
 	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&this->err_) ){
 		if(nrd == 0 ){
-			if(err_){
-				LOG(INFO) << strerror(err_);
-			}else{
-				LOG(INFO) << "STATE_CLOSE";
+			if(err_ == 0){
 				state_ = STATE_CLOSE;
 			}
 		}
