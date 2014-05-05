@@ -56,9 +56,9 @@ public:
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:
-	static int StaticReader(void*arg,void*buf,int size){
+	static int StaticReader(void*arg,const struct iovec *iov, int iovcnt){
 		Connection* con = (Connection*)arg;
-		return con->Reader(buf,size);
+		return con->Reader(iov,iovcnt);
 	}
 	static int StaticWriter(void*arg,void*buf,int size){
 		Connection* con = (Connection*)arg;
@@ -68,7 +68,7 @@ private:
 		Connection* con = (Connection*)arg;
 		con->UnRef();
 	}
-	int Reader(void*buf,int size);
+	int Reader(const struct iovec *iov, int iovcnt);
 	int Writer(void*buf,int size);
 	void Dispatch();
 	void DoEmmit();

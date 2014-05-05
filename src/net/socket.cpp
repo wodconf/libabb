@@ -39,6 +39,29 @@ bool Socket::Write(int fd,void*inbuf,int size,int* nwr,int* save_err){
 	}
 	return true;
 }
+bool Socket::ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_err){
+	int ret;
+	*nrd = 0;
+	while(true){
+		ret = readv(fd, iov, iovcnt);
+		if(ret < 0){
+			int err = errno;
+			if(save_err){
+				*save_err = err;
+			}
+			if( err == EAGAIN){
+				break;
+			}else if(err == EINTR){
+				continue;
+			}else{
+				return false;
+			}
+		}
+		*nrd = ret;
+		break;
+	}
+	return true;
+}
 bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 	int ret;
 	*nrd = 0;
@@ -59,8 +82,6 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 			}
 		}
 		*nrd+=ret;
-		buf += ret;
-		size  = size - ret;
 		break;
 	}
 	return true;

@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <stdlib.h>
 #include "abb/base/log.hpp"
+#include <sys/uio.h>
 using namespace abb::base;
 Buffer::Buffer(){
 	this->size_ = 1024;
@@ -116,22 +117,22 @@ void Buffer::ReadToWriter(BufferWriter writer,void*arg){
 	}
 }
 void Buffer::WriteFromeReader(BufferReader reader,void*arg){
-	while(true){
-		int w = size_ - wr_;
-		if(w == 0){
-			this->Grow(1024);
-			w = size_ - wr_;
-		}
-		int ret = reader(arg,(void*)(this->buf_+this->rd_),w);
-		if(ret > 0){
-			this->wr_+= ret;
-			if(ret < w){
-				return;
-			}
-			LOG(INFO)<<"WriteFromeReader NEXT" << w;
-		}else{
-			break;
-		}
+	char buf[65535];
+	struct iovec io[2];
+	int size = size_ - wr_;
+	if(size == 128 ){
+		this->Grow(1024);
+		size = size_ - wr_;
+	}
+	io[0].iov_base = (void*)(this->buf_+this->wr_);
+	io[0].iov_len = size;
+	io[1].iov_base = buf;
+	io[1].iov_len = sizeof(buf);
+	int ret = reader(arg,iovec,2);
+	if(ret <= size){
+		this->wr_+= ret;
+	}else if(ret > size){
+		this->Write(buf,ret - size);
 	}
 }
 void Buffer::Grow(int needsize){

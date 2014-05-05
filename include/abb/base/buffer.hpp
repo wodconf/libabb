@@ -7,11 +7,11 @@
 #include "define.hpp"
 namespace abb {
 namespace base {
-
+struct iovec;
 class Buffer{
 public:
 	typedef int (*BufferWriter)(void*arg,void*buf,int size);
-	typedef int (*BufferReader)(void*arg,void*buf,int size);
+	typedef int (*BufferReader)(void*arg,const struct iovec *iov, int iovcnt);
 	Buffer();
 	~Buffer();
 	Buffer& operator << ( bool val);

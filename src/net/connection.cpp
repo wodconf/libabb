@@ -100,10 +100,10 @@ void Connection::SetEnable(bool enable){
 		loop_.GetPoller().AddReadWrite(&this->entry_);
 	}
 }
-int Connection::Reader(void*buf,int size){
+int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;
 
-	if( Socket::Read(this->fd_,buf,size,&nrd,&this->err_) ){
+	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&this->err_) ){
 		if(nrd == 0 ){
 			if(err_){
 				LOG(INFO) << strerror(err_);
