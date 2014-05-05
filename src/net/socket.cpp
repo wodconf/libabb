@@ -70,15 +70,17 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 		ret = read(fd,buf,size);
 		if(ret < 0){
 			int err = errno;
-			if(save_err){
-				*save_err = err;
-			}
-			if( err == EAGAIN){
-				break;
-			}else if(err == EINTR){
+			if(err == EINTR){
 				continue;
 			}else{
-				return false;
+				if(save_err){
+					*save_err = err;
+				}
+				if( err == EAGAIN){
+					return true;
+				}else{
+					return false;
+				}
 			}
 		}
 		*nrd+=ret;
