@@ -46,7 +46,6 @@ bool Socket::ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_
 		ret = readv(fd, iov, iovcnt);
 		if(ret < 0){
 			int err = errno;
-			LOG(INFO) << err << strerror(err);
 			if(err == EINTR){
 				continue;
 			}else{
@@ -59,8 +58,6 @@ bool Socket::ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_
 					return false;
 				}
 			}
-		}else if(ret == 0){
-			LOG(INFO) << "0000";
 		}
 		*nrd = ret;
 		break;
