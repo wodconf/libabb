@@ -102,7 +102,7 @@ void Poller::Poll(int timeout){
 
 		entry = (Entry*)(revs[i].data.ptr);
 		if(revs[i].events &(EPOLLHUP | EPOLLERR)){
-					LOG(INFO) << "epoll_wait" << revs[i].events << entry->event_;
+					LOG(INFO) << "epoll_wait" << revs[i].events << "revent:" << revent<<"event:"<<  entry->event_;
 				}
 		if(entry)
 			entry->Emitter(revent);
