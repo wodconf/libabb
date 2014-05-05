@@ -48,6 +48,10 @@ void Context::Run(bool run_cur_thread){
 		loops_[this->num_io_thread-1].Start();
 
 }
+void RunAfter(long long time,base::CallBack* cb){
+
+}
+void Cancel(base::CallBack* cb);
 void Context::WaitAndStop(){
 	if(threads == NULL) return;
 	if(brun){

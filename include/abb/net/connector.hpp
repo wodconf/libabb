@@ -1,7 +1,7 @@
 #ifndef ABB_NET_CONNECTOR_HPP_
 #define ABB_NET_CONNECTOR_HPP_
 
-#include "../base/thread_pool.hpp"
+#include "../base/callback.hpp"
 #include "../base/ref_object.hpp"
 #include "poller.hpp"
 #include "ip_addr.hpp"
@@ -38,7 +38,7 @@ private:
 		c->UnRef();
 	}
 private:
-	struct DispatchRunner:public base::ThreadPool::Runer{
+	struct DispatchRunner:public base::CallBack{
 		virtual ~DispatchRunner(){}
 		virtual void Execute();
 		Connection* conn;

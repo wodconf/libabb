@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include "abb/base/thread_pool.hpp"
 #include "loop.hpp"
+#include "callback.hpp"
 namespace abb {
 namespace net {
 
@@ -22,11 +23,11 @@ public:
 	void Init();
 	void Run(bool run_cur_thread);
 	void WaitAndStop();
-	void Dispatch(base::ThreadPool::Runer* runer){
+	void Dispatch(base::CallBack* cb){
 		if(pool){
-			this->pool->Execute(runer);
+			this->pool->Execute(cb);
 		}else{
-			runer->Execute();
+			cb->Call();
 		}
 	}
 	Loop& GetFreeLoop();

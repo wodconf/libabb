@@ -71,7 +71,7 @@ void Connector::PollerEvent_OnWrite(){
 	r->err = err;
 	this->ctx_->Dispatch(r);
 }
-void Connector::DispatchRunner::Execute(){
+void Connector::DispatchRunner::Call(){
 	if(conn){
 		self->lis_->Connector_Open(conn);
 	}else{

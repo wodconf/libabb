@@ -84,7 +84,7 @@ void Acceptor::PollerEvent_OnRead(){
 	Connection* conn = Connection::Create(ctx_,fd,addr_,addr);
 	this->Dispatch(conn);
 }
-void Acceptor::DispatchRunner::Execute(){
+void Acceptor::DispatchRunner::Call(){
 	LOG(INFO)<<"execute";
 	this->ac->lis_->Acceptor_Event(this->ac,this->conn);
 	this->ac->UnRef();

@@ -169,7 +169,7 @@ void Connection::DoEmmit(){
 	this->UnRef();
 }
 
-void Connection::EventDispatch::Execute(){
+void Connection::EventDispatch::Call(){
 	self->DoEmmit();
 }
 }}

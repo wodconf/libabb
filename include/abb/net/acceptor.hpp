@@ -2,11 +2,11 @@
 
 #ifndef ABB_NET_ACCEPTOR_H_
 #define ABB_NET_ACCEPTOR_H_
-#include "abb/net/ip_addr.hpp"
+#include "ip_addr.hpp"
 #include "i_poller_event.hpp"
-#include "abb/base/ref_object.hpp"
-#include "abb/base/thread_pool.hpp"
+#include "../base/ref_object.hpp"
 #include "poller.hpp"
+#include "../base/callback.hpp"
 namespace abb {
 namespace net {
 class Loop;
@@ -41,10 +41,10 @@ private:
 	~Acceptor();
 	void Dispatch(Connection* conn);
 private:
-	struct DispatchRunner:public base::ThreadPool::Runer{
+	struct DispatchRunner:public base::CallBack{
 		DispatchRunner(Acceptor* a,Connection* c):ac(a),conn(c){}
 		virtual ~DispatchRunner(){}
-		virtual void Execute();
+		virtual void Call();
 		Connection* conn;
 		Acceptor* ac;
 	};

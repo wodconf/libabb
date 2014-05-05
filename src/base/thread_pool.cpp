@@ -47,37 +47,37 @@ void ThreadPool::Stop(){
 	pthread_cond_broadcast(&this->cond_);
 	pthread_mutex_unlock(&this->mtx_);
 }
-void ThreadPool::Execute(Runer* runer){
+void ThreadPool::Execute(CallBack* runer){
 	pthread_mutex_lock(&this->mtx_);
-	if(this->runer_queue_.empty()){
-		this->runer_queue_.push(runer);
+	if(this->cb_queue_.empty()){
+		this->cb_queue_.push(runer);
 		pthread_cond_signal(&this->cond_);
 	}else{
-		this->runer_queue_.push(runer);
+		this->cb_queue_.push(runer);
 	}
 
 	pthread_mutex_unlock(&this->mtx_);
 }
-ThreadPool::Runer* ThreadPool::PopRuner(){
+CallBack* ThreadPool::PopCallBack(){
 	pthread_mutex_lock(&this->mtx_);
-	while( this->runer_queue_.empty() && !bstop_){
+	while( this->cb_queue_.empty() && !bstop_){
 		pthread_cond_wait(&this->cond_,&this->mtx_);
 	}
 	if(bstop_){
 		pthread_mutex_unlock(&this->mtx_);
 		return NULL;
 	}
-	Runer* ptr = this->runer_queue_.front();
-	this->runer_queue_.pop();
+	CallBack* ptr = this->cb_queue_.front();
+	this->cb_queue_.pop();
 	pthread_mutex_unlock(&this->mtx_);
 	return ptr;
 }
 
 void ThreadPool::Worker(){
 	while(!bstop_){
-		Runer* ptr = this->PopRuner();
+		CallBack* ptr = this->PopCallBack();
 		if(ptr){
-			ptr->Execute();
+			ptr->Call();
 		}
 	}
 }

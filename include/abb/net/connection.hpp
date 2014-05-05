@@ -4,13 +4,13 @@
 #define ABB_NET_CONNECTION_H_
 
 #include "i_poller_event.hpp"
-#include "abb/base/ref_object.hpp"
-#include "abb/base/thread_pool.hpp"
-#include "abb/base/mutex.hpp"
-#include "abb/base/rw_lock.hpp"
-#include "abb/base/buffer.hpp"
-#include "abb/base/define.hpp"
-#include "abb/net/ip_addr.hpp"
+#include "../base/ref_object.hpp"
+#include "../base/callback.hpp"
+#include "../base/mutex.hpp"
+#include "../base/rw_lock.hpp"
+#include "../base/buffer.hpp"
+#include "../base/define.hpp"
+#include "../net/ip_addr.hpp"
 #include "poller.hpp"
 #include <sys/socket.h>
 namespace abb {
@@ -73,13 +73,13 @@ private:
 	void Dispatch();
 	void DoEmmit();
 private:
-	struct EventDispatch:public base::ThreadPool::Runer{
+	struct EventDispatch:public base::CallBack{
 		EventDispatch(Connection* con){
 			self = con;
 		}
 		Connection* self;
 		virtual ~EventDispatch(){};
-		virtual void Execute();
+		virtual void Call();
 	};
 	friend struct EventDispatch;
 	IPAddr local_addr_;

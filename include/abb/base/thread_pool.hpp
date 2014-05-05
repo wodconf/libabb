@@ -5,16 +5,11 @@
 
 #include <pthread.h>
 #include <queue>
+#include "callback.hpp"
 namespace abb {
 namespace base {
 
 class ThreadPool {
-public:
-	class Runer{
-	public:
-		virtual ~Runer(){};
-		virtual void Execute() = 0;
-	};
 public:
 	ThreadPool();
 	~ThreadPool();
@@ -25,15 +20,15 @@ public:
 	bool Start();
 	void Wait();
 	void Stop();
-	void Execute(Runer* runer);
+	void Execute(CallBack* cb);
 private:
-	Runer* PopRuner();
+	CallBack* PopCallBack();
 	void Worker();
 	static void* ThreadMain(void*);
 private:
 	bool bwait_;
 	bool bstop_;
-	std::queue<Runer*> runer_queue_;
+	std::queue<CallBack*> cb_queue_;
 	pthread_mutex_t mtx_;
 	pthread_cond_t cond_;
 	int num_thread_;
