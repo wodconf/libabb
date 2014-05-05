@@ -13,17 +13,17 @@ namespace abb{
 namespace net{
 class IPAddr {
 public:
-	 inline unsigned int Length() const{
-	  switch (this->family) {
-	    case AF_UNIX:
-	      return sizeof(this->sa.nix);
-	    case AF_INET:
-	      return sizeof(this->sa.v4);
-	    case AF_INET6:
-	      return sizeof(this->sa.v6);
-	    default:
-	      return sizeof(this->sa.sa);
-	  }
+	inline unsigned int Length() const{
+		switch (this->family) {
+		case AF_UNIX:
+			return sizeof(this->sa.nix);
+		case AF_INET:
+			return sizeof(this->sa.v4);
+		case AF_INET6:
+			return sizeof(this->sa.v6);
+		default:
+			return sizeof(this->sa.sa);
+		}
 	}
 	bool SetV4(const char *addr, uint16_t port);
 	bool SetV6(const char *addr, uint16_t port);
@@ -31,13 +31,13 @@ public:
 	bool SetFromAddrInfo(struct addrinfo* a);
 	bool SetFromHostent(struct hostent *ent);
 public:
-  sa_family_t family;
-  union {
-    struct sockaddr sa;
-    struct sockaddr_un nix;
-    struct sockaddr_in v4;
-    struct sockaddr_in6 v6;
-  } sa;
+	sa_family_t family;
+	union {
+		struct sockaddr sa;
+		struct sockaddr_un nix;
+		struct sockaddr_in v4;
+		struct sockaddr_in6 v6;
+	} sa;
 };
 }
 }
