@@ -111,7 +111,8 @@ int Connection::Reader(const struct iovec *iov, int iovcnt){
 				LOG(INFO) << "STATE_CLOSE";
 				state_ = STATE_CLOSE;
 			}
-
+		}else{
+			LOG(INFO) << nrd;
 		}
 	}else{
 		LOG(INFO) << "STATE_ERROR";
