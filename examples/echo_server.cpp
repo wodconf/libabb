@@ -24,11 +24,18 @@ public:
 	virtual void Connection_Event(int ev){
 		if(ev == abb::net::Connection::EVENT_READ){
 			abb::base::Buffer&buf = conn->LockRead();
-			buf.Clear();
+			int a;
+			buf >> a;
 			conn->UnLockRead();
 			num_pkt++;
+			this->Send();
+		}else if(ev == abb::net::Connection::EVENT_ERROR){
+			if(conn->GetError() != 0){
+				LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
+			}else{
+				LOG(INFO)<< "Connection_EventClose";
+			}
 		}
-		this->Send();
 	}
 	void Send(){
 		index++;
