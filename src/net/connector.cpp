@@ -28,7 +28,7 @@ bool Connector::Connect(const IPAddr& addr,int timeout){
 	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
 		if((err == EINPROGRESS) || (err == EAGAIN)){
-			
+
 		}else{
 			LOG(INFO)<< "connect:" << errno << strerror(errno);
 			close(fd_);
