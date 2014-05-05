@@ -28,7 +28,7 @@ public:
 			buf >> a;
 			conn->UnLockRead();
 			num_pkt++;
-		//	this->Send();
+			this->Send();
 		}
 		if(ev == abb::net::Connection::EVENT_ERROR){
 			if(conn->GetError() != 0){
