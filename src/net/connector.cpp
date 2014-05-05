@@ -56,16 +56,21 @@ void Connector::Reset(){
 void Connector::PollerEvent_OnRead(){}
 void Connector::PollerEvent_OnWrite(){
 	if( fd_ == -1) return;
+	int fd = fd_;
+	fd_ = -1;
 	this->loop_.GetPoller().DelWrite(&this->entry_);
 	this->Ref();
 	DispatchRunner* r = new DispatchRunner(this);
 	int err;
 	if( Socket::GetSockError(this->fd_,&err) ){
 		if(err == 0){
-			r->conn = Connection::Create(ctx_,fd_,this->addr_,this->addr_);
+			r->conn = Connection::Create(ctx_,fd,this->addr_,this->addr_);
+		}else{
+			close(fd);
 		}
 	}else{
 		err = errno;
+		close(fd);
 	}
 	r->err = err;
 	this->ctx_->Dispatch(r);
