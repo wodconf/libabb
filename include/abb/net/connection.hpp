@@ -74,9 +74,7 @@ private:
 	void DoEmmit();
 private:
 	struct EventDispatch:public base::CallBack{
-		EventDispatch(Connection* con){
-			self = con;
-		}
+		EventDispatch(Connection* con):self(con){}
 		Connection* self;
 		virtual ~EventDispatch(){};
 		virtual void Call();
