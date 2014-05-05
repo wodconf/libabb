@@ -83,6 +83,7 @@ Buffer& Buffer::operator >> (std::string& str){
 	return *this;
 }
 Buffer& Buffer::operator <<(const std::string& str){
+	LOG(INFO)<<str.size();
 	this->Write((void*)str.c_str(),str.size());
 	char s = '\0';
 	this->Write(&s,1);
