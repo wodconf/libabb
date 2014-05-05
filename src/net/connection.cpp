@@ -30,6 +30,7 @@ Connection::~Connection() {
 	close(fd_);
 }
 void Connection::Destroy(){
+	base::Mutex::Locker lock(wr_lock_);
 	if(bfreed_) return;
 	bfreed_ = true;
 	enable_ = false;
