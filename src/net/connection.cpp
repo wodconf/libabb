@@ -74,7 +74,6 @@ base::Buffer& Connection::LockWrite(){
 }
 void Connection::UnLockWrite(){
 	if(this->IsConnected()){
-		LOG(INFO)<<"UnLockWrite";
 		this->wr_buf_.ReadToWriter(StaticWriter,this);
 		if(this->wr_buf_.Size() != 0){
 			loop_.GetPoller().AddWrite(&this->entry_);;
