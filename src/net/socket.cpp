@@ -46,15 +46,17 @@ bool Socket::ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_
 		ret = readv(fd, iov, iovcnt);
 		if(ret < 0){
 			int err = errno;
-			if(save_err){
-				*save_err = err;
-			}
-			if( err == EAGAIN){
-				break;
-			}else if(err == EINTR){
+			if(err == EINTR){
 				continue;
 			}else{
-				return false;
+				if(save_err){
+					*save_err = err;
+				}
+				if( err == EAGAIN){
+					return true;
+				}else{
+					return false;
+				}
 			}
 		}
 		*nrd = ret;
