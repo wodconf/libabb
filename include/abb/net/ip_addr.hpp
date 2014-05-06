@@ -30,6 +30,8 @@ public:
 	bool SetUnix(const char *path,unsigned int pathlen);
 	bool SetFromAddrInfo(struct addrinfo* a);
 	bool SetFromHostent(struct hostent *ent);
+	//127.0.0.1:1398
+	bool SetByString(const std::string& str);
 public:
 	sa_family_t family;
 	union {

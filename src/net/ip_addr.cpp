@@ -102,7 +102,24 @@ bool IPAddr::SetFromAddrInfo(struct addrinfo* ai){
 		return false;
 	}
 }
-
+static bool ParseAddr(const std::string& addr,std::string *ip,int *port){
+	std::string::size_type index = addr.find(':');
+	if(index != std::string::npos){
+		*ip = addr.substr(0,index);
+		std::string str_port = addr.substr(index+1);
+		*port = atoi(str_port.c_str());
+		return true;
+	}
+	return false;
+}
+bool IPAddr::SetByString(const std::string& str){
+	std::string ip;
+	int port;
+	if(ParseAddr(str,&ip,&port)){
+		return this->SetV4(ip.c_str(),port);
+	}
+	return false;
+}
 bool IPAddr::SetFromHostent(struct hostent *ent)
 {
 	this->family = ent->h_addrtype;
