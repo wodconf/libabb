@@ -33,7 +33,7 @@ bool Connector::Connect(const IPAddr& addr,int timeout){
 		if((err == EINPROGRESS) || (err == EAGAIN)){
 
 		}else{
-			LOG(INFO)<< "connect:" << errno << strerror(errno);
+			LOG(WARN)<< "connect:" << errno << strerror(errno);
 			close(fd_);
 			return false;
 		}

@@ -9,15 +9,12 @@
 namespace abb { namespace base{
 
 enum LogLevel {
-  LOGLEVEL_INFO,
-  LOGLEVEL_WARN,
-  LOGLEVEL_ERROR,
-  LOGLEVEL_FATAL,
-#ifdef NDEBUG
-  LOGLEVEL_DFATAL = LOGLEVEL_ERROR
-#else
-  LOGLEVEL_DFATAL = LOGLEVEL_FATAL
-#endif
+	LOGLEVEL_TRACE,
+	LOGLEVEL_DEBUG,
+  	LOGLEVEL_WARN,
+  	LOGLEVEL_ERROR,
+  	LOGLEVEL_FATAL,
+	LOGLEVEL_INFO
 };
 extern LogLevel g_min_log_level;
 

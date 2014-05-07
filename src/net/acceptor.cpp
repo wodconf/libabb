@@ -37,14 +37,14 @@ bool Acceptor::Bind(const IPAddr& addr){
 	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
 		int err = errno;
-		LOG(INFO)<< "socket" << errno << strerror(errno);
+		LOG(WARN)<< "socket" << errno << strerror(errno);
 		return false;
 	}
 	Socket::SetRuseAddr(fd_,true);
 	Socket::SetNoBlock(fd_,true);
 	if( bind(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
-		LOG(INFO)<< "bind" << errno << strerror(errno);
+		LOG(WARN)<< "bind" << errno << strerror(errno);
 		close(fd_);
 		return false;
 	}
@@ -60,11 +60,10 @@ void Acceptor::SetEnable(bool benable){
 		return ;
 	}
 	enable_ = benable;
-	LOG(INFO)<< enable_ << fd_;
 	if(enable_){
 		if( 0 > listen(fd_,10) ){
 			int err = errno;
-			LOG(INFO)<< "listen:" << errno << strerror(errno);
+			LOG(WARN)<< "listen:" << errno << strerror(errno);
 			return;
 		}
 		this->loop_.GetPoller().AddRead(&this->entry_);
