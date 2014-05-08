@@ -8,6 +8,7 @@ class ConnectCB:public abb::net::Connection::IEvent{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
 		conn->SetEventCallBack(this);
+		this->Send();
 	}
 	virtual ~ConnectCB(){}
 	virtual void Connection_OnMessage(Connection* con,Msg msg){
