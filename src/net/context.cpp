@@ -27,7 +27,7 @@ static void* ThreadMain(void* arg){
 	lp->Start();
 	return NULL;
 }
-void Context::Run(bool run_cur_thread){
+void Context::Run(){
 	if(brun) return;
 	brun = true;
 	int num = 0;
@@ -39,7 +39,7 @@ void Context::Run(bool run_cur_thread){
 	for(int i=0;i<num;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
 	}
-	if(run_cur_thread)
+	if(this->option_.GetRunCurrentThread())
 		loops_[this->option_.GetNumPoller()-1].Start();
 
 }

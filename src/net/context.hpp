@@ -13,7 +13,7 @@ class Context {
 public:
 	Context(const ContextOption& option,IProtocolFactory* fac);
 	~Context();
-	void Run(bool run_cur_thread);
+	void Run();
 	void Stop();
 	Loop& GetFreeLoop();
 	void Wait();
