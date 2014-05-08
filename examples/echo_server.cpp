@@ -63,7 +63,7 @@ int main(){
 		LOG(INFO) << "Bind fail";
 		return -1;
 	}
-
+	LOG(INFO) << "Bind ok";
 	ac->SetEnable(true);
 	abb::RunContext(ctx);
 	while(true){
