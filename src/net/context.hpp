@@ -3,9 +3,9 @@
 #define CONTEXT_HPP_
 #include "abb/net/context_option.hpp"
 #include <pthread.h>
-#include "abb/base/thread_pool.hpp"
 #include "loop.hpp"
 #include "abb/base/callback.hpp"
+#include "abb/net/i_protocol.hpp"
 namespace abb {
 namespace net {
 
