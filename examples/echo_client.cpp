@@ -3,7 +3,6 @@
 #include <abb/net/acceptor.hpp>
 #include <abb/net/connector.hpp>
 #include <abb/net/connection.hpp>
-#include "protocol.hpp"
 class ConnectCB:public abb::net::Connection::Listener{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
@@ -11,10 +10,11 @@ public:
 		this->Send();
 	}
 	virtual ~ConnectCB(){}
-	virtual void L_Connection_OnMessage(Connection* con,void* msg){
+	virtual void L_Connection_EventRead(abb::net::Connection* self,abb::base::Buffer& buf){
+		buf.Clear();
 		this->Send();
 	}
-	virtual void L_Connection_OnClose(Connection* con){
+	virtual void L_Connection_EventClose(abb::net::Connection* self){
 		if(conn->GetError() != 0){
 			LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
 		}else{
@@ -31,19 +31,18 @@ public:
 class EventCb:public abb::net::Connector::Listener{
 public:
 	virtual ~EventCb(){}
-	virtual void L_Connector_OnOpen(abb::net::Connection* conn){
+	virtual void L_Connector_EventOpen(abb::net::Connection* conn){
 		LOG(INFO)<< "Connector_Open";
 		new ConnectCB(conn);
 	}
-	virtual void L_Connector_OnOpenFail(int err){
+	virtual void L_Connector_EventError(int err){
 		LOG(INFO)<< "Connector_OpenFail" << err << strerror(err);
 	}
 };
 int main(){
 	abb::net::ContextOption option;
 	option.SetRunCurrentThread(true);
-	ProtocolFactory fac;
-	abb::net::Context* ctx = abb::NewContext(option,&fac);
+	abb::net::Context* ctx = abb::NewContext(option);
 	LOG(INFO) << "c";
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4("127.0.0.1",9922) ){

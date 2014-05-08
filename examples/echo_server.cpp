@@ -8,7 +8,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 using namespace abb::net;
-#include "protocol.hpp"
 void sleep(int ms){
 	struct timeval tv;
 	tv.tv_sec = ms/1000;
@@ -22,16 +21,21 @@ public:
 		conn->Listener(this);
 	}
 	virtual ~ConnectCB(){}
-	virtual void L_Connection_OnMessage(Connection* con,void* msg){
+	virtual void L_Connection_EventRead(Connection* self,abb::base::Buffer& buf){
+		buf.Clear();
 		this->Send();
 		num_pkt++;
 	}
-	virtual void L_Connection_OnClose(Connection* con){
+	virtual void L_Connection_EventClose(Connection* self){
 		if(conn->GetError() != 0){
 			LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
 		}else{
 			LOG(INFO)<< "Connection_EventClose";
 		}
+	}
+	virtual void L_Connection_OnMessage(Connection* con,void* msg){
+		this->Send();
+		num_pkt++;
 	}
 	void Send(){
 		index++;
@@ -43,14 +47,13 @@ public:
 class EventCb:public abb::net::Acceptor::Listener{
 public:
 	virtual ~EventCb(){}
-	virtual void L_Acceptor_OnConnection(abb::net::Connection* c){
+	virtual void L_Acceptor_Event(abb::net::Connection* c){
 		new ConnectCB(c);
 	}
 };
 int main(){
 	abb::net::ContextOption option;
-	ProtocolFactory fac;
-	abb::net::Context* ctx = abb::NewContext(option,&fac);
+	abb::net::Context* ctx = abb::NewContext(option);
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";
