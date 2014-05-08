@@ -4,9 +4,13 @@
 #include "abb/base/log.hpp"
 namespace abb {
 namespace net {
-Context::Context(const ContextOption& option)
+Context::Context(const ContextOption& option,IProtocolFactory* fac)
 :option_(option),
- threads(NULL),loops_(NULL),cur_(0),brun(false) {
+ fac_(fac),
+ threads(NULL),
+ loops_(NULL),cur_(0),
+ brun(false)
+{
 	threads = new pthread_t[this->option_.GetNumPoller()];
 	loops_ = new Loop[this->option_.GetNumPoller()];
 }

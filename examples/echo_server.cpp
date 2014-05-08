@@ -7,6 +7,8 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <unistd.h>
+using namespace abb::net;
+#include "protocol.hpp"
 void sleep(int ms){
 	struct timeval tv;
 	tv.tv_sec = ms/1000;
@@ -17,32 +19,23 @@ int num_pkt = 0;
 class ConnectCB:public abb::net::Connection::IEvent{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
-		conn->SetEnable(true);
 		conn->SetEventCallBack(this);
 	}
 	virtual ~ConnectCB(){}
-	virtual void Connection_Event(int ev){
-		if(ev == abb::net::Connection::EVENT_READ){
-			abb::base::Buffer&buf = conn->LockRead();
-			int a;
-			buf >> a;
-			conn->UnLockRead();
-			num_pkt++;
-			this->Send();
-		}
-		if(ev == abb::net::Connection::EVENT_ERROR){
-			if(conn->GetError() != 0){
-				LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
-			}else{
-				LOG(INFO)<< "Connection_EventClose";
-			}
+	virtual void Connection_OnMessage(Connection* con,Msg msg){
+		num_pkt++;
+		this->Send();
+	}
+	virtual void Connection_OnClose(Connection* con){
+		if(conn->GetError() != 0){
+			LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
+		}else{
+			LOG(INFO)<< "Connection_EventClose";
 		}
 	}
 	void Send(){
 		index++;
-		abb::base::Buffer&buf = conn->LockWrite();
-		buf << "x";
-		conn->UnLockWrite();
+		this->conn->SendData(&index,sizeof(index));
 	}
 	int index ;
 	abb::net::Connection* conn;
@@ -55,7 +48,9 @@ public:
 	}
 };
 int main(){
-	abb::net::Context* ctx = abb::NewContext(4,0);
+	abb::net::ContextOption option;
+	ProtocolFactory fac;
+	abb::net::Context* ctx = abb::NewContext(option,&fac);
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";

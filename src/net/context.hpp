@@ -18,16 +18,16 @@ public:
 	Loop& GetFreeLoop();
 	void Wait();
 	IProtocol* GetProtocol(){
-		return fac->CreateProtocol();
+		return fac_->CreateProtocol();
 	}
 	void BackProtocol(IProtocol* val){
-		fac->DestroyProtocol(val);
+		fac_->DestroyProtocol(val);
 	}
 private:
 	pthread_t* threads;
 	ContextOption option_;
 	Loop* loops_;
-	IProtocolFactory* fac;
+	IProtocolFactory* fac_;
 	int cur_;
 	bool brun;
 };

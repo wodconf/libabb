@@ -3,36 +3,26 @@
 #include <abb/net/acceptor.hpp>
 #include <abb/net/connector.hpp>
 #include <abb/net/connection.hpp>
+#include "protocol.hpp"
 class ConnectCB:public abb::net::Connection::IEvent{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
-		conn->SetEnable(true);
 		conn->SetEventCallBack(this);
-		this->Send();
 	}
 	virtual ~ConnectCB(){}
-	virtual void Connection_Event(int ev){
-		if(ev == abb::net::Connection::EVENT_READ){
-			abb::base::Buffer&buf = conn->LockRead();
-			int a;
-			buf >> a;
-			conn->UnLockRead();
-			this->Send();
+	virtual void Connection_OnMessage(Connection* con,Msg msg){
+		this->Send();
+	}
+	virtual void Connection_OnClose(Connection* con){
+		if(conn->GetError() != 0){
+			LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
+		}else{
+			LOG(INFO)<< "Connection_EventClose";
 		}
-		if(ev == abb::net::Connection::EVENT_ERROR){
-			if(conn->GetError() != 0){
-				LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
-			}else{
-				LOG(INFO)<< "Connection_EventClose";
-			}
-		}
-
 	}
 	void Send(){
 		index++;
-		abb::base::Buffer&buf = conn->LockWrite();
-				buf << "x";
-				conn->UnLockWrite();
+		this->conn->SendData(&index,sizeof(index));
 	}
 	int index ;
 	abb::net::Connection* conn;
@@ -49,7 +39,9 @@ public:
 	}
 };
 int main(){
-	abb::net::Context* ctx = abb::NewContext();
+	abb::net::ContextOption option;
+	ProtocolFactory fac;
+	abb::net::Context* ctx = abb::NewContext(option,&fac);
 	LOG(INFO) << "c";
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4("127.0.0.1",9922) ){
