@@ -73,6 +73,7 @@ void Connector::PollerEvent_OnWrite(){
 			}else{
 				close(fd);
 			}
+			return;
 		}else{
 			close(fd);
 		}
