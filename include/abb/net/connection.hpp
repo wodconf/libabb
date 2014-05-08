@@ -13,6 +13,7 @@
 #include "../net/ip_addr.hpp"
 #include "poller.hpp"
 #include <sys/socket.h>
+#include "i_protocol.hpp"
 namespace abb {
 namespace net {
 class Loop;
@@ -26,26 +27,18 @@ private:
 	Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer);
 	virtual ~Connection();
 public:
-	enum{
-		EVENT_READ = 0x01,
-		EVENT_ERROR = 0x02,
-	};
 	class IEvent{
 	public:
 		virtual ~IEvent(){};
-		virtual void Connection_Event(int)=0;
+		virtual void Connection_OnMessage(Connection* con,Msg msg);
+		virtual void Connection_OnClose(Connection* con);
 	};
 	void SetEventCallBack(IEvent* event){ev_ = event;}
-	bool Write(void*buf,int size,int* nwr);
-	bool ReadSize(void*buf,int size,int* nwr);
-	base::Buffer& LockWrite();
-	void UnLockWrite();
-	base::Buffer& LockRead();
-	void UnLockRead();
+	void Send(Msg msg);
+	void SendData(void*buf,unsigned int size);
 	int ShutDown(int how){
 		return shutdown(this->fd_,how);
 	}
-	void SetEnable(bool enable);
 	void Destroy();
 	bool IsConnected(){
 		return this->state_ == STATE_OPEN;
@@ -70,22 +63,13 @@ private:
 	}
 	int Reader(const struct iovec *iov, int iovcnt);
 	int Writer(void*buf,int size);
-	void Dispatch();
-	void DoEmmit();
 private:
-	struct EventDispatch:public base::CallBack{
-		EventDispatch(Connection* con):self(con){}
-		Connection* self;
-		virtual ~EventDispatch(){};
-		virtual void Call();
-	};
 	friend struct EventDispatch;
 	IPAddr local_addr_;
 	IPAddr peer_addr_;
 	bool is_exe_;
 	EventDispatch dis;
 	int fd_;
-	base::Mutex rd_lock_;
 	base::Buffer rd_buf_;
 	base::Mutex wr_lock_;
 	base::Buffer wr_buf_;
@@ -101,6 +85,7 @@ private:
 	}state_;
 	IEvent* ev_;
 	int bfreed_;
+	IProtocol* protocol_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 
