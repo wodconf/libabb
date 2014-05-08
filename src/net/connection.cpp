@@ -34,8 +34,9 @@ void Connection::Destroy(){
 	loop_.GetPoller().DelReadWrite(&this->entry_);
 	loop_.RunInLoop(StaticFree,this);
 }
-base::Buffer Connection::LockWrite(){
+base::Buffer& Connection::LockWrite(){
 	wr_lock_.Lock();
+	return wr_buf_;
 }
 void Connection::Flush(){
 	this->wr_buf_.ReadToWriter(StaticWriter,this);
@@ -46,6 +47,8 @@ void Connection::Flush(){
 void Connection::UnLockWrite(){
 	if(this->IsConnected()){
 		Flush();
+	}else{
+		wr_buf_.Clear();
 	}
 	wr_lock_.UnLock();
 }
