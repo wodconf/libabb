@@ -82,9 +82,9 @@ void Connection::PollerEvent_OnRead(){
 	}
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	this->Ref();
-	while( this->rd_buf_.Size()){
-		if(this->ev_){
-			Msg msg = this->protocol_->Decode(rd_buf_);
+	while(this->ev_ && this->rd_buf_.Size()){
+		void* msg = this->protocol_->Decode(rd_buf_);
+		if(msg){
 			this->ev_->Connection_OnMessage(this,msg);
 		}else{
 			break;
