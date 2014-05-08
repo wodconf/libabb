@@ -30,8 +30,8 @@ public:
 	class IEvent{
 	public:
 		virtual ~IEvent(){};
-		virtual void Connection_OnMessage(Connection* con,Msg msg);
-		virtual void Connection_OnClose(Connection* con);
+		virtual void Connection_OnMessage(Connection* con,Msg msg)=0;
+		virtual void Connection_OnClose(Connection* con)=0;
 	};
 	void SetEventCallBack(IEvent* event){ev_ = event;}
 	void Send(Msg msg);
