@@ -5,12 +5,11 @@
 
 namespace abb{
 namespace net{
-typedef void* Msg;
 class IProtocol{
 public:
 	virtual ~IProtocol(){};
-	virtual void Encode(base::Buffer& buf,Msg msg)=0;
-	virtual Msg Decode(base::Buffer& buf)=0;
+	virtual void Encode(base::Buffer& buf,void* msg)=0;
+	virtual void* Decode(base::Buffer& buf)=0;
 };
 
 class IProtocolFactory{

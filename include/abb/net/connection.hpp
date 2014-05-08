@@ -30,11 +30,11 @@ public:
 	class IEvent{
 	public:
 		virtual ~IEvent(){};
-		virtual void Connection_OnMessage(Connection* con,Msg msg)=0;
+		virtual void Connection_OnMessage(Connection* con,void* msg)=0;
 		virtual void Connection_OnClose(Connection* con)=0;
 	};
 	void SetEventCallBack(IEvent* event){ev_ = event;}
-	void Send(Msg msg);
+	void SendMsg(void* msg);
 	void SendData(void*buf,unsigned int size);
 	int ShutDown(int how){
 		return shutdown(this->fd_,how);

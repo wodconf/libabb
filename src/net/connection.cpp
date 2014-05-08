@@ -36,7 +36,7 @@ void Connection::Destroy(){
 	loop_.GetPoller().DelReadWrite(&this->entry_);
 	loop_.RunInLoop(StaticFree,this);
 }
-void Connection::Send(Msg msg){
+void Connection::SendMsg(void* msg){
 	if(!this->IsConnected()){
 		return;
 	}
