@@ -17,7 +17,7 @@ Acceptor::Acceptor(Context* ctx)
  entry_(this),
  enable_(false),
  bfreed_(false),
-ctx_(ctx)
+ ctx_(ctx)
 {
 
 }
@@ -81,9 +81,7 @@ void Acceptor::PollerEvent_OnRead(){
 	}
 	addr.family = addr_.family;
 	Connection* conn = Connection::Create(ctx_,fd,addr_,addr);
-	if(this->lis_){
-		this->lis_->L_Acceptor_OnConnection(conn);
-	}
+	this->lis_->L_Acceptor_Event(conn);
 }
 } /* namespace translate */
 } /* namespace adcloud */

@@ -22,12 +22,10 @@ Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& pee
 {
 	Socket::SetNoBlock(fd_,true);
 	loop_.GetPoller().AddReadWrite(&this->entry_);
-	protocol_ = this->ctx_->GetProtocol();
 }
 
 Connection::~Connection() {
 	close(fd_);
-	this->ctx_->BackProtocol(protocol_);
 }
 void Connection::Destroy(){
 	base::Mutex::Locker lock(wr_lock_);
@@ -36,16 +34,20 @@ void Connection::Destroy(){
 	loop_.GetPoller().DelReadWrite(&this->entry_);
 	loop_.RunInLoop(StaticFree,this);
 }
-void Connection::SendMsg(void* msg){
-	if(!this->IsConnected()){
-		return;
-	}
-	base::Mutex::Locker lock(wr_lock_);
-	this->protocol_->Encode(this->wr_buf_,msg);
+base::Buffer Connection::LockWrite(){
+	wr_lock_.Lock();
+}
+void Connection::Flush(){
 	this->wr_buf_.ReadToWriter(StaticWriter,this);
-	if(this->wr_buf_.Size() != 0){
+	if(this->wr_buf_.Size() > 0 && this->IsConnected()){
 		loop_.GetPoller().AddWrite(&this->entry_);
 	}
+}
+void Connection::UnLockWrite(){
+	if(this->IsConnected()){
+		Flush();
+	}
+	wr_lock_.UnLock();
 }
 void Connection::SendData(void*buf,unsigned int size){
 	if(!this->IsConnected()){
@@ -53,10 +55,7 @@ void Connection::SendData(void*buf,unsigned int size){
 	}
 	base::Mutex::Locker lock(wr_lock_);
 	this->wr_buf_.Write(buf,size);
-	this->wr_buf_.ReadToWriter(StaticWriter,this);
-	if(this->wr_buf_.Size() != 0){
-		loop_.GetPoller().AddWrite(&this->entry_);
-	}
+	Flush();
 }
 int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;
@@ -83,17 +82,12 @@ void Connection::PollerEvent_OnRead(){
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	this->Ref();
 	while(this->ev_ && this->rd_buf_.Size()){
-		void* msg = this->protocol_->Decode(rd_buf_);
-		if(msg){
-			this->ev_->L_Connection_OnMessage(this,msg);
-		}else{
-			break;
-		}
+		this->ev_->L_Connection_EventRead(this,this->rd_buf_);
 	}
 	if(state_ != STATE_OPEN){
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		if(this->ev_)
-			this->ev_->L_Connection_OnClose(this);
+			this->ev_->L_Connection_EventClose(this);
 	}
 	this->UnRef();
 }

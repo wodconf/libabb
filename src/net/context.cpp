@@ -4,9 +4,8 @@
 #include "abb/base/log.hpp"
 namespace abb {
 namespace net {
-Context::Context(const ContextOption& option,IProtocolFactory* fac)
+Context::Context(const ContextOption& option)
 :option_(option),
- fac_(fac),
  threads(NULL),
  loops_(NULL),cur_(0),
  brun(false)

@@ -19,8 +19,8 @@ public:
 public:
 	struct Listener{
 		virtual ~Listener(){};
-		virtual void L_Connector_OnOpen(Connection* ptr) = 0;
-		virtual void L_Connector_OnOpenFail(int errcode) = 0;
+		virtual void L_Connector_EventOpen(Connection* ptr) = 0;
+		virtual void L_Connector_EventError(int errcode) = 0;
 	};
 
 	bool Connect(const IPAddr& addr,int timeout=3000);

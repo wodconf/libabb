@@ -13,7 +13,6 @@
 #include "../net/ip_addr.hpp"
 #include "poller.hpp"
 #include <sys/socket.h>
-#include "i_protocol.hpp"
 namespace abb {
 namespace net {
 class Loop;
@@ -29,11 +28,12 @@ private:
 public:
 	struct Listener{
 		virtual ~Listener(){};
-		virtual void L_Connection_OnMessage(Connection* self,void*msg)=0;
-		virtual void L_Connection_OnClose(Connection* self)=0;
+		virtual void L_Connection_EventRead(Connection* self,base::Buffer& buf)=0;
+		virtual void L_Connection_EventClose(Connection* self)=0;
 	};
 	void SetListener(Listener* event){ev_ = event;}
-	void SendMsg(void* msg);
+	base::Buffer LockWrite();
+	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
 	int ShutDown(int how = SHUT_RDWR){
 		return shutdown(this->fd_,how);
@@ -48,6 +48,7 @@ public:
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 private:
+	void Flush();
 	static int StaticReader(void*arg,const struct iovec *iov, int iovcnt){
 		Connection* con = (Connection*)arg;
 		return con->Reader(iov,iovcnt);
@@ -80,7 +81,6 @@ private:
 	}state_;
 	Listener* ev_;
 	int bfreed_;
-	IProtocol* protocol_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 

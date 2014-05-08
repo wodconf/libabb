@@ -20,7 +20,7 @@ public:
 public:
 	struct Listener{
 			virtual ~Listener(){};
-			virtual void L_Acceptor_OnConnection(Connection*) = 0;
+			virtual void L_Acceptor_Event(Connection*) = 0;
 		};
 
 	void SetListener(Listener* lis){
@@ -38,7 +38,6 @@ private:
 	}
 	explicit Acceptor(Context* ctx);
 	~Acceptor();
-	void Dispatch(Connection* conn);
 private:
 	Loop& loop_;
 	Poller::Entry entry_;

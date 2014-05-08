@@ -69,7 +69,7 @@ void Connector::PollerEvent_OnWrite(){
 		if(err == 0){
 			if(this->lis_){
 				Connection* conn= Connection::Create(ctx_,fd,this->addr_,this->addr_);
-				this->lis_->L_Connector_OnOpen(conn);
+				this->lis_->L_Connector_EventOpen(conn);
 			}else{
 				close(fd);
 			}
@@ -82,7 +82,7 @@ void Connector::PollerEvent_OnWrite(){
 		close(fd);
 	}
 	if(this->lis_){
-		this->lis_->L_Connector_OnOpenFail(err);
+		this->lis_->L_Connector_EventError(err);
 	}
 	this->UnRef();
 }
