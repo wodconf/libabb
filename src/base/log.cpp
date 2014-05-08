@@ -12,7 +12,7 @@ LogLevel g_min_log_level = LOGLEVEL_INFO;
 static FILE * file = NULL;
 namespace internal{
 	void DefaultLogHandler(LogLevel level,const char* filename, int line, const std::string& message){
-		static const char* level_names[] = {"INFO", "WARNING", "ERROR", "FATAL"};
+		static const char* level_names[] = {"TRACE", "DEBUG", "WARN", "ERROR","FATAL","INFO"};
 		if (level >= g_min_log_level) {
 			char date_str[SW_LOG_DATE_STRLEN];
 			time_t t;
