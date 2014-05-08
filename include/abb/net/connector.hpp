@@ -17,7 +17,7 @@ public:
 		return new Connector(ctx);
 	}
 public:
-	struct Listener{
+	struct IEvent{
 		virtual ~Listener(){};
 		virtual void L_Connector_EventOpen(Connection* ptr) = 0;
 		virtual void L_Connector_EventError(int errcode) = 0;
@@ -25,7 +25,7 @@ public:
 
 	bool Connect(const IPAddr& addr,int timeout=3000);
 	void Reset();
-	void SetListener(Listener* ev){lis_=ev;}
+	void SetListener(IEvent* ev){lis_=ev;}
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 	void Destroy();
@@ -39,7 +39,7 @@ private:
 private:
 	bool bfree;
 	int fd_;
-	Listener* lis_;
+	IEvent* lis_;
 	IPAddr addr_;
 	Poller::Entry entry_;
 	Loop& loop_;

@@ -26,12 +26,12 @@ private:
 	Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer);
 	virtual ~Connection();
 public:
-	struct Listener{
-		virtual ~Listener(){};
+	struct IEvent{
+		virtual ~IEvent(){};
 		virtual void L_Connection_EventRead(Connection* self,base::Buffer& buf)=0;
 		virtual void L_Connection_EventClose(Connection* self)=0;
 	};
-	void SetListener(Listener* event){ev_ = event;}
+	void SetListener(IEvent* event){ev_ = event;}
 	base::Buffer LockWrite();
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
@@ -79,7 +79,7 @@ private:
 		STATE_CLOSE,
 		STATE_ERROR
 	}state_;
-	Listener* ev_;
+	IEvent* ev_;
 	int bfreed_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
