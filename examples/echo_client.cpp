@@ -40,6 +40,7 @@ public:
 };
 int main(){
 	abb::net::ContextOption option;
+	option.SetRunCurrentThread(true);
 	ProtocolFactory fac;
 	abb::net::Context* ctx = abb::NewContext(option,&fac);
 	LOG(INFO) << "c";
@@ -55,5 +56,5 @@ int main(){
 		LOG(INFO) << "Connect fail";
 		return -1;
 	}
-	abb::RunContext(ctx,true);
+	abb::RunContext(ctx);
 }
