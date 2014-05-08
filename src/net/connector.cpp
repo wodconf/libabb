@@ -20,7 +20,7 @@ Connector::~Connector(){
 
 }
 bool Connector::Connect(const IPAddr& addr,int timeout){
-	if(this->fd_){
+	if(this->fd_ >= 0){
 		return false;
 	}
 	fd_ = socket(addr.family,SOCK_STREAM,0);
