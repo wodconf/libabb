@@ -11,8 +11,6 @@ class Protocol:public IProtocol{
 public:
 	virtual ~Protocol(){};
 	void Encode(Buffer& buf,Msg msg){
-		int size = static_cast<int>(msg);
-		buf << size;
 	}
 	Msg Decode(Buffer& buf){
 		int size;
