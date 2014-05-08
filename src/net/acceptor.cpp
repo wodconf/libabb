@@ -85,16 +85,5 @@ void Acceptor::PollerEvent_OnRead(){
 		this->lis_->Acceptor_Event(this,conn);
 	}
 }
-void Acceptor::DispatchRunner::Call(){
-	LOG(INFO)<<"execute";
-	this->ac->lis_->Acceptor_Event(this->ac,this->conn);
-	this->ac->UnRef();
-	delete this;
-}
-void Acceptor::Dispatch(Connection* conn){
-	this->Ref();
-	DispatchRunner* runer = new DispatchRunner(this,conn);
-	ctx_->Dispatch(runer);
-}
 } /* namespace translate */
 } /* namespace adcloud */
