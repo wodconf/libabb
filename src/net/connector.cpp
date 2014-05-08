@@ -65,7 +65,7 @@ void Connector::PollerEvent_OnWrite(){
 	this->loop_.GetPoller().DelWrite(&this->entry_);
 	this->Ref();
 	int err;
-	if( Socket::GetSockError(this->fd_,&err) ){
+	if( Socket::GetSockError(fd,&err) ){
 		if(err == 0){
 			if(this->lis_){
 				Connection* conn= Connection::Create(ctx_,fd,this->addr_,this->addr_);
