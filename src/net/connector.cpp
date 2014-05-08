@@ -25,6 +25,7 @@ bool Connector::Connect(const IPAddr& addr,int timeout){
 	}
 	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
+		LOG(WARN)<< "connect:" << errno << strerror(errno);
 		return false;
 	}
 	Socket::SetNoBlock(fd_,true);
