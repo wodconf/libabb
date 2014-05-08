@@ -32,7 +32,7 @@ public:
 		virtual void L_Connection_EventClose(Connection* self)=0;
 	};
 	void SetEventCallback(IEvent* event){ev_ = event;}
-	base::Buffer LockWrite();
+	base::Buffer& LockWrite();
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
 	int ShutDown(int how = SHUT_RDWR){
