@@ -10,12 +10,12 @@ using namespace abb::base;
 class Protocol:public IProtocol{
 public:
 	virtual ~Protocol(){};
-	void Encode(Buffer& buf,Msg msg){
+	void Encode(Buffer& buf,void* msg){
 	}
-	Msg Decode(Buffer& buf){
+	void* Decode(Buffer& buf){
 		int size;
 		buf >> size;
-		return Msg(size);
+		return (void*)(size);
 	}
 };
 
