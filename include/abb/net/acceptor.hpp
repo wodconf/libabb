@@ -18,13 +18,12 @@ public:
 		return new Acceptor(ctx);
 	}
 public:
-	class IEvent{
-	public:
-		virtual ~IEvent(){}
-		virtual void Acceptor_Event(Acceptor*,Connection*) = 0;
-	};
+	struct Listener{
+			virtual ~Listener(){};
+			virtual void L_Acceptor_OnConnection(Connection*) = 0;
+		};
 
-	void SetEventCallback(IEvent* lis){
+	void SetListener(Listener* lis){
 		lis_ = lis;
 	}
 	bool Bind(const IPAddr& addr);
@@ -43,7 +42,7 @@ private:
 private:
 	Loop& loop_;
 	Poller::Entry entry_;
-	IEvent* lis_;
+	Listener* lis_;
 	bool enable_;
 	IPAddr addr_;
 	int fd_;

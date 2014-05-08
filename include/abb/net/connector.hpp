@@ -17,16 +17,15 @@ public:
 		return new Connector(ctx);
 	}
 public:
-	class IEvent{
-	public:
-		virtual ~IEvent(){}
-		virtual void Connector_Open(Connection* )=0;
-		virtual void Connector_OpenFail(int err)=0;
+	struct Listener{
+		virtual ~Listener(){};
+		virtual void L_Connector_OnOpen(Connection* ptr) = 0;
+		virtual void L_Connector_OnOpenFail(int errcode) = 0;
 	};
-	
+
 	bool Connect(const IPAddr& addr,int timeout=3000);
 	void Reset();
-	void SetEventCallback(IEvent* ev){lis_=ev;}
+	void SetListener(Listener* ev){lis_=ev;}
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 	void Destroy();
@@ -40,7 +39,7 @@ private:
 private:
 	bool bfree;
 	int fd_;
-	IEvent* lis_;
+	Listener* lis_;
 	IPAddr addr_;
 	Poller::Entry entry_;
 	Loop& loop_;

@@ -4,17 +4,17 @@
 #include <abb/net/connector.hpp>
 #include <abb/net/connection.hpp>
 #include "protocol.hpp"
-class ConnectCB:public abb::net::Connection::IEvent{
+class ConnectCB:public abb::net::Connection::Listener{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
-		conn->SetEventCallBack(this);
+		conn->Listener(this);
 		this->Send();
 	}
 	virtual ~ConnectCB(){}
-	virtual void Connection_OnMessage(Connection* con,Msg msg){
+	virtual void L_Connection_OnMessage(Connection* con,void* msg){
 		this->Send();
 	}
-	virtual void Connection_OnClose(Connection* con){
+	virtual void L_Connection_OnClose(Connection* con){
 		if(conn->GetError() != 0){
 			LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
 		}else{
@@ -28,14 +28,14 @@ public:
 	int index ;
 	abb::net::Connection* conn;
 };
-class EventCb:public abb::net::Connector::IEvent{
+class EventCb:public abb::net::Connector::Listener{
 public:
 	virtual ~EventCb(){}
-	virtual void Connector_Open(abb::net::Connection* conn){
+	virtual void L_Connector_OnOpen(abb::net::Connection* conn){
 		LOG(INFO)<< "Connector_Open";
 		new ConnectCB(conn);
 	}
-	virtual void Connector_OpenFail(int err){
+	virtual void L_Connector_OnOpenFail(int err){
 		LOG(INFO)<< "Connector_OpenFail" << err << strerror(err);
 	}
 };
@@ -52,7 +52,7 @@ int main(){
 	}
 	abb::net::Connector* ac = abb::net::Connector::Create(ctx);
 	EventCb ev;
-	ac->SetEventCallback(&ev);
+	ac->SetListener(&ev);
 	if( !ac->Connect(addr) ){
 		LOG(INFO) << "Connect fail";
 		return -1;

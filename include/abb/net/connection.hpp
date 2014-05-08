@@ -27,16 +27,15 @@ private:
 	Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer);
 	virtual ~Connection();
 public:
-	class IEvent{
-	public:
-		virtual ~IEvent(){};
-		virtual void Connection_OnMessage(Connection* con,void* msg)=0;
-		virtual void Connection_OnClose(Connection* con)=0;
+	struct Listener{
+		virtual ~Listener(){};
+		virtual void L_Connection_OnMessage(Connection* self,void*msg)=0;
+		virtual void L_Connection_OnClose(Connection* self)=0;
 	};
-	void SetEventCallBack(IEvent* event){ev_ = event;}
+	void SetListener(Listener* event){ev_ = event;}
 	void SendMsg(void* msg);
 	void SendData(void*buf,unsigned int size);
-	int ShutDown(int how){
+	int ShutDown(int how = SHUT_RDWR){
 		return shutdown(this->fd_,how);
 	}
 	void Destroy();
@@ -79,7 +78,7 @@ private:
 		STATE_CLOSE,
 		STATE_ERROR
 	}state_;
-	IEvent* ev_;
+	Listener* ev_;
 	int bfreed_;
 	IProtocol* protocol_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);

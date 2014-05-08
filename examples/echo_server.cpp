@@ -16,17 +16,17 @@ void sleep(int ms){
 	select(0,0,0,0,&tv);
 }
 int num_pkt = 0;
-class ConnectCB:public abb::net::Connection::IEvent{
+class ConnectCB:public abb::net::Connection::Listener{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
-		conn->SetEventCallBack(this);
+		conn->Listener(this);
 	}
 	virtual ~ConnectCB(){}
-	virtual void Connection_OnMessage(Connection* con,Msg msg){
-		num_pkt++;
+	virtual void L_Connection_OnMessage(Connection* con,void* msg){
 		this->Send();
+		num_pkt++;
 	}
-	virtual void Connection_OnClose(Connection* con){
+	virtual void L_Connection_OnClose(Connection* con){
 		if(conn->GetError() != 0){
 			LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
 		}else{
@@ -40,10 +40,10 @@ public:
 	int index ;
 	abb::net::Connection* conn;
 };
-class EventCb:public abb::net::Acceptor::IEvent{
+class EventCb:public abb::net::Acceptor::Listener{
 public:
 	virtual ~EventCb(){}
-	virtual void Acceptor_Event(abb::net::Acceptor*,abb::net::Connection* c){
+	virtual void L_Acceptor_OnConnection(abb::net::Connection* c){
 		new ConnectCB(c);
 	}
 };
@@ -58,7 +58,7 @@ int main(){
 	}
 	abb::net::Acceptor* ac = abb::net::Acceptor::Create(ctx);
 	EventCb ev;
-	ac->SetEventCallback(&ev);
+	ac->SetListener(&ev);
 	if( !ac->Bind(addr) ){
 		LOG(INFO) << "Bind fail";
 		return -1;

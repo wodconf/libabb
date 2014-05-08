@@ -85,7 +85,7 @@ void Connection::PollerEvent_OnRead(){
 	while(this->ev_ && this->rd_buf_.Size()){
 		void* msg = this->protocol_->Decode(rd_buf_);
 		if(msg){
-			this->ev_->Connection_OnMessage(this,msg);
+			this->ev_->L_Connection_OnMessage(this,msg);
 		}else{
 			break;
 		}
@@ -93,7 +93,7 @@ void Connection::PollerEvent_OnRead(){
 	if(state_ != STATE_OPEN){
 		loop_.GetPoller().DelReadWrite(&this->entry_);
 		if(this->ev_)
-			this->ev_->Connection_OnClose(this);
+			this->ev_->L_Connection_OnClose(this);
 	}
 	this->UnRef();
 }
