@@ -84,7 +84,7 @@ void Connection::PollerEvent_OnRead(){
 	}
 	this->rd_buf_.WriteFromeReader(StaticReader,this);
 	this->Ref();
-	while(this->ev_ && this->rd_buf_.Size()){
+	if(this->ev_ && this->rd_buf_.Size()){
 		this->ev_->L_Connection_EventRead(this,this->rd_buf_);
 	}
 	if(state_ != STATE_OPEN){
