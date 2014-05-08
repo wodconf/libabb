@@ -70,6 +70,8 @@ void Connector::PollerEvent_OnWrite(){
 			if(this->lis_){
 				Connection* conn= Connection::Create(ctx_,fd,this->addr_,this->addr_);
 				this->lis_->Connector_Open(conn);
+			}else{
+				close(fd);
 			}
 		}else{
 			close(fd);
