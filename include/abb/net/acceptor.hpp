@@ -23,7 +23,7 @@ public:
 			virtual void L_Acceptor_Event(Connection*) = 0;
 		};
 
-	void SetListener(IEvent* lis){
+	void SetEventCallback(IEvent* lis){
 		lis_ = lis;
 	}
 	bool Bind(const IPAddr& addr);

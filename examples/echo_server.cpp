@@ -15,10 +15,10 @@ void sleep(int ms){
 	select(0,0,0,0,&tv);
 }
 int num_pkt = 0;
-class ConnectCB:public abb::net::Connection::Listener{
+class ConnectCB:public abb::net::Connection::IEvent{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
-		conn->Listener(this);
+		conn->SetEventCallback(this);
 	}
 	virtual ~ConnectCB(){}
 	virtual void L_Connection_EventRead(Connection* self,abb::base::Buffer& buf){
@@ -44,7 +44,7 @@ public:
 	int index ;
 	abb::net::Connection* conn;
 };
-class EventCb:public abb::net::Acceptor::Listener{
+class EventCb:public abb::net::Acceptor::IEvent{
 public:
 	virtual ~EventCb(){}
 	virtual void L_Acceptor_Event(abb::net::Connection* c){
@@ -61,7 +61,7 @@ int main(){
 	}
 	abb::net::Acceptor* ac = abb::net::Acceptor::Create(ctx);
 	EventCb ev;
-	ac->SetListener(&ev);
+	ac->SetEventCallback(&ev);
 	if( !ac->Bind(addr) ){
 		LOG(INFO) << "Bind fail";
 		return -1;

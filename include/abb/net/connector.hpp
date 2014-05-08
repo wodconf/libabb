@@ -18,14 +18,14 @@ public:
 	}
 public:
 	struct IEvent{
-		virtual ~Listener(){};
+		virtual ~IEvent(){};
 		virtual void L_Connector_EventOpen(Connection* ptr) = 0;
 		virtual void L_Connector_EventError(int errcode) = 0;
 	};
 
 	bool Connect(const IPAddr& addr,int timeout=3000);
 	void Reset();
-	void SetListener(IEvent* ev){lis_=ev;}
+	void SetEventCallback(IEvent* ev){lis_=ev;}
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
 	void Destroy();

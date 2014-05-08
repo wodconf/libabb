@@ -3,10 +3,10 @@
 #include <abb/net/acceptor.hpp>
 #include <abb/net/connector.hpp>
 #include <abb/net/connection.hpp>
-class ConnectCB:public abb::net::Connection::Listener{
+class ConnectCB:public abb::net::Connection::IEvent{
 public:
 	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
-		conn->Listener(this);
+		conn->SetEventCallback(this);
 		this->Send();
 	}
 	virtual ~ConnectCB(){}
@@ -28,7 +28,7 @@ public:
 	int index ;
 	abb::net::Connection* conn;
 };
-class EventCb:public abb::net::Connector::Listener{
+class EventCb:public abb::net::Connector::IEvent{
 public:
 	virtual ~EventCb(){}
 	virtual void L_Connector_EventOpen(abb::net::Connection* conn){
@@ -51,7 +51,7 @@ int main(){
 	}
 	abb::net::Connector* ac = abb::net::Connector::Create(ctx);
 	EventCb ev;
-	ac->SetListener(&ev);
+	ac->SetEventCallback(&ev);
 	if( !ac->Connect(addr) ){
 		LOG(INFO) << "Connect fail";
 		return -1;

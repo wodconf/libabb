@@ -31,7 +31,7 @@ public:
 		virtual void L_Connection_EventRead(Connection* self,base::Buffer& buf)=0;
 		virtual void L_Connection_EventClose(Connection* self)=0;
 	};
-	void SetListener(IEvent* event){ev_ = event;}
+	void SetEventCallback(IEvent* event){ev_ = event;}
 	base::Buffer LockWrite();
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
