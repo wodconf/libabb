@@ -15,8 +15,6 @@ Context::Context(const ContextOption& option,IProtocolFactory* fac)
 	loops_ = new Loop[this->option_.GetNumPoller()];
 }
 Context::~Context() {
-	this->Stop();
-	this->Wait();
 	delete[] threads;
 	delete []loops_;
 }

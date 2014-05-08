@@ -15,7 +15,8 @@ void RunContext(net::Context* ctx,bool run_cur_thread){
 }
 void DeleteContext(net::Context* ctx){
 	if(ctx){
-		ctx->WaitAndStop();
+		ctx->Stop();
+		ctx->Wait();
 		delete ctx;
 	}
 }
