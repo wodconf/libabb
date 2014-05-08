@@ -10,10 +10,10 @@ using namespace abb::net;
 
 Connector::Connector(Context* ctx)
 :fd_(-1),
-lis_(NULL),
-loop_(ctx->GetFreeLoop()),
-entry_(this),
-bfree(false),ctx_(ctx){
+ lis_(NULL),
+ loop_(ctx->GetFreeLoop()),
+ entry_(this),
+ bfree(false),ctx_(ctx){
 
 }
 Connector::~Connector(){
@@ -63,11 +63,13 @@ void Connector::PollerEvent_OnWrite(){
 	fd_ = -1;
 	this->loop_.GetPoller().DelWrite(&this->entry_);
 	this->Ref();
-	DispatchRunner* r = new DispatchRunner(this);
 	int err;
 	if( Socket::GetSockError(this->fd_,&err) ){
 		if(err == 0){
-			r->conn = Connection::Create(ctx_,fd,this->addr_,this->addr_);
+			if(this->lis_){
+				Connection* conn= Connection::Create(ctx_,fd,this->addr_,this->addr_);
+				this->lis_->Connector_Open(conn);
+			}
 		}else{
 			close(fd);
 		}
@@ -75,15 +77,9 @@ void Connector::PollerEvent_OnWrite(){
 		err = errno;
 		close(fd);
 	}
-	r->err = err;
-	this->ctx_->Dispatch(r);
-}
-void Connector::DispatchRunner::Call(){
-	if(conn){
-		self->lis_->Connector_Open(conn);
-	}else{
-		self->lis_->Connector_OpenFail(err);
+	if(this->lis_){
+		this->lis_->Connector_OpenFail(err);
 	}
-	self->UnRef();
-	delete this;
+	this->UnRef();
 }
+

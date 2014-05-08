@@ -41,13 +41,6 @@ private:
 	~Acceptor();
 	void Dispatch(Connection* conn);
 private:
-	struct DispatchRunner:public base::CallBack{
-		DispatchRunner(Acceptor* a,Connection* c):ac(a),conn(c){}
-		virtual ~DispatchRunner(){}
-		virtual void Call();
-		Connection* conn;
-		Acceptor* ac;
-	};
 	Loop& loop_;
 	Poller::Entry entry_;
 	IEvent* lis_;

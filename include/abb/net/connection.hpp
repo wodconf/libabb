@@ -18,7 +18,7 @@ namespace abb {
 namespace net {
 class Loop;
 class Context;
-class Connection :public IPollerEvent,private base::RefObject{
+class Connection :public IPollerEvent,public base::RefObject{
 public:
 	static Connection* Create(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer){
 		return new Connection(ctx,fd,local,peer);
@@ -64,11 +64,8 @@ private:
 	int Reader(const struct iovec *iov, int iovcnt);
 	int Writer(void*buf,int size);
 private:
-	friend struct EventDispatch;
 	IPAddr local_addr_;
 	IPAddr peer_addr_;
-	bool is_exe_;
-	EventDispatch dis;
 	int fd_;
 	base::Buffer rd_buf_;
 	base::Mutex wr_lock_;
@@ -76,7 +73,6 @@ private:
 	Context* ctx_;
 	Loop& loop_;
 	Poller::Entry entry_;
-	bool enable_;
 	int err_;
 	enum{
 		STATE_OPEN,

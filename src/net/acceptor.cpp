@@ -81,7 +81,9 @@ void Acceptor::PollerEvent_OnRead(){
 	}
 	addr.family = addr_.family;
 	Connection* conn = Connection::Create(ctx_,fd,addr_,addr);
-	this->Dispatch(conn);
+	if(this->lis_){
+		this->lis_->Acceptor_Event(this,conn);
+	}
 }
 void Acceptor::DispatchRunner::Call(){
 	LOG(INFO)<<"execute";

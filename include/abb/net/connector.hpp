@@ -38,15 +38,6 @@ private:
 		c->UnRef();
 	}
 private:
-	struct DispatchRunner:public base::CallBack{
-		DispatchRunner(Connector* c):self(c),err(0),conn(NULL){}
-		virtual ~DispatchRunner(){}
-		virtual void Call();
-		Connection* conn;
-		Connector* self;
-		int err;
-	};
-	friend struct DispatchRunner;
 	bool bfree;
 	int fd_;
 	IEvent* lis_;

@@ -1,6 +1,7 @@
 
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
+#include "abb/net/context_option.hpp"
 #include <pthread.h>
 #include "abb/base/thread_pool.hpp"
 #include "loop.hpp"
@@ -10,36 +11,25 @@ namespace net {
 
 class Context {
 public:
-	Context();
+	Context(const ContextOption& option,IProtocolFactory* fac);
 	~Context();
-	void SetNumPollThread(int num){
-		if(threads == NULL)
-			this->num_io_thread = num;
-	}
-	void SetNumDispatchThread(int num){
-		if(pool == NULL)
-			num_dis_thread = num;
-	}
-	void Init();
 	void Run(bool run_cur_thread);
-	void WaitAndStop();
-	void Dispatch(base::CallBack* cb){
-		if(pool){
-			this->pool->Execute(cb);
-		}else{
-			cb->Call();
-		}
-	}
+	void Stop();
 	Loop& GetFreeLoop();
+	void Wait();
+	IProtocol* GetProtocol(){
+		return fac->CreateProtocol();
+	}
+	void BackProtocol(IProtocol* val){
+		fac->DestroyProtocol(val);
+	}
 private:
-	int num_dis_thread;
-	int num_io_thread;
 	pthread_t* threads;
+	ContextOption option_;
 	Loop* loops_;
-	base::ThreadPool* pool;
+	IProtocolFactory* fac;
 	int cur_;
 	bool brun;
-	bool run_cur_thread_;
 };
 extern Context* ctx;
 } /* namespace translate */

@@ -4,15 +4,20 @@
 #include "abb/base/log.hpp"
 namespace abb {
 namespace net {
-Context* ctx = NULL;
-Context::Context():num_io_thread(1),threads(NULL),loops_(NULL),cur_(0),brun(false),pool(NULL),num_dis_thread(0) {
-
+Context::Context(const ContextOption& option)
+:option_(option),
+ threads(NULL),loops_(NULL),cur_(0),brun(false) {
+	threads = new pthread_t[this->option_.GetNumPoller()];
+	loops_ = new Loop[this->option_.GetNumPoller()];
 }
 Context::~Context() {
-	this->WaitAndStop();
+	this->Stop();
+	this->Wait();
+	delete[] threads;
+	delete []loops_;
 }
 Loop& Context::GetFreeLoop(){
-	cur_ = (cur_+1)%(this->num_io_thread);
+	cur_ = (cur_+1)%(this->option_.GetNumPoller());
 	return loops_[cur_];
 }
 static void* ThreadMain(void* arg){
@@ -20,60 +25,40 @@ static void* ThreadMain(void* arg){
 	lp->Start();
 	return NULL;
 }
-void Context::Init(){
-	if(threads)return;
-	threads = new pthread_t[this->num_io_thread];
-	loops_ = new Loop[this->num_io_thread];
-	if(this->num_dis_thread > 0){
-		this->pool = new base::ThreadPool();
-		this->pool->SetNumThread(this->num_dis_thread);
-	}
-}
 void Context::Run(bool run_cur_thread){
-	if(!threads || brun)return;
-	run_cur_thread_ = run_cur_thread;
+	if(brun) return;
 	brun = true;
 	int num = 0;
-	if(run_cur_thread){
-		num = this->num_io_thread -1;
+	if(this->option_.GetRunCurrentThread()){
+		num = this->option_.GetNumPoller() -1;
 	}else{
-		num = this->num_io_thread;
+		num = this->option_.GetNumPoller();
 	}
 	for(int i=0;i<num;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
 	}
-	if(pool)
-		this->pool->Start();
 	if(run_cur_thread)
-		loops_[this->num_io_thread-1].Start();
+		loops_[this->option_.GetNumPoller()-1].Start();
 
 }
-void RunAfter(long long time,base::CallBack* cb){
-
-}
-void Cancel(base::CallBack* cb);
-void Context::WaitAndStop(){
-	if(threads == NULL) return;
+void Context::Wait(){
 	if(brun){
-		for(int i=0;i<this->num_io_thread-1;i++){
+		for(int i=0;i<this->option_.GetNumPoller()-1;i++){
 			loops_[i].Stop();
 			pthread_join(threads[i],NULL);
 		}
-		loops_[this->num_io_thread-1].Stop();
-		if(!run_cur_thread_){
-			pthread_join(threads[this->num_io_thread-1],NULL);
+		loops_[this->option_.GetNumPoller()-1].Stop();
+		if(this->option_.GetRunCurrentThread()){
+			pthread_join(threads[this->option_.GetNumPoller()-1],NULL);
 		}
 	}
-	delete[] threads;
-	delete []loops_;
-	threads = NULL;
-	if(this->pool){
-		this->pool->Stop();
-		this->pool->Wait();
-		delete this->pool;
-		this->pool = NULL;
+}
+void Context::Stop(){
+	if(brun){
+		for(int i=0;i<this->option_.GetNumPoller()-1;i++){
+			loops_[i].Stop();
+		}
 	}
-	brun =false;
 }
 } /* namespace translate */
 } /* namespace adcloud */
