@@ -9,7 +9,7 @@ namespace net{
 class Context;
 }
 extern net::Context* NewContext(const net::ContextOption& option,net::IProtocolFactory* fac);
-extern void RunContext(net::Context* ctx,bool run_cur_thread = false);
+extern void RunContext(net::Context* ctx);
 void DeleteContext(net::Context* ctx);
 }
 #endif /* ABB_HPP_ */

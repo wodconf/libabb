@@ -8,9 +8,9 @@ net::Context* NewContext(const net::ContextOption& option,net::IProtocolFactory*
 	net::Context* ctx = new net::Context(option,fac);
 	return ctx;
 }
-void RunContext(net::Context* ctx,bool run_cur_thread){
+void RunContext(net::Context* ctx){
 	if(ctx){
-		ctx->Run(run_cur_thread);
+		ctx->Run();
 	}
 }
 void DeleteContext(net::Context* ctx){
