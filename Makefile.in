@@ -217,7 +217,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I./include
+INCLUDES = -I ./include 
 lib_LTLIBRARIES = libabb.la
 libabb_la_SOURCES = src/base/buffer.cpp\
 			src/base/log.cpp\
@@ -816,6 +816,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
 	tags uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-libLTLIBRARIES
 
+export INCLUDES
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

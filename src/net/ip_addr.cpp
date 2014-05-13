@@ -2,7 +2,7 @@
 
 
 #include "abb/net/ip_addr.hpp"
-#include <memory>
+#include <stdlib.h>
 using namespace abb::net;
 bool IPAddr::SetV4(const char *addr, uint16_t port){
 	int res = 1;

@@ -5,6 +5,7 @@
 #include "socket.hpp"
 #include "context.hpp"
 #include "abb/base/log.hpp"
+#include <errno.h>
 namespace abb {
 namespace net {
 
@@ -62,13 +63,15 @@ void Connection::SendData(void*buf,unsigned int size){
 }
 int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;
-	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&this->err_) ){
+	int err;
+	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&err) ){
 		if(nrd == 0 ){
-			if(err_ == 0){
+			if(err == 0){
 				state_ = STATE_CLOSE;
 			}
 		}
 	}else{
+		this->err_ = err;
 		state_ = STATE_ERROR;
 	}
 	return nrd;
@@ -79,6 +82,7 @@ int Connection::Writer(void*buf,int size){
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
+	LOG(INFO) << "PollerEvent_OnRead" << bfreed_;
 	if(this->bfreed_){
 		return;
 	}

@@ -99,7 +99,6 @@ void Poller::Poll(int timeout){
 		if(revs[i].events &	(EPOLLOUT | EPOLLHUP | EPOLLERR)){
 			revent |= POLLER_WRITE;
 		}
-
 		entry = (Entry*)(revs[i].data.ptr);
 		if(entry)
 			entry->Emitter(revent);

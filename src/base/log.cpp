@@ -8,7 +8,7 @@
 #define SW_LOG_DATE_STRLEN 64
 namespace abb{ namespace base{
 
-LogLevel g_min_log_level = LOGLEVEL_INFO;
+LogLevel g_min_log_level = LOGLEVEL_TRACE;
 static FILE * file = NULL;
 namespace internal{
 	void DefaultLogHandler(LogLevel level,const char* filename, int line, const std::string& message){
