@@ -85,6 +85,7 @@ Buffer& Buffer::operator >> (std::string& str){
 }
 Buffer& Buffer::operator << ( const char* val){
 	this->Write((void*)val,strlen(val)+1);
+	return *this;
 }
 Buffer& Buffer::operator <<(const std::string& str){
 	this->Write((void*)str.c_str(),str.size());
@@ -110,7 +111,7 @@ unsigned int Buffer::Read(void *buf,unsigned int sz){
 }
 
 
-void Buffer::ReadToWriter(BufferWriter writer,void*arg){
+unsigned int Buffer::ReadToWriter(BufferWriter writer,void*arg){
 	int size = wr_ - rd_;
 	int ret = 0;
 	if(size > 0){
@@ -118,9 +119,11 @@ void Buffer::ReadToWriter(BufferWriter writer,void*arg){
 		if(ret > 0){
 			this->rd_+=ret;
 		}
+		return ret > 0?ret:0;
 	}
+	return 0;
 }
-void Buffer::WriteFromeReader(BufferReader reader,void*arg){
+unsigned int Buffer::WriteFromeReader(BufferReader reader,void*arg){
 	char buf[65535];
 	struct iovec io[2];
 	int size = size_ - wr_;
@@ -136,8 +139,10 @@ void Buffer::WriteFromeReader(BufferReader reader,void*arg){
 	if(ret <= size){
 		this->wr_+= ret;
 	}else if(ret > size){
+		this->wr_+= size;
 		this->Write(buf,ret - size);
 	}
+	return ret;
 }
 void Buffer::Grow(int needsize){
 	int fsz = size_ - wr_ + rd_;

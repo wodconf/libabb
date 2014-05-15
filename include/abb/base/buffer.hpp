@@ -75,8 +75,8 @@ public:
 	void Clear(){
 		rd_ = wr_ = 0;
 	}
-	void ReadToWriter(BufferWriter writer,void*arg);
-	void WriteFromeReader(BufferReader reader,void*arg);
+	unsigned int ReadToWriter(BufferWriter writer,void*arg);
+	unsigned int WriteFromeReader(BufferReader reader,void*arg);
 	void EnoughSize(unsigned int size){
 		if((size_ - wr_) >= size){return;}
 		else{this->Grow(size);}

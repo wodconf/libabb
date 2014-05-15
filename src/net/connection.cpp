@@ -63,7 +63,7 @@ void Connection::SendData(void*buf,unsigned int size){
 }
 int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;
-	int err;
+	int err = 0;
 	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&err) ){
 		if(nrd == 0 ){
 			if(err == 0){
@@ -82,11 +82,10 @@ int Connection::Writer(void*buf,int size){
 	return nwd;
 }
 void Connection::PollerEvent_OnRead(){
-	LOG(INFO) << "PollerEvent_OnRead" << bfreed_;
 	if(this->bfreed_){
 		return;
 	}
-	this->rd_buf_.WriteFromeReader(StaticReader,this);
+	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	this->Ref();
 	if(this->ev_ && this->rd_buf_.Size()){
 		this->ev_->L_Connection_EventRead(this,this->rd_buf_);
