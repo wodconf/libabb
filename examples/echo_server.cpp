@@ -62,8 +62,9 @@ int main(){
 	abb::net::Acceptor* ac = abb::net::Acceptor::Create(ctx);
 	EventCb ev;
 	ac->SetEventCallback(&ev);
-	if( !ac->Bind(addr) ){
-		LOG(INFO) << "Bind fail";
+	int err;
+	if( !ac->Bind(addr,&err) ){
+		LOG(INFO) << "Bind fail" << strerror(err);
 		return -1;
 	}
 	LOG(INFO) << "Bind ok";

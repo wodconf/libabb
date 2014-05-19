@@ -71,11 +71,11 @@ bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd){
 	if(event & POLLER_WRITE){
 		ep_ev.events |= EPOLLOUT;
 	}
+	arg->badd_ = false;
 	if(event == 0){
 		mod = EPOLL_CTL_DEL;
 		arg->badd_ = true;
 	}
-	arg->badd_ = false;
 	int rc = epoll_ctl(efd_,mod,fd,&ep_ev);
 	if(rc !=  0){
 		error_ = errno;

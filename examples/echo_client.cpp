@@ -52,8 +52,9 @@ int main(){
 	abb::net::Connector* ac = abb::net::Connector::Create(ctx);
 	EventCb ev;
 	ac->SetEventCallback(&ev);
-	if( !ac->Connect(addr) ){
-		LOG(INFO) << "Connect fail";
+	int err;
+	if( !ac->Connect(addr,&err) ){
+		LOG(INFO) << "Connect fail" << strerror(err);
 		return -1;
 	}
 	abb::RunContext(ctx);

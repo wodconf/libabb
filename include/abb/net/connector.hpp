@@ -23,7 +23,7 @@ public:
 		virtual void L_Connector_EventError(int errcode) = 0;
 	};
 
-	bool Connect(const IPAddr& addr,int timeout=3000);
+	bool Connect(const IPAddr& addr,int* save_error);
 	void Reset();
 	void SetEventCallback(IEvent* ev){lis_=ev;}
 	virtual void PollerEvent_OnRead();

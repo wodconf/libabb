@@ -19,22 +19,23 @@ Connector::Connector(Context* ctx)
 Connector::~Connector(){
 
 }
-bool Connector::Connect(const IPAddr& addr,int timeout){
+bool Connector::Connect(const IPAddr& addr,int* save_error){
 	if(this->fd_ >= 0){
 		return false;
 	}
 	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
-		LOG(WARN)<< "connect:" << errno << strerror(errno);
+		if(save_error) *save_error = errno;
 		return false;
 	}
 	Socket::SetNoBlock(fd_,true);
 	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
+		LOG(DEBUG) << err << strerror(err) << fd_;
 		if((err == EINPROGRESS) || (err == EAGAIN)){
 
 		}else{
-			LOG(WARN)<< "connect:" << errno << strerror(errno);
+			if(save_error) *save_error = errno;
 			close(fd_);
 			return false;
 		}

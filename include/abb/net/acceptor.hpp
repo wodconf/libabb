@@ -26,7 +26,7 @@ public:
 	void SetEventCallback(IEvent* lis){
 		lis_ = lis;
 	}
-	bool Bind(const IPAddr& addr);
+	bool Bind(const IPAddr& addr,int* save_err = NULL);
 	void SetEnable(bool benable);
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite(){}
@@ -47,6 +47,7 @@ private:
 	int fd_;
 	bool bfreed_;
 	Context* ctx_;
+	bool listend_;
 };
 
 }

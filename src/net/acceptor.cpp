@@ -17,7 +17,8 @@ Acceptor::Acceptor(Context* ctx)
  entry_(this),
  enable_(false),
  bfreed_(false),
- ctx_(ctx)
+ ctx_(ctx),
+ listend_(false)
 {
 
 }
@@ -33,18 +34,16 @@ void Acceptor::Destroy(){
 	this->loop_.GetPoller().DelRead(&this->entry_);
 	this->loop_.RunInLoop(StaticDelete,this);
 }
-bool Acceptor::Bind(const IPAddr& addr){
+bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
 	fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
-		int err = errno;
-		LOG(WARN)<< "socket" << errno << strerror(errno);
+		if(save_err) *save_err = errno;
 		return false;
 	}
 	Socket::SetRuseAddr(fd_,true);
 	Socket::SetNoBlock(fd_,true);
 	if( bind(fd_,&addr.sa.sa,addr.Length()) != 0){
-		int err = errno;
-		LOG(WARN)<< "bind" << errno << strerror(errno);
+		if(save_err) *save_err = errno;
 		close(fd_);
 		return false;
 	}
@@ -61,10 +60,13 @@ void Acceptor::SetEnable(bool benable){
 	}
 	enable_ = benable;
 	if(enable_){
-		if( 0 > listen(fd_,10) ){
-			int err = errno;
-			LOG(WARN)<< "listen:" << errno << strerror(errno);
-			return;
+		if(!listend_){
+			listend_ = true;
+			if( 0 > listen(fd_,10) ){
+				int err = errno;
+				LOG(WARN)<< "listen:" << errno << strerror(errno);
+				return;
+			}
 		}
 		this->loop_.GetPoller().AddRead(&this->entry_);
 	}else{
