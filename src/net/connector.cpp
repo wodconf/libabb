@@ -31,7 +31,6 @@ bool Connector::Connect(const IPAddr& addr,int* save_error){
 	Socket::SetNoBlock(fd_,true);
 	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
-		LOG(DEBUG) << err << strerror(err) << fd_;
 		if((err == EINPROGRESS) || (err == EAGAIN)){
 
 		}else{
