@@ -10,10 +10,10 @@ using namespace abb::base;
 Buffer::Buffer(){
 	this->size_ = 1024;
 	this->rd_ = this->wr_ = 0;
-	this->buf_ = new char[this->size_];
+	this->buf_ = (char*)malloc(this->size_);
 }
 Buffer::~Buffer(){
-	delete this->buf_;
+	free(this->buf_);
 }
 
 #define DECLARE_OPERATOR_IN_STREAM(TYPE)		\
@@ -94,6 +94,9 @@ Buffer& Buffer::operator <<(const std::string& str){
 	return *this;
 }
 void Buffer::Write(void*buf,unsigned int sz){
+	if(sz ==0){
+		return ;
+	}
 	if(sz > (size_ - wr_)){
 		Grow(sz);
 	}
@@ -152,14 +155,8 @@ void Buffer::Grow(int needsize){
 		while(neddadd > add_size){
 			add_size+=256;
 		}
-		char* new_buf = new char[this->size_+add_size];
-		memcpy(new_buf, this->buf_+rd_,wr_-rd_);
-		delete []buf_;
-		this->buf_ = (char*)new_buf;
+		buf_ = (char*)realloc(buf_,this->size_+add_size);
 		this->size_+=add_size;
-		this->wr_-= rd_;
-		this->rd_ = 0;
-		return;
 	}
 	memmove(this->buf_,this->buf_+rd_,wr_-rd_);
 	this->wr_-= rd_;

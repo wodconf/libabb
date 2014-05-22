@@ -21,6 +21,7 @@ Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& pee
  ctx_(ctx),
  state_(STATE_OPEN)
 {
+	gcc_mutex_init(&state_mtx_);
 	Socket::SetNoBlock(fd_,true);
 	loop_.GetPoller().AddReadWrite(&this->entry_);
 }
@@ -67,12 +68,16 @@ int Connection::Reader(const struct iovec *iov, int iovcnt){
 	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&err) ){
 		if(nrd == 0 ){
 			if(err == 0){
+				gcc_mutex_lock(&state_mtx_);
 				state_ = STATE_CLOSE;
+				gcc_mutex_unlock(&state_mtx_);
 			}
 		}
 	}else{
 		this->err_ = err;
+		gcc_mutex_lock(&state_mtx_);
 		state_ = STATE_ERROR;
+		gcc_mutex_unlock(&state_mtx_);
 	}
 	return nrd;
 }
@@ -87,7 +92,7 @@ void Connection::PollerEvent_OnRead(){
 	}
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	this->Ref();
-	if(this->ev_ && this->rd_buf_.Size()){
+	if(this->ev_ && size > 0){
 		this->ev_->L_Connection_EventRead(this,this->rd_buf_);
 	}
 	if(state_ != STATE_OPEN){

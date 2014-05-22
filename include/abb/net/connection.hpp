@@ -11,6 +11,7 @@
 #include "../base/buffer.hpp"
 #include "../base/define.hpp"
 #include "../net/ip_addr.hpp"
+#include "../base/gcc_mutex.hpp"
 #include "poller.hpp"
 #include <sys/socket.h>
 namespace abb {
@@ -40,7 +41,10 @@ public:
 	}
 	void Destroy();
 	bool IsConnected(){
-		return this->state_ == STATE_OPEN;
+		gcc_mutex_lock(&state_mtx_);
+		bool c = 	 this->state_ == STATE_OPEN;
+		gcc_mutex_unlock(&state_mtx_);
+		return c;
 	}
 	int GetError(){
 		return this->err_;
@@ -81,6 +85,7 @@ private:
 	}state_;
 	IEvent* ev_;
 	int bfreed_;
+	gcc_mutex_t state_mtx_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 
