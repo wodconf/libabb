@@ -1,12 +1,13 @@
 #ifndef __ABB_NET_LISTENER_HPP__
 #define __ABB_NET_LISTENER_HPP__
-
+#include "../base/buffer.hpp"
 namespace abb{
 namespace net{
 class Connection;
 class Connector;
 class Acceptor;
 class IPAddr;
+class ConnectionRef;
 class IConnectionListener{
 public:
 	virtual ~IConnectionListener(){};
@@ -16,13 +17,15 @@ public:
 class IConnectorListener{
 public:
 	virtual ~IConnectorListener(){};
-	virtual void L_Connector_OnOpen(Connection* cotr,int fd)=0;
-	virtual void L_Connector_OnClose(Connection* cotr,int error)=0;
+	virtual void L_Connector_OnOpen(Connector* cotr,int fd)=0;
+	virtual void L_Connector_OnClose(Connector* cotr,int error)=0;
 };
 class IAcceptorListener{
+public:
 	virtual ~IAcceptorListener(){};
 	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr) = 0;
 };
+
 }
 }
 

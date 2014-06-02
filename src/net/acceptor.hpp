@@ -2,10 +2,11 @@
 
 #ifndef ABB_NET_ACCEPTOR_H_
 #define ABB_NET_ACCEPTOR_H_
-#include "ip_addr.hpp"
+#include "abb/net/ip_addr.hpp"
 #include "i_poller_event.hpp"
 #include "poller.hpp"
-#include "listener.hpp"
+#include "abb/net/listener.hpp"
+#include "abb/base/define.hpp"
 namespace abb {
 namespace net {
 class Loop;
@@ -17,10 +18,13 @@ public:
 	void SetListener(IAcceptorListener* lis){lis_ = lis;}
 	bool Listen(const IPAddr& addr,int* save_err = NULL);
 	void SetEnable(bool benable);
-	virtual void PollerEvent_OnRead();
-	virtual void PollerEvent_OnWrite(){}
 	void Destroy();
+	const IPAddr& GetIpAddr(){
+		return addr_;
+	}
 private:
+	virtual void PollerEvent_OnRead();
+		virtual void PollerEvent_OnWrite(){}
 	static void StaticDelete(void*arg){
 		Acceptor* a = (Acceptor*)arg;
 		delete a;
@@ -28,13 +32,13 @@ private:
 	~Acceptor();
 private:
 	Loop* loop_;
-	PollerEntry* entry_;
+	PollerEntry entry_;
 	IAcceptorListener* lis_;
 	bool enable_;
 	IPAddr addr_;
 	int fd_;
 	bool bfreed_;
-	bool listend_;
+	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Acceptor);
 };
 
 }

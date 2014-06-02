@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <queue>
 #include "callback.hpp"
+#include "define.hpp"
 namespace abb {
 namespace base {
 
@@ -33,6 +34,7 @@ private:
 	pthread_cond_t cond_;
 	int num_thread_;
 	pthread_t *threads;
+	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(ThreadPool);
 };
 
 } /* namespace common */

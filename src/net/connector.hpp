@@ -1,11 +1,10 @@
 #ifndef ABB_NET_CONNECTOR_HPP_
 #define ABB_NET_CONNECTOR_HPP_
 
-#include "../base/callback.hpp"
-#include "../base/ref_object.hpp"
 #include "poller.hpp"
-#include "ip_addr.hpp"
-#include "listener.hpp"
+#include "abb/net/ip_addr.hpp"
+#include "abb/net/listener.hpp"
+#include "abb/base/define.hpp"
 namespace abb{
 namespace net{
 class Connection;
@@ -19,9 +18,12 @@ public:
 	void Reset();
 	void SetListener(IConnectorListener* lis){lis_=lis;}
 	void Destroy();
+	const IPAddr& GetIpAddr(){
+		return addr_;
+	}
+private:
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite();
-private:
 	virtual ~Connector();
 	static void StaticDelete(void*arg){
 		Connector* c = (Connector*)arg;
@@ -32,8 +34,9 @@ private:
 	int fd_;
 	IConnectorListener* lis_;
 	IPAddr addr_;
-	PollerEntry* entry_;
+	PollerEntry entry_;
 	Loop* loop_;
+	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connector);
 };
 }
 }

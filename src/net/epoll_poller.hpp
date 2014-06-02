@@ -13,9 +13,9 @@ enum{
 	POLLER_WRITE = 0x02
 };
 struct PollerEntry {
-	Entry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(true){}
-	Entry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(true){}
-	~Entry(){}
+	PollerEntry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(true){}
+	PollerEntry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(true){}
+	~PollerEntry(){}
 	void Emitter(int revent){
 		if(event_&revent&POLLER_READ){
 			this->lis_->PollerEvent_OnRead();
@@ -36,15 +36,15 @@ public:
 public:
 	Poller();
 	~Poller();
-	void AddRead(Entry* arg);
-	void DelRead(Entry* arg);
-	void AddWrite(Entry* arg);
-	void DelWrite(Entry* arg);
-	void AddReadWrite(Entry* arg);
-	void DelReadWrite(Entry* arg);
+	void AddRead(PollerEntry* arg);
+	void DelRead(PollerEntry* arg);
+	void AddWrite(PollerEntry* arg);
+	void DelWrite(PollerEntry* arg);
+	void AddReadWrite(PollerEntry* arg);
+	void DelReadWrite(PollerEntry* arg);
 	void Poll(int timeout);
 private:
-	bool SetEvent(int fd,int event,Entry* arg,bool bneedadd);
+	bool SetEvent(int fd,int event,PollerEntry* arg,bool bneedadd);
 private:
 	int error_;
 	int efd_;

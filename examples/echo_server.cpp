@@ -1,12 +1,12 @@
 
 
 #include <abb/base/log.hpp>
-#include <abb/abb.hpp>
-#include <abb/net/acceptor.hpp>
-#include <abb/net/connection.hpp>
+#include <abb/net/tcp_server.hpp>
 #include <sys/select.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <stdlib.h>
+using namespace abb;
 using namespace abb::net;
 void sleep(int ms){
 	struct timeval tv;
@@ -14,66 +14,49 @@ void sleep(int ms){
 	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
 	select(0,0,0,0,&tv);
 }
-int num_pkt = 0;
-class ConnectCB:public abb::net::Connection::IEvent{
+class EchoServer:public TcpServer::Listener{
 public:
-	ConnectCB(abb::net::Connection*conn):conn(conn),index(0){
-		conn->SetEventCallback(this);
+	EchoServer():num_pkt(0){
+		tcp_server.Init(4,false);
+		tcp_server.SetListener(this);
 	}
-	virtual ~ConnectCB(){}
-	virtual void L_Connection_EventRead(Connection* self,abb::base::Buffer& buf){
-		buf.Clear();
-		this->Send();
-		num_pkt++;
-	}
-	virtual void L_Connection_EventClose(Connection* self){
-		if(conn->GetError() != 0){
-			LOG(INFO)<< "Connection_EventError" << strerror(conn->GetError());
-		}else{
-			LOG(INFO)<< "Connection_EventClose";
+	virtual ~EchoServer(){};
+	void Start(const abb::net::IPAddr& addr){
+		int err;
+		if( ! this->tcp_server.Bind(addr,&err) ){
+			LOG(INFO) << "Bind fail" << strerror(err);
+			exit(0);
 		}
+		tcp_server.Start();
 	}
-	virtual void L_Connection_OnMessage(Connection* con,void* msg){
-		this->Send();
+	virtual void L_TcpServer_OnConnection(ConnectionRef*){
+		LOG(DEBUG) << "OnConnection";
+	}
+	virtual void L_TcpServer_OnMesssage(ConnectionRef* ref,base::Buffer& buf){
 		num_pkt++;
+		buf.Clear();
+		int index = 1;
+		ref->Send(&index,sizeof(int));
 	}
-	void Send(){
-		index++;
-		this->conn->SendData(&index,sizeof(index));
+	virtual void L_TcpServer_OnClose(ConnectionRef*,int error){
+
 	}
-	int index ;
-	abb::net::Connection* conn;
-};
-class EventCb:public abb::net::Acceptor::IEvent{
-public:
-	virtual ~EventCb(){}
-	virtual void L_Acceptor_Event(abb::net::Connection* c){
-		new ConnectCB(c);
-	}
+	int num_pkt;
+private:
+	TcpServer tcp_server;
 };
 int main(){
-	abb::net::ContextOption option;
-	abb::net::Context* ctx = abb::NewContext(option);
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
-	abb::net::Acceptor* ac = abb::net::Acceptor::Create(ctx);
-	EventCb ev;
-	ac->SetEventCallback(&ev);
-	int err;
-	if( !ac->Bind(addr,&err) ){
-		LOG(INFO) << "Bind fail" << strerror(err);
-		return -1;
-	}
-	LOG(INFO) << "Bind ok";
-	ac->SetEnable(true);
-	abb::RunContext(ctx);
+	EchoServer svr;
+	svr.Start(addr);
 	while(true){
-		if(num_pkt)
-			LOG(INFO) << "num_pkt:" << num_pkt;
-		num_pkt = 0;
+		if(svr.num_pkt)
+			LOG(INFO) << "num_pkt:" << svr.num_pkt;
+		svr.num_pkt = 0;
 		sleep(1000);
 	}
 }

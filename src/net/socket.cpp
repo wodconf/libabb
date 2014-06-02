@@ -1,6 +1,6 @@
 
 
-#include "socket.hpp"
+#include "abb/net/socket.hpp"
 #include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -10,6 +10,8 @@
 #include <errno.h>
 #include "abb/base/log.hpp"
 #include <string.h>
+#include <unistd.h>
+#include <sys/uio.h>
 namespace abb {
 namespace net {
 bool Socket::Listen(int* fd,const IPAddr& addr,int *save_err){
@@ -35,7 +37,7 @@ bool Socket::Listen(int* fd,const IPAddr& addr,int *save_err){
 bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err){
 	int fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
-		if(save_error) *save_error = errno;
+		if(save_err) *save_err = errno;
 		return false;
 	}
 	if(!block)
@@ -45,7 +47,7 @@ bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err){
 		if((err == EINPROGRESS) || (err == EAGAIN)){
 
 		}else{
-			if(save_error) *save_error = errno;
+			if(save_err) *save_err = errno;
 			close(fd_);
 			return false;
 		}
@@ -53,15 +55,16 @@ bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err){
 	*fd = fd_;
 	return true;
 }
-bool Socket::Accept(int fd,IPAddr*outaddr,int* fd,int* save_err){
+bool Socket::Accept(int fd,int* outfd,IPAddr*outaddr,int* save_err){
 	IPAddr addr;
 	socklen_t alen = sizeof(addr.sa);
-	int fd = accept(this->fd_, &addr.sa.sa, &alen);
-	if(fd < 0){
-		if(save_error) *save_error = errno;
+	int cfd = accept(fd, &addr.sa.sa, &alen);
+	if(cfd < 0){
+		if(save_err) *save_err = errno;
 		return false;
 	}
 	if(outaddr)*outaddr = addr;
+	*outfd = cfd;
 	return true;
 }
 bool Socket::Write(int fd,void*inbuf,int size,int* nwr,int* save_err){
@@ -148,7 +151,9 @@ void Socket::SetRuseAddr(int fd,bool b){
 void Socket::SetKeepAlive(int fd,bool b){
 
 }
-
+void Socket::Close(int fd){
+	close(fd);
+}
 void Socket::SetNoBlock(int fd,bool b){
 	int oflag = fcntl(fd, F_GETFL, 0);
 	if(b){

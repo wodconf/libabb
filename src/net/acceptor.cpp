@@ -2,21 +2,19 @@
 #include "abb/base/log.hpp"
 #include "acceptor.hpp"
 #include <unistd.h>
-#include "socket.hpp"
+#include "abb/net/socket.hpp"
 #include <errno.h>
 #include "loop.hpp"
 namespace abb {
 namespace net {
 
-Acceptor::Acceptor(Context* ctx)
+Acceptor::Acceptor(Loop* loop)
 :lis_(NULL),
  fd_(-1),
- loop_(ctx->GetFreeLoop()),
+ loop_(loop),
  entry_(this),
  enable_(false),
- bfreed_(false),
- ctx_(ctx),
- listend_(false)
+ bfreed_(false)
 {
 
 }
@@ -29,7 +27,7 @@ void Acceptor::Destroy(){
 	if(bfreed_) return;
 	bfreed_ = true;
 	SetEnable(false);
-	this->loop_.RunInLoop(StaticDelete,this);
+	this->loop_->RunInLoop(StaticDelete,this);
 }
 bool Acceptor::Listen(const IPAddr& addr,int* save_err ){
 	if( Socket::Listen(&fd_,addr,save_err) ){
@@ -45,9 +43,9 @@ void Acceptor::SetEnable(bool benable){
 	}
 	enable_ = benable;
 	if(enable_){
-		this->loop_.GetPoller().AddRead(&this->entry_);
+		this->loop_->GetPoller().AddRead(&this->entry_);
 	}else{
-		this->loop_.GetPoller().DelRead(&this->entry_);
+		this->loop_->GetPoller().DelRead(&this->entry_);
 	}
 }
 void Acceptor::PollerEvent_OnRead(){

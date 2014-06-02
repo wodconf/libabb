@@ -32,8 +32,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = i686-pc-linux-gnu
-host_triplet = i686-pc-linux-gnu
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
 bin_PROGRAMS = echo_server$(EXEEXT) echo_client$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
@@ -60,7 +60,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
 	acceptor.lo connector.lo connection.lo context.lo poller.lo \
-	loop.lo ip_addr.lo singler.lo abb.lo
+	loop.lo ip_addr.lo singler.lo tcp_server.lo connection_ref.lo \
+	tcp_client_manager.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -133,7 +134,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /usr/bin/ld
+LD = /usr/bin/ld -m elf_x86_64
 LDFLAGS = 
 LIBOBJS = 
 LIBS = 
@@ -178,22 +179,22 @@ am__quote =
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = i686-pc-linux-gnu
+build = x86_64-unknown-linux-gnu
 build_alias = 
-build_cpu = i686
+build_cpu = x86_64
 build_os = linux-gnu
-build_vendor = pc
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = i686-pc-linux-gnu
+host = x86_64-unknown-linux-gnu
 host_alias = 
-host_cpu = i686
+host_cpu = x86_64
 host_os = linux-gnu
-host_vendor = pc
+host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
@@ -217,7 +218,7 @@ target_alias =
 top_build_prefix = 
 top_builddir = .
 top_srcdir = .
-INCLUDES = -I ./include 
+INCLUDES = -I./include
 lib_LTLIBRARIES = libabb.la
 libabb_la_SOURCES = src/base/buffer.cpp\
 			src/base/log.cpp\
@@ -231,7 +232,9 @@ libabb_la_SOURCES = src/base/buffer.cpp\
 			src/net/loop.cpp\
 			src/net/ip_addr.cpp\
 			src/net/singler.cpp\
-			src/abb.cpp
+			src/net/tcp_server.cpp\
+			src/net/connection_ref.cpp\
+			src/net/tcp_client_manager.cpp
 
 libabb_la_LIBADD = -lpthread
 echo_server_LDADD = -labb
@@ -345,10 +348,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/abb.Plo
 include ./$(DEPDIR)/acceptor.Plo
 include ./$(DEPDIR)/buffer.Plo
 include ./$(DEPDIR)/connection.Plo
+include ./$(DEPDIR)/connection_ref.Plo
 include ./$(DEPDIR)/connector.Plo
 include ./$(DEPDIR)/context.Plo
 include ./$(DEPDIR)/echo_client.Po
@@ -359,6 +362,8 @@ include ./$(DEPDIR)/loop.Plo
 include ./$(DEPDIR)/poller.Plo
 include ./$(DEPDIR)/singler.Plo
 include ./$(DEPDIR)/socket.Plo
+include ./$(DEPDIR)/tcp_client_manager.Plo
+include ./$(DEPDIR)/tcp_server.Plo
 include ./$(DEPDIR)/thread_pool.Plo
 
 .cpp.o:
@@ -466,12 +471,26 @@ singler.lo: src/net/singler.cpp
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o singler.lo `test -f 'src/net/singler.cpp' || echo '$(srcdir)/'`src/net/singler.cpp
 
-abb.lo: src/abb.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT abb.lo -MD -MP -MF $(DEPDIR)/abb.Tpo -c -o abb.lo `test -f 'src/abb.cpp' || echo '$(srcdir)/'`src/abb.cpp
-	mv -f $(DEPDIR)/abb.Tpo $(DEPDIR)/abb.Plo
-#	source='src/abb.cpp' object='abb.lo' libtool=yes \
+tcp_server.lo: src/net/tcp_server.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tcp_server.lo -MD -MP -MF $(DEPDIR)/tcp_server.Tpo -c -o tcp_server.lo `test -f 'src/net/tcp_server.cpp' || echo '$(srcdir)/'`src/net/tcp_server.cpp
+	mv -f $(DEPDIR)/tcp_server.Tpo $(DEPDIR)/tcp_server.Plo
+#	source='src/net/tcp_server.cpp' object='tcp_server.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o abb.lo `test -f 'src/abb.cpp' || echo '$(srcdir)/'`src/abb.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tcp_server.lo `test -f 'src/net/tcp_server.cpp' || echo '$(srcdir)/'`src/net/tcp_server.cpp
+
+connection_ref.lo: src/net/connection_ref.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connection_ref.lo -MD -MP -MF $(DEPDIR)/connection_ref.Tpo -c -o connection_ref.lo `test -f 'src/net/connection_ref.cpp' || echo '$(srcdir)/'`src/net/connection_ref.cpp
+	mv -f $(DEPDIR)/connection_ref.Tpo $(DEPDIR)/connection_ref.Plo
+#	source='src/net/connection_ref.cpp' object='connection_ref.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connection_ref.lo `test -f 'src/net/connection_ref.cpp' || echo '$(srcdir)/'`src/net/connection_ref.cpp
+
+tcp_client_manager.lo: src/net/tcp_client_manager.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tcp_client_manager.lo -MD -MP -MF $(DEPDIR)/tcp_client_manager.Tpo -c -o tcp_client_manager.lo `test -f 'src/net/tcp_client_manager.cpp' || echo '$(srcdir)/'`src/net/tcp_client_manager.cpp
+	mv -f $(DEPDIR)/tcp_client_manager.Tpo $(DEPDIR)/tcp_client_manager.Plo
+#	source='src/net/tcp_client_manager.cpp' object='tcp_client_manager.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tcp_client_manager.lo `test -f 'src/net/tcp_client_manager.cpp' || echo '$(srcdir)/'`src/net/tcp_client_manager.cpp
 
 echo_client.o: examples/echo_client.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT echo_client.o -MD -MP -MF $(DEPDIR)/echo_client.Tpo -c -o echo_client.o `test -f 'examples/echo_client.cpp' || echo '$(srcdir)/'`examples/echo_client.cpp

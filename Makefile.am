@@ -14,8 +14,9 @@ libabb_la_SOURCES=src/base/buffer.cpp\
 			src/net/loop.cpp\
 			src/net/ip_addr.cpp\
 			src/net/singler.cpp\
-			src/abb.cpp
-INCLUDES=-I ./include 
+			src/net/tcp_server.cpp\
+			src/net/connection_ref.cpp\
+			src/net/tcp_client_manager.cpp
 export INCLUDES
 libabb_la_LIBADD=-lpthread
 

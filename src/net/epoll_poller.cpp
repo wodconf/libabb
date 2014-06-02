@@ -1,5 +1,5 @@
 
-#include "abb/net/poller.hpp"
+#include "poller.hpp"
 #include "abb/base/log.hpp"
 #include <unistd.h>
 #include <string.h>
@@ -15,7 +15,7 @@ Poller::Poller():error_(0) {
 Poller::~Poller() {
 	close(efd_);
 }
-void Poller::AddRead(Entry* arg){
+void Poller::AddRead(PollerEntry* arg){
 	if(arg->event_&POLLER_READ){
 		return;
 	}
@@ -23,14 +23,14 @@ void Poller::AddRead(Entry* arg){
 		arg->event_|=POLLER_READ;
 	}
 }
-void Poller::DelRead(Entry* arg){
+void Poller::DelRead(PollerEntry* arg){
 	if(arg->event_&POLLER_READ){
 		if( this->SetEvent(arg->fd_,arg->event_&(~POLLER_READ),arg,arg->badd_) ){
 			arg->event_&=~POLLER_READ;
 		}
 	}
 }
-void Poller::AddWrite(Entry* arg){
+void Poller::AddWrite(PollerEntry* arg){
 	if(arg->event_&POLLER_WRITE){
 		return;
 	}
@@ -38,14 +38,14 @@ void Poller::AddWrite(Entry* arg){
 		arg->event_|=POLLER_WRITE;
 	}
 }
-void Poller::DelWrite(Entry* arg){
+void Poller::DelWrite(PollerEntry* arg){
 	if(arg->event_&POLLER_WRITE){
 		if( this->SetEvent(arg->fd_,arg->event_&(~POLLER_WRITE),arg,arg->badd_) ){
 			arg->event_&=~POLLER_WRITE;
 		}
 	}
 }
-void Poller::AddReadWrite(Entry* arg){
+void Poller::AddReadWrite(PollerEntry* arg){
 	if((arg->event_&POLLER_READ) && (arg->event_&POLLER_WRITE)){
 		return;
 	}
@@ -53,14 +53,14 @@ void Poller::AddReadWrite(Entry* arg){
 		arg->event_=POLLER_READ|POLLER_WRITE;
 	}
 }
-void Poller::DelReadWrite(Entry* arg){
+void Poller::DelReadWrite(PollerEntry* arg){
 	if((arg->event_&POLLER_READ)|| (arg->event_&POLLER_WRITE)){
 		if( this->SetEvent(arg->fd_,0,arg,arg->badd_) ){
 			arg->event_ = 0;
 		}
 	}
 }
-bool Poller::SetEvent(int fd,int event,Entry* arg,bool bneedadd){
+bool Poller::SetEvent(int fd,int event,PollerEntry* arg,bool bneedadd){
 	int mod = bneedadd?EPOLL_CTL_ADD:EPOLL_CTL_MOD;
 	struct epoll_event ep_ev;
 	ep_ev.data.ptr = arg;
@@ -91,7 +91,7 @@ void Poller::Poll(int timeout){
 	}
 	//LOG(INFO) << "epoll_wait" << rc;
 	int revent;
-	Entry * entry;
+	PollerEntry * entry;
 	for(int i =0;i<rc;i++){
 		if(revs[i].events &	(EPOLLIN | EPOLLHUP | EPOLLERR)){
 			revent = POLLER_READ;
@@ -99,7 +99,7 @@ void Poller::Poll(int timeout){
 		if(revs[i].events &	(EPOLLOUT | EPOLLHUP | EPOLLERR)){
 			revent |= POLLER_WRITE;
 		}
-		entry = (Entry*)(revs[i].data.ptr);
+		entry = (PollerEntry*)(revs[i].data.ptr);
 		if(entry)
 			entry->Emitter(revent);
 	}

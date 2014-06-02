@@ -1,10 +1,8 @@
-#include "abb/net/connector.hpp"
-#include "context.hpp"
-#include "abb/net/connection.hpp"
-#include "socket.hpp"
+#include "connector.hpp"
 #include "abb/base/log.hpp"
 #include <errno.h>
 #include "loop.hpp"
+#include "abb/net/socket.hpp"
 using namespace abb::net;
 
 
@@ -40,7 +38,7 @@ void Connector::Destroy(){
 void Connector::Reset(){
 	if(this->fd_){
 		this->loop_->GetPoller().DelWrite(&this->entry_);
-		close(fd_);
+		Socket::Close(fd_);
 		fd_ = -1;
 	}
 }
@@ -56,12 +54,12 @@ void Connector::PollerEvent_OnWrite(){
 			this->lis_->L_Connector_OnOpen(this,fd);
 			return;
 		}else{
-			close(fd);
+			Socket::Close(fd_);
 		}
 	}else{
 		err = errno;
-		close(fd);
+		Socket::Close(fd_);
 	}
-	this->lis_->L_Connector_OnClose(err);
+	this->lis_->L_Connector_OnClose(this,err);
 }
 

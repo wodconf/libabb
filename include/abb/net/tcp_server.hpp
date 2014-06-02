@@ -3,34 +3,41 @@
 
 #include "./ip_addr.hpp"
 #include "./listener.hpp"
+#include "abb/base/rw_lock.hpp"
+#include "connection_ref.hpp"
+#include <map>
 namespace abb{
-	namespace net{
-		class Context;
-		class TcpServer:public IAcceptorListener,IConnectionListener{
-		public:
-			class Listener{
-			public:
-				~Listener(){}
-				virtual void L_TcpServer_OnConnection();
-				virtual void L_TcpServer_OnMesssage();
-				virtual void L_TcpServer_OnClose();
-			};
-			TcpServer(const IPAddr& addr);
-			virtual ~TcpServer();
-			void SetNumThread(int num);
-			void SetListener(Listener* lis){lis_ = lis;}
-			bool Bind(int* save_error);
-			void Start(bool run_cur_thread);
-			virtual void L_Connector_OnOpen(Connection* cotr,Connection* conn)=0;
-			virtual void L_Connector_OnClose(Connection* cotr)=0;
-			virtual void L_Acceptor_OnConnection(Acceptor* ptr,Connection* conn) = 0;
-		private:
-			Listener* lis_;
-			Context* ctx_;
-			Acceptor* acceptor_;
-			IPAddr addr_;
-		};
-	}
+namespace net{
+class Context;
+class TcpServer:public IAcceptorListener,IConnectionListener{
+public:
+	class Listener{
+	public:
+		virtual ~Listener(){}
+		virtual void L_TcpServer_OnConnection(ConnectionRef*) = 0;
+		virtual void L_TcpServer_OnMesssage(ConnectionRef*,base::Buffer& buf)= 0;
+		virtual void L_TcpServer_OnClose(ConnectionRef*,int error)= 0;
+	};
+	TcpServer();
+	virtual ~TcpServer();
+	void Init(int num_thread,bool run_curent_thread);
+	void SetListener(Listener* lis){lis_ = lis;}
+	bool Bind(const IPAddr& addr,int* save_error);
+	void Start();
+private:
+	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr);
+	virtual void L_Connection_OnMessage(Connection* self,base::Buffer& buf);
+	virtual void L_Connection_OnClose(Connection* self,int error);
+private:
+	Listener* lis_;
+	Context* ctx_;
+	Acceptor* acceptor_;
+	typedef std::map<int,Connection*> ConnectionMap;
+	ConnectionMap conn_map_;
+	int id_;
+	base::RWLock rwlock_;
+};
+}
 }
 
 #endif
