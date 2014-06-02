@@ -4,29 +4,18 @@
 #define ABB_NET_ACCEPTOR_H_
 #include "ip_addr.hpp"
 #include "i_poller_event.hpp"
-#include "../base/ref_object.hpp"
 #include "poller.hpp"
-#include "../base/callback.hpp"
+#include "listener.hpp"
 namespace abb {
 namespace net {
 class Loop;
 class Connection;
 class Context;
-class Acceptor :public IPollerEvent,private base::RefObject{
+class Acceptor :public IPollerEvent{
 public:
-	static Acceptor* Create(Context* ctx){
-		return new Acceptor(ctx);
-	}
-public:
-	struct IEvent{
-			virtual ~IEvent(){};
-			virtual void L_Acceptor_Event(Connection*) = 0;
-		};
-
-	void SetEventCallback(IEvent* lis){
-		lis_ = lis;
-	}
-	bool Bind(const IPAddr& addr,int* save_err = NULL);
+	explicit Acceptor(Loop* loop);
+	void SetListener(IAcceptorListener* lis){lis_ = lis;}
+	bool Listen(const IPAddr& addr,int* save_err = NULL);
 	void SetEnable(bool benable);
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite(){}
@@ -34,19 +23,17 @@ public:
 private:
 	static void StaticDelete(void*arg){
 		Acceptor* a = (Acceptor*)arg;
-		a->UnRef();
+		delete a;
 	}
-	explicit Acceptor(Context* ctx);
 	~Acceptor();
 private:
-	Loop& loop_;
-	Poller::Entry entry_;
-	IEvent* lis_;
+	Loop* loop_;
+	PollerEntry* entry_;
+	IAcceptorListener* lis_;
 	bool enable_;
 	IPAddr addr_;
 	int fd_;
 	bool bfreed_;
-	Context* ctx_;
 	bool listend_;
 };
 

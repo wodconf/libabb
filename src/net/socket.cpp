@@ -12,7 +12,58 @@
 #include <string.h>
 namespace abb {
 namespace net {
+bool Socket::Listen(int* fd,const IPAddr& addr,int *save_err){
+	int fd_ = socket(addr.family,SOCK_STREAM,0);
+	if(fd_ < 0){
+		if(save_err) *save_err = errno;
+		return false;
+	}
+	Socket::SetRuseAddr(fd_,true);
+	if( bind(fd_,&addr.sa.sa,addr.Length()) != 0){
+		if(save_err) *save_err = errno;
+		close(fd_);
+		return false;
+	}
+	if( 0 > listen(fd_,10) ){
+		*save_err = errno;
+		close(fd_);
+		return false;
+	}
+	*fd = fd_;
+	return true;
+}
+bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err){
+	int fd_ = socket(addr.family,SOCK_STREAM,0);
+	if(fd_ < 0){
+		if(save_error) *save_error = errno;
+		return false;
+	}
+	if(!block)
+		Socket::SetNoBlock(fd_,true);
+	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
+		int err = errno;
+		if((err == EINPROGRESS) || (err == EAGAIN)){
 
+		}else{
+			if(save_error) *save_error = errno;
+			close(fd_);
+			return false;
+		}
+	}
+	*fd = fd_;
+	return true;
+}
+bool Socket::Accept(int fd,IPAddr*outaddr,int* fd,int* save_err){
+	IPAddr addr;
+	socklen_t alen = sizeof(addr.sa);
+	int fd = accept(this->fd_, &addr.sa.sa, &alen);
+	if(fd < 0){
+		if(save_error) *save_error = errno;
+		return false;
+	}
+	if(outaddr)*outaddr = addr;
+	return true;
+}
 bool Socket::Write(int fd,void*inbuf,int size,int* nwr,int* save_err){
 	int ret;
 	*nwr = 0;

@@ -4,11 +4,15 @@
 #define SOCKET_H_
 #include <unistd.h>
 #include <sys/uio.h>
+#include "abb/net/ip_addr.hpp"
 namespace abb {
 namespace net {
 
 class Socket {
 public:
+	static bool Listen(int* fd,const IPAddr& addr,int *save_err);
+	static bool Connect(int* fd,bool block,const IPAddr& addr,int *save_err);
+	static bool Accept(int fd,IPAddr*addr,int* fd,int* save_err);
 	static bool Write(int fd,void*buf,int size,int* nwr,int* save_err);
 	static bool Read(int fd,void*buf,int size,int* nrd,int*save_err);
 	static bool ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_err);

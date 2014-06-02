@@ -6,11 +6,12 @@
 #include "context.hpp"
 #include "abb/base/log.hpp"
 #include <errno.h>
+#include "./poller.hpp"
 namespace abb {
 namespace net {
 
-Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer)
-:loop_(ctx->GetFreeLoop()),
+Connection::Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer)
+:loop_(loop),
  local_addr_(local),
  peer_addr_(peer),
  ev_(NULL),
@@ -18,12 +19,11 @@ Connection::Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& pee
  entry_(fd,this),
  fd_(fd),
  bfreed_(false),
- ctx_(ctx),
  state_(STATE_OPEN)
 {
-	gcc_mutex_init(&state_mtx_);
 	Socket::SetNoBlock(fd_,true);
-	loop_.GetPoller().AddReadWrite(&this->entry_);
+	entry_ = new PollerEntry(fd,this);
+	loop_->GetPoller().AddReadWrite(this->entry_);
 }
 
 Connection::~Connection() {
@@ -33,8 +33,8 @@ void Connection::Destroy(){
 	base::Mutex::Locker lock(wr_lock_);
 	if(bfreed_) return;
 	bfreed_ = true;
-	loop_.GetPoller().DelReadWrite(&this->entry_);
-	loop_.RunInLoop(StaticFree,this);
+	loop_->GetPoller().DelReadWrite(this->entry_);
+	loop_->RunInLoop(StaticFree,this);
 }
 base::Buffer& Connection::LockWrite(){
 	wr_lock_.Lock();
@@ -43,7 +43,7 @@ base::Buffer& Connection::LockWrite(){
 void Connection::Flush(){
 	this->wr_buf_.ReadToWriter(StaticWriter,this);
 	if(this->wr_buf_.Size() > 0 && this->IsConnected()){
-		loop_.GetPoller().AddWrite(&this->entry_);
+		loop_->GetPoller().AddWrite(this->entry_);
 	}
 }
 void Connection::UnLockWrite(){
@@ -68,16 +68,12 @@ int Connection::Reader(const struct iovec *iov, int iovcnt){
 	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&err) ){
 		if(nrd == 0 ){
 			if(err == 0){
-				gcc_mutex_lock(&state_mtx_);
 				state_ = STATE_CLOSE;
-				gcc_mutex_unlock(&state_mtx_);
 			}
 		}
 	}else{
 		this->err_ = err;
-		gcc_mutex_lock(&state_mtx_);
 		state_ = STATE_ERROR;
-		gcc_mutex_unlock(&state_mtx_);
 	}
 	return nrd;
 }
@@ -91,16 +87,13 @@ void Connection::PollerEvent_OnRead(){
 		return;
 	}
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
-	this->Ref();
-	if(this->ev_ && size > 0){
-		this->ev_->L_Connection_EventRead(this,this->rd_buf_);
+	if(size > 0){
+		this->lis_->L_Connection_EventRead(this,this->rd_buf_);
 	}
 	if(state_ != STATE_OPEN){
-		loop_.GetPoller().DelReadWrite(&this->entry_);
-		if(this->ev_)
-			this->ev_->L_Connection_EventClose(this);
+		loop_->GetPoller().DelReadWrite(this->entry_);
+		this->lis_->L_Connection_EventClose(this);
 	}
-	this->UnRef();
 }
 void Connection::PollerEvent_OnWrite(){
 	if(state_ != STATE_OPEN){
@@ -115,11 +108,11 @@ void Connection::PollerEvent_OnWrite(){
 		int size = this->wr_buf_.Size();
 		wr_lock_.UnLock();
 		if( size == 0){
-			loop_.GetPoller().DelWrite(&this->entry_);
+			loop_->GetPoller().DelWrite(this->entry_);
 		}
 	}else{
 		wr_lock_.UnLock();
-		loop_.GetPoller().DelWrite(&this->entry_);
+		loop_->GetPoller().DelWrite(this->entry_);
 	}
 }
 }}

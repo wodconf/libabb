@@ -12,27 +12,27 @@ enum{
 	POLLER_READ = 0x01,
 	POLLER_WRITE = 0x02
 };
-
+struct PollerEntry {
+	Entry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(true){}
+	Entry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(true){}
+	~Entry(){}
+	void Emitter(int revent){
+		if(event_&revent&POLLER_READ){
+			this->lis_->PollerEvent_OnRead();
+		}
+		if(event_&revent&POLLER_WRITE){
+			this->lis_->PollerEvent_OnWrite();
+		}
+	}
+	void SetFd(int fd){fd_ = fd;}
+	IPollerEvent* lis_;
+	int fd_;
+	bool badd_;
+	int event_;
+};
 class Poller {
 public:
-	struct Entry {
-		Entry(IPollerEvent* lis):lis_(lis),fd_(-1),event_(0),badd_(true){}
-		Entry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(true){}
-		~Entry(){}
-		void Emitter(int revent){
-			if(event_&revent&POLLER_READ){
-				this->lis_->PollerEvent_OnRead();
-			}
-			if(event_&revent&POLLER_WRITE){
-				this->lis_->PollerEvent_OnWrite();
-			}
-		}
-		void SetFd(int fd){fd_ = fd;}
-		IPollerEvent* lis_;
-		int fd_;
-		bool badd_;
-		int event_;
-	};
+	
 public:
 	Poller();
 	~Poller();

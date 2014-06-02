@@ -4,21 +4,23 @@
 #include "abb/base/log.hpp"
 namespace abb {
 namespace net {
-Context::Context(const ContextOption& option)
+Context::Context()
 :option_(option),
  threads(NULL),
  loops_(NULL),cur_(0),
  brun(false)
 {
-	threads = new pthread_t[this->option_.GetNumPoller()];
-	loops_ = new Loop[this->option_.GetNumPoller()];
+	
 }
 Context::~Context() {
-	delete[] threads;
-	delete []loops_;
+	if(brun){
+		delete[] threads;
+		delete []loops_;
+	}
+	
 }
 Loop& Context::GetFreeLoop(){
-	cur_ = (cur_+1)%(this->option_.GetNumPoller());
+	cur_ = (cur_+1)%num_loop_;
 	return loops_[cur_];
 }
 static void* ThreadMain(void* arg){
@@ -26,40 +28,23 @@ static void* ThreadMain(void* arg){
 	lp->Start();
 	return NULL;
 }
-void Context::Run(){
+void Context::Start(){
 	if(brun) return;
 	brun = true;
-	int num = 0;
-	if(this->option_.GetRunCurrentThread()){
-		num = this->option_.GetNumPoller() -1;
+	threads = new pthread_t[num_thread_];
+	if(run_cur_thread_){
+		loops_ = new Loop[num_thread_+1];
+		num_loop_ = num_thread_ + 1;
 	}else{
-		num = this->option_.GetNumPoller();
+		loops_ = new Loop[num_thread_];
+		num_loop_ = num_thread_;
 	}
-	for(int i=0;i<num;i++){
+	for(int i=0;i<num_thread_;i++){
 		pthread_create(&threads[i],NULL,ThreadMain,(void*)(&loops_[i]));
 	}
-	if(this->option_.GetRunCurrentThread())
-		loops_[this->option_.GetNumPoller()-1].Start();
+	if(run_cur_thread_)
+		loops_[num_thread_].Start();
 
-}
-void Context::Wait(){
-	if(brun){
-		for(int i=0;i<this->option_.GetNumPoller()-1;i++){
-			loops_[i].Stop();
-			pthread_join(threads[i],NULL);
-		}
-		loops_[this->option_.GetNumPoller()-1].Stop();
-		if(this->option_.GetRunCurrentThread()){
-			pthread_join(threads[this->option_.GetNumPoller()-1],NULL);
-		}
-	}
-}
-void Context::Stop(){
-	if(brun){
-		for(int i=0;i<this->option_.GetNumPoller()-1;i++){
-			loops_[i].Stop();
-		}
-	}
 }
 } /* namespace translate */
 } /* namespace adcloud */

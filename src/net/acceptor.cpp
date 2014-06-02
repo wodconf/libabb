@@ -1,10 +1,8 @@
 
 #include "abb/base/log.hpp"
-#include "abb/net/acceptor.hpp"
-#include "context.hpp"
+#include "acceptor.hpp"
 #include <unistd.h>
 #include "socket.hpp"
-#include "abb/net/connection.hpp"
 #include <errno.h>
 #include "loop.hpp"
 namespace abb {
@@ -30,44 +28,23 @@ Acceptor::~Acceptor() {
 void Acceptor::Destroy(){
 	if(bfreed_) return;
 	bfreed_ = true;
-	enable_ = false;
-	this->loop_.GetPoller().DelRead(&this->entry_);
+	SetEnable(false);
 	this->loop_.RunInLoop(StaticDelete,this);
 }
-bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
-	fd_ = socket(addr.family,SOCK_STREAM,0);
-	if(fd_ < 0){
-		if(save_err) *save_err = errno;
-		return false;
+bool Acceptor::Listen(const IPAddr& addr,int* save_err ){
+	if( Socket::Listen(&fd_,addr,save_err) ){
+		addr_ = addr;
+		this->entry_.SetFd(fd_);
+		return true;
 	}
-	Socket::SetRuseAddr(fd_,true);
-	Socket::SetNoBlock(fd_,true);
-	if( bind(fd_,&addr.sa.sa,addr.Length()) != 0){
-		if(save_err) *save_err = errno;
-		close(fd_);
-		return false;
-	}
-	addr_ = addr;
-	this->entry_.SetFd(fd_);
-	return true;
+	return false;
 }
 void Acceptor::SetEnable(bool benable){
 	if(this->enable_ == benable){
 		return;
 	}
-	if(fd_ < 0){
-		return ;
-	}
 	enable_ = benable;
 	if(enable_){
-		if(!listend_){
-			listend_ = true;
-			if( 0 > listen(fd_,10) ){
-				int err = errno;
-				LOG(WARN)<< "listen:" << errno << strerror(errno);
-				return;
-			}
-		}
 		this->loop_.GetPoller().AddRead(&this->entry_);
 	}else{
 		this->loop_.GetPoller().DelRead(&this->entry_);
@@ -76,14 +53,10 @@ void Acceptor::SetEnable(bool benable){
 void Acceptor::PollerEvent_OnRead(){
 	if(!enable_)return;
 	IPAddr addr;
-	socklen_t alen = sizeof(addr.sa);
-	int fd = accept(this->fd_, &addr.sa.sa, &alen);
-	if(fd < 0){
-		return;
+	int fd;
+	if( Socket::Accept(fd_,&fd,&addr,NULL) ){
+		this->lis_->L_Acceptor_OnConnection(this,fd,addr);
 	}
-	addr.family = addr_.family;
-	Connection* conn = Connection::Create(ctx_,fd,addr_,addr);
-	this->lis_->L_Acceptor_Event(conn);
 }
 } /* namespace translate */
 } /* namespace adcloud */

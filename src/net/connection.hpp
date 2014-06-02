@@ -17,22 +17,11 @@
 namespace abb {
 namespace net {
 class Loop;
-class Context;
+class PollerEntry;
 class Connection :public IPollerEvent,public base::RefObject{
 public:
-	static Connection* Create(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer){
-		return new Connection(ctx,fd,local,peer);
-	}
-private:
-	Connection(Context* ctx,int fd,const IPAddr& local,const IPAddr& peer);
-	virtual ~Connection();
-public:
-	struct IEvent{
-		virtual ~IEvent(){};
-		virtual void L_Connection_EventRead(Connection* self,base::Buffer& buf)=0;
-		virtual void L_Connection_EventClose(Connection* self)=0;
-	};
-	void SetEventCallback(IEvent* event){ev_ = event;}
+	Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer);
+	void SetListener(IEvent* event){ev_ = event;}
 	base::Buffer& LockWrite();
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
@@ -41,10 +30,7 @@ public:
 	}
 	void Destroy();
 	bool IsConnected(){
-		gcc_mutex_lock(&state_mtx_);
-		bool c = 	 this->state_ == STATE_OPEN;
-		gcc_mutex_unlock(&state_mtx_);
-		return c;
+		return this->state_ == STATE_OPEN;
 	}
 	int GetError(){
 		return this->err_;
@@ -68,24 +54,24 @@ private:
 	int Reader(const struct iovec *iov, int iovcnt);
 	int Writer(void*buf,int size);
 private:
-	IPAddr local_addr_;
-	IPAddr peer_addr_;
-	int fd_;
-	base::Buffer rd_buf_;
-	base::Mutex wr_lock_;
-	base::Buffer wr_buf_;
-	Context* ctx_;
-	Loop& loop_;
-	Poller::Entry entry_;
-	int err_;
+	virtual ~Connection();
 	enum{
 		STATE_OPEN,
 		STATE_CLOSE,
 		STATE_ERROR
 	}state_;
-	IEvent* ev_;
+	int fd_;
+	int err_;
 	int bfreed_;
-	gcc_mutex_t state_mtx_;
+	IPAddr local_addr_;
+	IPAddr peer_addr_;
+	
+	base::Buffer rd_buf_;
+	base::Mutex wr_lock_;
+	base::Buffer wr_buf_;
+	Loop* loop_;
+	PollerEntry* entry_;
+	IConnectionListener* lis_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 

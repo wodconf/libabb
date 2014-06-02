@@ -1,27 +1,27 @@
 
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
-#include "abb/net/context_option.hpp"
 #include <pthread.h>
 #include "loop.hpp"
-#include "abb/base/callback.hpp"
 namespace abb {
 namespace net {
 
 class Context {
 public:
-	Context(const ContextOption& option);
+	Context();
 	~Context();
-	void Run();
-	void Stop();
+	void SetNumThread(int num){num_thread_ = num;}
+	void SetRunCureentThread(bool run_cur_thread){run_cur_thread_ = run_cur_thread;}
+	void Start();
 	Loop& GetFreeLoop();
-	void Wait();
 private:
 	pthread_t* threads;
-	ContextOption option_;
+	int num_thread_;
 	Loop* loops_;
+	bool run_cur_thread_;
 	int cur_;
 	bool brun;
+	int num_loop_;
 };
 extern Context* ctx;
 } /* namespace translate */
