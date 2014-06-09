@@ -11,55 +11,56 @@ Connector::Connector(Loop* loop)
  lis_(NULL),
  loop_(loop),
  entry_(this),
- bfree(false){
+ connected_(0){
 
 }
 Connector::~Connector(){
-
+	this->Reset();
 }
 bool Connector::Connect(const IPAddr& addr,int* save_error){
-	if(this->fd_ >= 0){
-		return false;
+	if(__sync_bool_compare_and_swap(&connected_,0,1) ){
+		if( !Socket::Connect(&fd_,false,addr,save_error) ){
+			return false;
+		}
+		addr_ = addr;
+		this->entry_.SetFd(fd_);
+		this->loop_->GetPoller().AddWrite(&this->entry_);
+		return true;
 	}
-	if( !Socket::Connect(&fd_,false,addr,save_error) ){ 
-		return false;
-	}
-	addr_ = addr;
-	this->entry_.SetFd(fd_);
-	this->loop_->GetPoller().AddWrite(&this->entry_);
-	return true;
+	return false;
 }
 void Connector::Destroy(){
-	if(bfree)return;
-	bfree = true;
-	this->Reset();
 	this->loop_->RunInLoop(StaticDelete,this);
 }
-void Connector::Reset(){
-	if(this->fd_){
+bool Connector::Reset(){
+	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
 		this->loop_->GetPoller().DelWrite(&this->entry_);
 		Socket::Close(fd_);
 		fd_ = -1;
+		return true;
+
+	}else{
+		return false;
 	}
 }
 void Connector::PollerEvent_OnRead(){}
 void Connector::PollerEvent_OnWrite(){
-	if( fd_ == -1) return;
-	int fd = fd_;
-	fd_ = -1;
-	this->loop_->GetPoller().DelWrite(&this->entry_);
-	int err;
-	if( Socket::GetSockError(fd,&err) ){
-		if(err == 0){
-			this->lis_->L_Connector_OnOpen(this,fd);
-			return;
+	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
+		this->loop_->GetPoller().DelWrite(&this->entry_);
+		int err;
+		if( Socket::GetSockError(fd_,&err) ){
+			if(err == 0){
+				this->lis_->L_Connector_OnOpen(this,fd_);
+				return;
+			}else{
+				Socket::Close(fd_);
+			}
 		}else{
+			err = errno;
 			Socket::Close(fd_);
 		}
-	}else{
-		err = errno;
-		Socket::Close(fd_);
+		this->lis_->L_Connector_OnClose(this,err);
 	}
-	this->lis_->L_Connector_OnClose(this,err);
+
 }
 

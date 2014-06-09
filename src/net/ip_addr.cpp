@@ -3,7 +3,14 @@
 
 #include "abb/net/ip_addr.hpp"
 #include <stdlib.h>
+#include <sstream>
 using namespace abb::net;
+IPAddr::IPAddr():family(0){
+	memset(this,0,sizeof(IPAddr));
+}
+IPAddr::~IPAddr(){
+
+}
 bool IPAddr::SetV4(const char *addr, uint16_t port){
 	int res = 1;
 
@@ -119,6 +126,30 @@ bool IPAddr::SetByString(const std::string& str){
 		return this->SetV4(ip.c_str(),port);
 	}
 	return false;
+}
+/*
+ * const char * inet_ntop(
+int fm,//AF_INET AF_INET6
+const void *addrptr,//sockaddr_in.sin_addr sockaddr_in6.sin6_addr
+char *strptr,
+size_t len//INET_ADDRSTRLEN(16) INET6_ADDRSTRLEN(46)
+);
+ */
+std::string IPAddr::ToString() const{
+	if(this->family == AF_INET6){
+		char ip[46];
+		inet_ntop(this->family, (void *)&sa.v6.sin6_addr, ip, 46);
+		std::ostringstream s;
+		s << ip << ":" << ntohs( sa.v6.sin6_port);
+		return s.str();
+	}else if(this->family == AF_INET){
+		char ip[16];
+		inet_ntop(this->family, (void *)&sa.v4.sin_addr, ip, 16);
+		std::ostringstream s;
+		s << ip << ":" << ntohs( sa.v4.sin_port);
+		return s.str();
+	}
+	return "";
 }
 bool IPAddr::SetFromHostent(struct hostent *ent)
 {

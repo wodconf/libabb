@@ -28,14 +28,13 @@ Connection::Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer,
 }
 
 Connection::~Connection() {
+	loop_->GetPoller().DelReadWrite(&this->entry_);
 	close(fd_);
 }
 void Connection::Destroy(){
-	base::Mutex::Locker lock(wr_lock_);
 	if(bfreed_) return;
 	bfreed_ = true;
-	this->SetEnable(false);
-
+	enable_ = false;
 	loop_->RunInLoop(StaticFree,this);
 }
 void  Connection::SetEnable(bool enable){
@@ -120,16 +119,14 @@ void Connection::PollerEvent_OnWrite(){
 	if(!this->enable_){
 		return;
 	}
-	wr_lock_.Lock();
+	base::Mutex::Locker lock(wr_lock_);
 	if(this->wr_buf_.Size() > 0){
 		this->wr_buf_.ReadToWriter(StaticWriter,this);
 		int size = this->wr_buf_.Size();
-		wr_lock_.UnLock();
 		if( size == 0){
 			loop_->GetPoller().DelWrite(&this->entry_);
 		}
 	}else{
-		wr_lock_.UnLock();
 		loop_->GetPoller().DelWrite(&this->entry_);
 	}
 }

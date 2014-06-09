@@ -32,6 +32,9 @@ public:
 	void* GetData(){return data_;}
 
 	void SetEnable(bool enable);
+
+	const IPAddr& GetLocalAddr(){return local_addr_;}
+		const IPAddr& GetRemoteAddr(){return peer_addr_;}
 private:
 	virtual void PollerEvent_OnRead();
 		virtual void PollerEvent_OnWrite();

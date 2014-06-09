@@ -3,7 +3,7 @@
 
 #include "./ip_addr.hpp"
 #include "./listener.hpp"
-#include "abb/base/rw_lock.hpp"
+#include "abb/base/mutex.hpp"
 #include "connection_ref.hpp"
 #include <map>
 namespace abb{
@@ -24,6 +24,7 @@ public:
 	void SetListener(Listener* lis){lis_ = lis;}
 	bool Bind(const IPAddr& addr,int* save_error);
 	void Start();
+	const IPAddr& GetAddr();
 private:
 	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr);
 	virtual void L_Connection_OnMessage(Connection* self,base::Buffer& buf);
@@ -35,7 +36,7 @@ private:
 	typedef std::map<int,Connection*> ConnectionMap;
 	ConnectionMap conn_map_;
 	int id_;
-	base::RWLock rwlock_;
+	base::Mutex mtx_;
 };
 }
 }

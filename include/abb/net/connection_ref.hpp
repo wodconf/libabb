@@ -4,6 +4,7 @@
 #include "../base/ref_object.hpp"
 #include "../base/mutex.hpp"
 #include "../base/buffer.hpp"
+#include "ip_addr.hpp"
 namespace abb {
 namespace net {
 class Connection;
@@ -15,20 +16,19 @@ public:
 	bool Send(void*data,int len);
 	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite();
-	void Close();
+	const IPAddr& GetLocalAddr(){return local_;}
+	const IPAddr& GetRemoteAddr(){return remote_;}
+	bool Close();
 	void* Data;
 private:
 	friend class TcpServer;
 	friend class TcpClient;
-	bool TestAndSetNULL(){
-		base::Mutex::Locker l(mtx_);
-		bool b = conn_ == NULL;
-		conn_ = NULL;
-		return b;
-	}
+	bool TestAndSetNULL();
 	Connection* conn_;
 	base::Mutex mtx_;
 	bool block_write_;
+	IPAddr local_;
+	IPAddr remote_;
 };
 
 } /* namespace net */

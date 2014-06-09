@@ -30,6 +30,7 @@ public:
 		pthread_mutex_unlock(&mtx_);
 	}
 private:
+	friend class Cond;
 	pthread_mutex_t mtx_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Mutex);
 };

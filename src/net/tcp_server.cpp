@@ -1,5 +1,5 @@
 #include "abb/net/tcp_server.hpp"
-#include "context.hpp"
+#include "abb/net/context.hpp"
 #include "connection.hpp"
 #include "acceptor.hpp"
 #include "abb/net/connection_ref.hpp"
@@ -21,10 +21,13 @@ void TcpServer::Init(int num_thread,bool run_curent_thread){
 bool TcpServer::Bind(const IPAddr& addr,int* save_error){
 	return acceptor_->Listen(addr,save_error);
 }
+const IPAddr& TcpServer::GetAddr(){
+	return acceptor_->GetIpAddr();
+}
 void TcpServer::Start(){
-	ctx_->Start();
 	acceptor_->SetListener(this);
 	acceptor_->SetEnable(true);
+	ctx_->Start();
 }
 void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr){
 	int id = id_++;
@@ -33,7 +36,7 @@ void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr)
 	conn->SetData(ref);
 	ref->Ref();
 	{
-		base::RWLock::WLocker lock(rwlock_);
+		base::Mutex::Locker lock(mtx_);
 		this->conn_map_[id] = conn;
 	}
 	conn->SetListener(this);
@@ -49,7 +52,7 @@ void TcpServer::L_Connection_OnClose(Connection* conn,int error){
 	conn->ShutDown();
 	conn->Destroy();
 	{
-		base::RWLock::WLocker lock(rwlock_);
+		base::Mutex::Locker lock(mtx_);
 		this->conn_map_.erase(id);
 	}
 	if(ref->TestAndSetNULL()){

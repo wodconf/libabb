@@ -15,7 +15,7 @@ class Connector:public IPollerEvent{
 public:
 	Connector(Loop* loop);
 	bool Connect(const IPAddr& addr,int* save_error);
-	void Reset();
+	bool Reset();
 	void SetListener(IConnectorListener* lis){lis_=lis;}
 	void Destroy();
 	const IPAddr& GetIpAddr(){
@@ -30,12 +30,12 @@ private:
 		delete c;
 	}
 private:
-	bool bfree;
 	int fd_;
 	IConnectorListener* lis_;
 	IPAddr addr_;
 	PollerEntry entry_;
 	Loop* loop_;
+	int connected_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connector);
 };
 }

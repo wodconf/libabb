@@ -6,7 +6,8 @@ namespace net {
 
 ConnectionRef::ConnectionRef(Connection* conn):conn_(conn),Data(NULL),block_write_(false) {
 	// TODO Auto-generated constructor stub
-
+	local_ = conn_->GetLocalAddr();
+	remote_ = conn_->GetRemoteAddr();
 }
 bool ConnectionRef::Send(void*data,int len){
 	base::Mutex::Locker l(mtx_);
@@ -33,16 +34,25 @@ void  ConnectionRef::UnLockWrite(){
 	conn_->UnLockWrite();
 	mtx_.UnLock();
 }
-void ConnectionRef::Close(){
+bool ConnectionRef::TestAndSetNULL(){
+		base::Mutex::Locker l(mtx_);
+		bool b = conn_ != NULL;
+		conn_ = NULL;
+		return b;
+	}
+bool ConnectionRef::Close(){
 	base::Mutex::Locker l(mtx_);
 	if(conn_){
 		conn_->ShutDown();
 		conn_ = NULL;
+		return true;
 	}
+	return false;
 }
 ConnectionRef::~ConnectionRef() {
 
 }
+
 
 } /* namespace net */
 } /* namespace abb */
