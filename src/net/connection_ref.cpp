@@ -35,11 +35,14 @@ void  ConnectionRef::UnLockWrite(){
 	mtx_.UnLock();
 }
 bool ConnectionRef::TestAndSetNULL(){
-		base::Mutex::Locker l(mtx_);
-		bool b = conn_ != NULL;
+	base::Mutex::Locker l(mtx_);
+	if(conn_){
+		conn_->ShutDown();
 		conn_ = NULL;
-		return b;
+		return true;
 	}
+	return false;
+}
 bool ConnectionRef::Close(){
 	base::Mutex::Locker l(mtx_);
 	if(conn_){

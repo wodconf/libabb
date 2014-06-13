@@ -29,6 +29,12 @@ void TcpServer::Start(){
 	acceptor_->SetEnable(true);
 	ctx_->Start();
 }
+void TcpServer::Pause(){
+	acceptor_->SetEnable(false);
+}
+void TcpServer::Resume(){
+	acceptor_->SetEnable(true);
+}
 void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr){
 	int id = id_++;
 	Connection* conn = new Connection(ctx_->GetFreeLoop(),fd,acceptor_->GetIpAddr(),addr,id);
@@ -55,9 +61,8 @@ void TcpServer::L_Connection_OnClose(Connection* conn,int error){
 		base::Mutex::Locker lock(mtx_);
 		this->conn_map_.erase(id);
 	}
-	if(ref->TestAndSetNULL()){
-		this->lis_->L_TcpServer_OnClose(ref,error);
-	}
+	ref->TestAndSetNULL();
+	this->lis_->L_TcpServer_OnClose(ref,error);
 	ref->UnRef();
 }
 }

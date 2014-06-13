@@ -17,11 +17,11 @@ struct PollerEntry {
 	PollerEntry(int fd,IPollerEvent* lis):lis_(lis),fd_(fd),event_(0),badd_(true){}
 	~PollerEntry(){}
 	void Emitter(int revent){
-		if(event_&revent&POLLER_READ){
-			this->lis_->PollerEvent_OnRead();
-		}
 		if(event_&revent&POLLER_WRITE){
 			this->lis_->PollerEvent_OnWrite();
+		}
+		if(event_&revent&POLLER_READ){
+			this->lis_->PollerEvent_OnRead();
 		}
 	}
 	void SetFd(int fd){fd_ = fd;}

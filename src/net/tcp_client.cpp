@@ -31,9 +31,8 @@ public:
 		int id = conn->GetId();
 		conn->ShutDown();
 		conn->Destroy();
-		if(ref->TestAndSetNULL()){
-			lis_->L_TcpClient_OnClose(ref,error);
-		}
+		ref->TestAndSetNULL();
+		lis_->L_TcpClient_OnClose(ref,error);
 		ref->UnRef();
 		delete this;
 	}

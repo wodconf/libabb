@@ -24,6 +24,8 @@ public:
 	void SetListener(Listener* lis){lis_ = lis;}
 	bool Bind(const IPAddr& addr,int* save_error);
 	void Start();
+	void Pause();
+	void Resume();
 	const IPAddr& GetAddr();
 private:
 	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr);

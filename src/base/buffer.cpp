@@ -105,11 +105,11 @@ void Buffer::Write(void*buf,unsigned int sz){
 }
 unsigned int Buffer::Read(void *buf,unsigned int sz){
 	sz = sz > (wr_ - rd_)?(wr_ - rd_):sz;
+	memcpy(buf,(char*)buf_+rd_,sz);
 	rd_+= sz;
 	if(rd_ == wr_){
 		rd_ = wr_ = 0;
 	}
-	memcpy(buf,(char*)buf_+rd_,sz);
 	return sz ;
 }
 
@@ -130,7 +130,7 @@ unsigned int Buffer::WriteFromeReader(BufferReader reader,void*arg){
 	char buf[65535];
 	struct iovec io[2];
 	int size = size_ - wr_;
-	if(size == 128 ){
+	if(size <= 128 ){
 		this->Grow(1024);
 		size = size_ - wr_;
 	}
