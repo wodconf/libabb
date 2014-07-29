@@ -17,6 +17,18 @@ bool ConnectionRef::Send(void*data,int len){
 	}
 	return false;
 }
+void ConnectionRef::SetNoDelay(bool e){
+	base::Mutex::Locker l(mtx_);
+	if(conn_){
+		conn_->SetNoDelay(e);
+	}
+}
+void ConnectionRef::SetKeepAlive(bool kp,int idle,int interval,int cout){
+	base::Mutex::Locker l(mtx_);
+	if(conn_){
+		conn_->SetKeepAlive(kp,idle,interval,cout);
+	}
+}
 bool  ConnectionRef::LockWrite(base::Buffer**buf){
 	mtx_.Lock();
 	if(conn_ && conn_->IsConnected()){
@@ -37,7 +49,6 @@ void  ConnectionRef::UnLockWrite(){
 bool ConnectionRef::TestAndSetNULL(){
 	base::Mutex::Locker l(mtx_);
 	if(conn_){
-		conn_->ShutDown();
 		conn_ = NULL;
 		return true;
 	}
@@ -52,6 +63,16 @@ bool ConnectionRef::Close(){
 	}
 	return false;
 }
+bool ConnectionRef::CloseAfterWrite(){
+	base::Mutex::Locker l(mtx_);
+	if(conn_){
+		conn_->ShutDownAfterWrite();
+		conn_ = NULL;
+		return true;
+	}
+	return false;
+}
+
 ConnectionRef::~ConnectionRef() {
 
 }

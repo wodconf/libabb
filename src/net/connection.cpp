@@ -7,6 +7,7 @@
 #include <errno.h>
 #include "./poller.hpp"
 #include "loop.hpp"
+#include <fcntl.h>
 namespace abb {
 namespace net {
 
@@ -22,24 +23,34 @@ Connection::Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer,
  id_(id),
  data_(NULL),
  entry_(fd,this),
- enable_(false)
+ enable_(false),
+ shut_down_after_write_(false)
 {
+	wr_buf_ = &wr_buf_1_;
+	wring_buf_ = NULL;
+	loop_->AddUse();
 	Socket::SetNoBlock(fd_,true);
+	
 }
-
+bool Connection::SetKeepAlive(bool kp,int idle,int interval,int cout){
+	Socket::SetKeepAlive(fd_,kp,idle,interval,cout);
+}
+void Connection::SetNoDelay(bool e){
+	Socket::SetNoDelay(fd_,e);
+}
 Connection::~Connection() {
-	loop_->GetPoller().DelReadWrite(&this->entry_);
+	loop_->RemoveUse();
 	close(fd_);
 }
 void Connection::Destroy(){
 	if(bfreed_) return;
 	bfreed_ = true;
-	enable_ = false;
+	SetEnable(false);
 	loop_->RunInLoop(StaticFree,this);
 }
 void  Connection::SetEnable(bool enable){
-	if(state_ != STATE_OPEN) return;
 	if(enable_ == enable) return;
+	if(enable && (state_ != STATE_OPEN)) return;
 	enable_ = enable;
 	if(enable_){
 		loop_->GetPoller().AddReadWrite(&this->entry_);
@@ -49,19 +60,21 @@ void  Connection::SetEnable(bool enable){
 }
 base::Buffer& Connection::LockWrite(){
 	wr_lock_.Lock();
-	return wr_buf_;
+	return *wr_buf_;
 }
 void Connection::Flush(){
-	this->wr_buf_.ReadToWriter(StaticWriter,this);
-	if(this->wr_buf_.Size() > 0 && this->IsConnected()){
-		loop_->GetPoller().AddWrite(&this->entry_);
+	if(!this->entry_.IsAddWrited()){
+		if(this->wr_buf_->Size() > 0 && this->IsConnected()){
+			//loop_->RunInLoop(StaticAddWrite,this);
+			loop_->GetPoller().AddWrite(&this->entry_);
+		}
 	}
 }
 void Connection::UnLockWrite(){
 	if(this->IsConnected()){
 		Flush();
 	}else{
-		wr_buf_.Clear();
+		wr_buf_->Clear();
 	}
 	wr_lock_.UnLock();
 }
@@ -70,7 +83,7 @@ void Connection::SendData(void*buf,unsigned int size){
 		return;
 	}
 	base::Mutex::Locker lock(wr_lock_);
-	this->wr_buf_.Write(buf,size);
+	wr_buf_->Write(buf,size);
 	Flush();
 }
 int Connection::Reader(const struct iovec *iov, int iovcnt){
@@ -92,6 +105,11 @@ int Connection::Writer(void*buf,int size){
 	int nwd;
 	Socket::Write(this->fd_,buf,size,&nwd,NULL);
 	return nwd;
+}
+void Connection::ShutDownAfterWrite(){
+	shutdown(this->fd_,SHUT_RD);
+	__sync_bool_compare_and_swap(&shut_down_after_write_,false,true);
+	loop_->GetPoller().AddWrite(&this->entry_);
 }
 void Connection::PollerEvent_OnRead(){
 	if(this->bfreed_){
@@ -119,15 +137,38 @@ void Connection::PollerEvent_OnWrite(){
 	if(!this->enable_){
 		return;
 	}
-	base::Mutex::Locker lock(wr_lock_);
-	if(this->wr_buf_.Size() > 0){
-		this->wr_buf_.ReadToWriter(StaticWriter,this);
-		int size = this->wr_buf_.Size();
-		if( size == 0){
-			loop_->GetPoller().DelWrite(&this->entry_);
+	if(wring_buf_){
+		wring_buf_->ReadToWriter(StaticWriter,this);
+		if(wring_buf_->Size() == 0){
+			wring_buf_ = NULL;
+		}else{
+			return;
+		}
+	}
+	{
+		base::Mutex::Locker lock(wr_lock_);
+		if(wr_buf_->Size() > 0){
+			wring_buf_ = wr_buf_;
+			if(wr_buf_ == &wr_buf_1_){
+				wr_buf_ = &wr_buf_2_;
+			}else{
+				wr_buf_ = &wr_buf_1_;
+			}
+		}
+	}
+	if(wring_buf_){
+		wring_buf_->ReadToWriter(StaticWriter,this);
+		if(wring_buf_->Size() == 0){
+			wring_buf_ = NULL;
+		}else{
+			return;
 		}
 	}else{
 		loop_->GetPoller().DelWrite(&this->entry_);
+		if( __sync_bool_compare_and_swap(&shut_down_after_write_,true,true) ){
+			this->ShutDown();
+		}
+		
 	}
 }
 }}

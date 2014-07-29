@@ -22,6 +22,16 @@ typedef void(*run_fn)(void* arg);
 	Poller& GetPoller(){
 		return poller_;
 	}
+	void AddUse(){
+		num_use_++;
+	}
+	void RemoveUse(){
+		if(num_use_ > 0)
+			num_use_--;
+	}
+	int GetUse(){
+		return num_use_;
+	}
 private:
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite(){}
@@ -36,6 +46,7 @@ private:
 	//int efd_;
 	base::Mutex mtx_;
 	Singler sigler_;
+	int num_use_;
 };
 }
 }

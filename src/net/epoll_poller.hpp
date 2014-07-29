@@ -5,6 +5,8 @@
 
 #include "i_poller_event.hpp"
 #include "abb/base/log.hpp"
+#include <sys/epoll.h>
+#include "abb/base/mutex.hpp"
 namespace abb {
 namespace net {
 
@@ -25,14 +27,16 @@ struct PollerEntry {
 		}
 	}
 	void SetFd(int fd){fd_ = fd;}
+	bool IsAddWrited(){
+		return event_&POLLER_WRITE;
+	}
+	base::Mutex mtx_;
 	IPollerEvent* lis_;
 	int fd_;
 	bool badd_;
 	int event_;
 };
 class Poller {
-public:
-	
 public:
 	Poller();
 	~Poller();
@@ -43,11 +47,17 @@ public:
 	void AddReadWrite(PollerEntry* arg);
 	void DelReadWrite(PollerEntry* arg);
 	void Poll(int timeout);
+	void SetLastEmitFd(int fd) {
+		last_emit_fd_ = fd;
+	}
 private:
 	bool SetEvent(int fd,int event,PollerEntry* arg,bool bneedadd);
 private:
+static const int num_revs = 64;
+	int last_emit_fd_;
 	int error_;
 	int efd_;
+	struct epoll_event revs_[num_revs];
 };
 
 } /* namespace base */

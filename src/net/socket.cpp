@@ -168,8 +168,10 @@ void Socket::SetNoBlock(int fd,bool b){
 	}
 }
 void Socket::SetNoDelay(int fd,bool b){
-	char mode = b?1:0;
-	setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, (const char*)&mode, sizeof(char));
+	int mode = b?1:0;
+	if ( 0 != setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, (const char*)&mode, sizeof(int)) ){
+		LOG(WARN) << "SetNoDelay" << b << " fail " << strerror(errno);
+	}
 }
 void Socket::SetRcvBufSize(int fd,int size){
 	setsockopt( fd, SOL_SOCKET, SO_RCVBUF, (const char*)&size, sizeof(int));
@@ -181,5 +183,21 @@ bool Socket::GetSockError(int fd,int*err){
 	unsigned size = sizeof(int);
 	return getsockopt(fd,SOL_SOCKET,SO_ERROR,(void*)err,&size) == 0;
 }
+bool Socket::SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,int keep_cout){
+	int kepp_alive =  keppalive ? 0:1;
+	if(setsockopt(fd,SOL_SOCKET,SO_KEEPALIVE,(void*)&kepp_alive,sizeof(kepp_alive)) == -1){
+		LOG(WARN) << "SO_KEEPALIVE" << kepp_alive << " fail " << strerror(errno);
+	}
+	if(setsockopt(fd,SOL_TCP,TCP_KEEPIDLE,(void *)&keep_idle,sizeof(keep_idle)) == -1){
+		LOG(WARN) << "TCP_KEEPIDLE" << keep_idle << " fail " << strerror(errno);
+	}
+	if(setsockopt(fd,SOL_TCP,TCP_KEEPINTVL,(void *)&keepinterval,sizeof(keepinterval)) == -1){
+		LOG(WARN) << "TCP_KEEPINTVL" << keepinterval << " fail " << strerror(errno);
+	}
+	if(setsockopt(fd,SOL_TCP,TCP_KEEPCNT,(void *)&keep_cout,sizeof(keep_cout)) == -1){
+		LOG(WARN) << "TCP_KEEPCNT" << keep_cout << " fail " << strerror(errno);
+	}
+}
+
 } /* namespace translate */
 } /* namespace adcloud */

@@ -29,6 +29,9 @@ void TcpServer::Start(){
 	acceptor_->SetEnable(true);
 	ctx_->Start();
 }
+void TcpServer::Close(){
+	acceptor_->Close();
+}
 void TcpServer::Pause(){
 	acceptor_->SetEnable(false);
 }

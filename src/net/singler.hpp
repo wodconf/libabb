@@ -7,7 +7,9 @@ class Singler{
 public:
 	Singler();
 	~Singler();
-	int GetReadFd();
+	int GetReadFd(){
+		return rfd_;
+	}
 	void Write();
 	void Read();
 private:

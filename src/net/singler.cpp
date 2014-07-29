@@ -26,9 +26,6 @@ Singler::~Singler(){
 	close(rfd_);
 	close(wfd_);
 }
-int Singler::GetReadFd(){
-	return rfd_;
-}
 void Singler::Write(){
 	unsigned char  c = 1;
 	int nwr;

@@ -17,6 +17,7 @@
 
 
 
+
 pkgdatadir = $(datadir)/libabb
 pkglibdir = $(libdir)/libabb
 pkgincludedir = $(includedir)/libabb
@@ -36,10 +37,10 @@ build_triplet = i686-pc-linux-gnu
 host_triplet = i686-pc-linux-gnu
 bin_PROGRAMS = echo_server$(EXEEXT) echo_client$(EXEEXT)
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
-	ChangeLog INSTALL NEWS config.guess config.sub depcomp \
-	install-sh ltmain.sh missing
+DIST_COMMON = README $(am__configure_deps) $(include_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
+	config.guess config.sub depcomp install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -54,7 +55,8 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
@@ -87,6 +89,8 @@ SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
 	$(echo_server_SOURCES)
 DIST_SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
 	$(echo_server_SOURCES)
+includeHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -100,12 +104,12 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/wd/libabb/missing --run aclocal-1.10
-AMTAR = ${SHELL} /home/wd/libabb/missing --run tar
+ACLOCAL = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run aclocal-1.10
+AMTAR = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/wd/libabb/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/wd/libabb/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/wd/libabb/missing --run automake-1.10
+AUTOCONF = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run automake-1.10
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -142,7 +146,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/wd/libabb/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -165,10 +169,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 0.1
-abs_builddir = /home/wd/libabb
-abs_srcdir = /home/wd/libabb
-abs_top_builddir = /home/wd/libabb
-abs_top_srcdir = /home/wd/libabb
+abs_builddir = /home/wd/ad_cloud/deps/libabb
+abs_srcdir = /home/wd/ad_cloud/deps/libabb
+abs_top_builddir = /home/wd/ad_cloud/deps/libabb
+abs_top_srcdir = /home/wd/ad_cloud/deps/libabb
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -198,7 +202,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = $(SHELL) /home/wd/libabb/install-sh
+install_sh = $(SHELL) /home/wd/ad_cloud/deps/libabb/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -219,6 +223,8 @@ top_build_prefix =
 top_builddir = .
 top_srcdir = .
 INCLUDES = -I./include
+AM_LDFLAGS = -O0
+AM_CPPFLAGS = -O0
 lib_LTLIBRARIES = libabb.la
 libabb_la_SOURCES = src/base/buffer.cpp\
 			src/base/log.cpp\
@@ -241,6 +247,9 @@ echo_server_LDADD = -labb
 echo_server_SOURCES = examples/echo_server.cpp
 echo_client_LDADD = -labb
 echo_client_SOURCES = examples/echo_client.cpp
+
+#EXTRA_DIST=./include
+include_HEADERS = ./include
 all: all-am
 
 .SUFFIXES:
@@ -528,6 +537,23 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
+	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -710,11 +736,11 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -765,7 +791,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -813,7 +839,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
+uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
+	uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
@@ -826,14 +853,14 @@ uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
 	dvi-am html html-am info info-am install install-am \
 	install-binPROGRAMS install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-libLTLIBRARIES install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-libLTLIBRARIES
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 export INCLUDES
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

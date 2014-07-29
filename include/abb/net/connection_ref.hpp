@@ -10,15 +10,18 @@ namespace net {
 class Connection;
 class ConnectionRef :public base::RefObject{
 public:
-	ConnectionRef(Connection* conn);
+	explicit ConnectionRef(Connection* conn);
 	virtual ~ConnectionRef();
 	bool IsClosed(){return conn_==NULL;}
 	bool Send(void*data,int len);
 	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite();
+	void SetNoDelay(bool e);
+	void SetKeepAlive(bool kp,int idle,int interval,int cout);
 	const IPAddr& GetLocalAddr(){return local_;}
 	const IPAddr& GetRemoteAddr(){return remote_;}
 	bool Close();
+	bool CloseAfterWrite();
 	void* Data;
 private:
 	friend class TcpServer;

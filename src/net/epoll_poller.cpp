@@ -5,17 +5,21 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/epoll.h>
+#include <fcntl.h>
 namespace abb {
 namespace net {
 
 Poller::Poller():error_(0) {
 	this->efd_ = epoll_create(10);
+	fcntl(efd_, F_SETFD, FD_CLOEXEC);
+
 }
 
 Poller::~Poller() {
 	close(efd_);
 }
 void Poller::AddRead(PollerEntry* arg){
+	base::Mutex::Locker l(arg->mtx_);
 	if(arg->event_&POLLER_READ){
 		return;
 	}
@@ -24,6 +28,7 @@ void Poller::AddRead(PollerEntry* arg){
 	}
 }
 void Poller::DelRead(PollerEntry* arg){
+	base::Mutex::Locker l(arg->mtx_);
 	if(arg->event_&POLLER_READ){
 		if( this->SetEvent(arg->fd_,arg->event_&(~POLLER_READ),arg,arg->badd_) ){
 			arg->event_&=~POLLER_READ;
@@ -31,6 +36,7 @@ void Poller::DelRead(PollerEntry* arg){
 	}
 }
 void Poller::AddWrite(PollerEntry* arg){
+	base::Mutex::Locker l(arg->mtx_);
 	if(arg->event_&POLLER_WRITE){
 		return;
 	}
@@ -39,6 +45,7 @@ void Poller::AddWrite(PollerEntry* arg){
 	}
 }
 void Poller::DelWrite(PollerEntry* arg){
+	base::Mutex::Locker l(arg->mtx_);
 	if(arg->event_&POLLER_WRITE){
 		if( this->SetEvent(arg->fd_,arg->event_&(~POLLER_WRITE),arg,arg->badd_) ){
 			arg->event_&=~POLLER_WRITE;
@@ -46,6 +53,7 @@ void Poller::DelWrite(PollerEntry* arg){
 	}
 }
 void Poller::AddReadWrite(PollerEntry* arg){
+	base::Mutex::Locker l(arg->mtx_);
 	if((arg->event_&POLLER_READ) && (arg->event_&POLLER_WRITE)){
 		return;
 	}
@@ -54,6 +62,7 @@ void Poller::AddReadWrite(PollerEntry* arg){
 	}
 }
 void Poller::DelReadWrite(PollerEntry* arg){
+	base::Mutex::Locker l(arg->mtx_);
 	if((arg->event_&POLLER_READ)|| (arg->event_&POLLER_WRITE)){
 		if( this->SetEvent(arg->fd_,0,arg,arg->badd_) ){
 			arg->event_ = 0;
@@ -66,10 +75,10 @@ bool Poller::SetEvent(int fd,int event,PollerEntry* arg,bool bneedadd){
 	ep_ev.data.ptr = arg;
 	ep_ev.events = 0;
 	if(event & POLLER_READ){
-		ep_ev.events |=  EPOLLERR | EPOLLIN | EPOLLHUP;
+		ep_ev.events |=  EPOLLIN | EPOLLERR  | EPOLLHUP ;
 	}
-	if(event & POLLER_WRITE){
-		ep_ev.events |= EPOLLOUT;
+	if(event & POLLER_WRITE){ 
+		ep_ev.events |= EPOLLOUT | EPOLLERR | EPOLLHUP ;
 	}
 	arg->badd_ = false;
 	if(event == 0){
@@ -84,25 +93,34 @@ bool Poller::SetEvent(int fd,int event,PollerEntry* arg,bool bneedadd){
 	return rc == 0;
 }
 void Poller::Poll(int timeout){
-	struct epoll_event revs[128];
-	int rc = epoll_wait(this->efd_,revs,128,timeout);
+	int rc = epoll_wait(this->efd_,revs_,num_revs,timeout);
 	if(rc <= 0){
 		return;
 	}
 	//LOG(INFO) << "epoll_wait" << rc;
 	int revent;
-	PollerEntry * entry;
+	PollerEntry* entry;
+	PollerEntry* last_entry = NULL;
+	int last_revent;
 	for(int i =0;i<rc;i++){
-		if(revs[i].events &	(EPOLLIN | EPOLLHUP | EPOLLERR)){
+		if(revs_[i].events &	(EPOLLIN | EPOLLHUP | EPOLLERR)){
 			revent = POLLER_READ;
 		}
-		if(revs[i].events &	(EPOLLOUT | EPOLLHUP | EPOLLERR)){
+		if(revs_[i].events &	(EPOLLOUT | EPOLLHUP | EPOLLERR)){
 			revent |= POLLER_WRITE;
 		}
-		entry = (PollerEntry*)(revs[i].data.ptr);
-		if(entry)
-			entry->Emitter(revent);
+		entry = (PollerEntry*)(revs_[i].data.ptr);
+		if(entry){
+			if(entry->fd_ == last_emit_fd_){
+				last_entry = entry;
+				last_revent = revent;
+			}else{
+				entry->Emitter(revent);
+			}
+		}	
 	}
+	if(last_entry)
+		last_entry->Emitter(last_revent);
 }
 
 } /* namespace base */

@@ -5,7 +5,7 @@
 
 #include <string>
 #include "define.hpp"
-
+#include <stdint.h>
 struct iovec;
 
 namespace abb {
@@ -17,50 +17,53 @@ public:
 	typedef int (*BufferReader)(void*arg,const struct iovec *iov, int iovcnt);
 	Buffer();
 	~Buffer();
+
 	Buffer& operator << ( bool val);
-	Buffer& operator << ( int val);
-	Buffer& operator << ( unsigned int val);
-	Buffer& operator << ( char val);
-	Buffer& operator << ( unsigned char val);
-	Buffer& operator << ( short val);
-	Buffer& operator << ( unsigned short val);
-	Buffer& operator << ( long val);
-	Buffer& operator << ( unsigned long val);
-	Buffer& operator << ( long long val);
-	Buffer& operator << ( unsigned long long val);
+	Buffer& operator << ( int32_t val);
+	Buffer& operator << ( uint32_t val);
+	Buffer& operator << ( int8_t val);
+	Buffer& operator << ( uint8_t val);
+	Buffer& operator << ( int16_t val);
+	Buffer& operator << ( uint16_t val);
+	Buffer& operator << ( int64_t val);
+	Buffer& operator << ( uint64_t val);
 	Buffer& operator << ( const std::string& val);
 	Buffer& operator << ( const char* val);
 	Buffer& operator >> ( bool& val);
-	Buffer& operator >> ( int& val);
-	Buffer& operator >> ( unsigned int& val);
-	Buffer& operator >> ( char& val);
-	Buffer& operator >> ( unsigned char& val);
-	Buffer& operator >> ( short& val);
-	Buffer& operator >> ( unsigned short& val);
-	Buffer& operator >> ( long& val);
-	Buffer& operator >> ( unsigned long& val);
-	Buffer& operator >> ( long long& val);
-	Buffer& operator >> ( unsigned long long& val);
+	Buffer& operator >> ( int32_t& val);
+	Buffer& operator >> ( uint32_t& val);
+	Buffer& operator >> ( int8_t& val);
+	Buffer& operator >> ( uint8_t& val);
+	Buffer& operator >> ( int16_t& val);
+	Buffer& operator >> ( uint16_t& val);
+	Buffer& operator >> ( int64_t& val);
+	Buffer& operator >> ( uint64_t& val);
 	Buffer& operator >> (  std::string& val);
+	uint16_t HOST_ReadUint16();
+	uint32_t HOST_ReadUint32();
+	uint64_t HOST_ReadUint64();
+	void NET_WriteUint16(uint16_t);
+	void NET_WriteUint32(uint32_t);
+	void NET_WriteUint64(uint64_t);
 
-	void Write(void*buf,unsigned int sz);
-	unsigned int Read(void *buf,unsigned int sz);
-	void GaveWr(int sz){
+	void Write(void*buf,uint32_t sz);
+	uint32_t Read(void *buf,uint32_t sz);
+	void GaveWr(uint32_t sz){
 		wr_+=sz;
 		if(wr_ > size_){
 			wr_ = size_;
 		}
 	}
-	void GaveRd(int sz){
+	void GaveRd(uint32_t sz){
 		rd_+=sz;
 		if(rd_ > wr_){
 			rd_ = wr_;
 		}
 	}
-	unsigned int Size(){
+	uint32_t Size(){
 		return wr_ - rd_;
 	}
-	void Back(unsigned int sz){
+	void Back(uint32_t sz){
 		if(sz > rd_){
 			rd_ = 0;
 		}
@@ -72,12 +75,15 @@ public:
 	void* WrData(){
 		return this->buf_+this->wr_;
 	}
+	uint32_t WrSize(){
+		return this->size_ - this->wr_;
+	}
 	void Clear(){
 		rd_ = wr_ = 0;
 	}
-	unsigned int ReadToWriter(BufferWriter writer,void*arg);
-	unsigned int WriteFromeReader(BufferReader reader,void*arg);
-	void EnoughSize(unsigned int size){
+	uint32_t ReadToWriter(BufferWriter writer,void*arg);
+	uint32_t WriteFromeReader(BufferReader reader,void*arg);
+	void EnoughSize(uint32_t size){
 		if((size_ - wr_) >= size){return;}
 		else{this->Grow(size);}
 	}
@@ -87,9 +93,9 @@ public:
 private:
 	void Grow(int sz);
 	char * buf_;
-	unsigned int wr_;
-	unsigned int rd_;
-	unsigned int size_;
+	uint32_t wr_;
+	uint32_t rd_;
+	uint32_t size_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Buffer);
 };
 

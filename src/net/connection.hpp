@@ -12,6 +12,7 @@
 #include "abb/net/listener.hpp"
 #include "poller.hpp"
 #include <sys/socket.h>
+#include "loop.hpp"
 namespace abb {
 namespace net {
 class Loop;
@@ -24,6 +25,7 @@ public:
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
 	int ShutDown(int how = SHUT_RDWR){return shutdown(this->fd_,how);}
+	void ShutDownAfterWrite();
 	bool IsConnected(){return this->state_ == STATE_OPEN;}
 	int GetError(){return this->err_;}
 	int GetId(){return id_;}
@@ -32,12 +34,13 @@ public:
 	void* GetData(){return data_;}
 
 	void SetEnable(bool enable);
-
+	void SetNoDelay(bool e);
 	const IPAddr& GetLocalAddr(){return local_addr_;}
-		const IPAddr& GetRemoteAddr(){return peer_addr_;}
+	const IPAddr& GetRemoteAddr(){return peer_addr_;}
+	bool SetKeepAlive(bool kp,int idle,int interval,int cout);
 private:
 	virtual void PollerEvent_OnRead();
-		virtual void PollerEvent_OnWrite();
+	virtual void PollerEvent_OnWrite();
 	void Flush();
 	static int StaticReader(void*arg,const struct iovec *iov, int iovcnt){
 		Connection* con = (Connection*)arg;
@@ -50,6 +53,10 @@ private:
 	static void StaticFree(void*arg){
 		Connection* con = (Connection*)arg;
 		delete con;
+	}
+	static void StaticAddWrite(void*arg){
+		Connection* con = (Connection*)arg;
+		con->loop_->GetPoller().AddWrite(&con->entry_);
 	}
 	int Reader(const struct iovec *iov, int iovcnt);
 	int Writer(void*buf,int size);
@@ -68,12 +75,16 @@ private:
 	bool enable_;
 	base::Buffer rd_buf_;
 	base::Mutex wr_lock_;
-	base::Buffer wr_buf_;
+	base::Buffer* wr_buf_;
+	base::Buffer* wring_buf_;
+	base::Buffer wr_buf_1_;
+	base::Buffer wr_buf_2_;
 	Loop* loop_;
 	PollerEntry entry_;
 	IConnectionListener* lis_;
 	int id_;
 	void* data_;
+	bool shut_down_after_write_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 

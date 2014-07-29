@@ -18,6 +18,7 @@ public:
 	void SetListener(IAcceptorListener* lis){lis_ = lis;}
 	bool Listen(const IPAddr& addr,int* save_err = NULL);
 	void SetEnable(bool benable);
+	void Close();
 	void Destroy();
 	const IPAddr& GetIpAddr(){
 		return addr_;

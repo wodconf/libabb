@@ -20,7 +20,6 @@ private:
 	int num_thread_;
 	Loop* loops_;
 	bool run_cur_thread_;
-	int cur_;
 	enum{
 		STATE_UNINIT,
 		STATE_INITED,

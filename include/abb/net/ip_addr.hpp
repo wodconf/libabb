@@ -35,6 +35,7 @@ public:
 	bool SetFromHostent(struct hostent *ent);
 	//127.0.0.1:1398
 	bool SetByString(const std::string& str);
+	bool SetByStringIgnoreIP(const std::string& str);
 	std::string ToString() const;
 public:
 	sa_family_t family;

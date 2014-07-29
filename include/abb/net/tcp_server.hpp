@@ -26,6 +26,7 @@ public:
 	void Start();
 	void Pause();
 	void Resume();
+	void Close();
 	const IPAddr& GetAddr();
 private:
 	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr);

@@ -6,7 +6,39 @@
 #include "abb/base/log.hpp"
 #include <sys/uio.h>
 #include <string.h>
+#include <asm/byteorder.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 using namespace abb::base;
+
+static unsigned long long ntohll(unsigned long long val)
+{
+	if (__BYTE_ORDER == __LITTLE_ENDIAN)
+	{
+		return (((unsigned long long )htonl((int)((val << 32) >> 32))) << 32) | (unsigned int)htonl((int)(val >> 32));
+	}
+	else if (__BYTE_ORDER == __BIG_ENDIAN)
+	{
+		return val;
+	}else{
+		return val;
+	}
+}
+
+static unsigned long long htonll(unsigned long long val)
+{
+	if (__BYTE_ORDER == __LITTLE_ENDIAN)
+	{
+		return (((unsigned long long )htonl((int)((val << 32) >> 32))) << 32) | (unsigned int)htonl((int)(val >> 32));
+	}
+	else if (__BYTE_ORDER == __BIG_ENDIAN)
+	{
+		return val;
+	}else{
+		return val;
+	}
+}
+
 Buffer::Buffer(){
 	this->size_ = 1024;
 	this->rd_ = this->wr_ = 0;
@@ -18,7 +50,7 @@ Buffer::~Buffer(){
 
 #define DECLARE_OPERATOR_IN_STREAM(TYPE)		\
 		Buffer& Buffer::operator<< ( TYPE val){	\
-	unsigned int sz = sizeof(TYPE);				\
+	uint32_t sz = sizeof(TYPE);				\
 	if(sz > (size_ - wr_)){			\
 		Grow(sz);						\
 	}									\
@@ -27,7 +59,7 @@ Buffer::~Buffer(){
 	return *this;						\
 }
 #define DECLARE_OPERATOR_OUT_STREAM(TYPE)		\
-		Buffer& Buffer::operator>> ( TYPE val){	\
+		Buffer& Buffer::operator>> ( TYPE& val){	\
 	unsigned  int sz = sizeof(TYPE);				\
 	if(sz >  (wr_ - rd_) ){					\
 		return *this;					\
@@ -36,32 +68,32 @@ Buffer::~Buffer(){
 	rd_+= sz;						\
 	return*this;						\
 }
+
+
+DECLARE_OPERATOR_OUT_STREAM(bool)
+DECLARE_OPERATOR_OUT_STREAM(int32_t)
+DECLARE_OPERATOR_OUT_STREAM(uint32_t)
+DECLARE_OPERATOR_OUT_STREAM(int8_t)
+DECLARE_OPERATOR_OUT_STREAM(uint8_t)
+DECLARE_OPERATOR_OUT_STREAM(int16_t)
+DECLARE_OPERATOR_OUT_STREAM(uint16_t)
+DECLARE_OPERATOR_OUT_STREAM(int64_t)
+DECLARE_OPERATOR_OUT_STREAM(uint64_t)
+
 DECLARE_OPERATOR_IN_STREAM(bool)
-DECLARE_OPERATOR_IN_STREAM(int)
-DECLARE_OPERATOR_IN_STREAM(unsigned int)
-DECLARE_OPERATOR_IN_STREAM(char)
-DECLARE_OPERATOR_IN_STREAM(unsigned char)
-DECLARE_OPERATOR_IN_STREAM(short)
-DECLARE_OPERATOR_IN_STREAM(unsigned short)
-DECLARE_OPERATOR_IN_STREAM(long)
-DECLARE_OPERATOR_IN_STREAM(unsigned long)
-DECLARE_OPERATOR_IN_STREAM(long long)
-DECLARE_OPERATOR_IN_STREAM(unsigned long long)
+DECLARE_OPERATOR_IN_STREAM(int32_t)
+DECLARE_OPERATOR_IN_STREAM(uint32_t)
+DECLARE_OPERATOR_IN_STREAM(int8_t)
+DECLARE_OPERATOR_IN_STREAM(uint8_t)
+DECLARE_OPERATOR_IN_STREAM(int16_t)
+DECLARE_OPERATOR_IN_STREAM(uint16_t)
+DECLARE_OPERATOR_IN_STREAM(int64_t)
+DECLARE_OPERATOR_IN_STREAM(uint64_t)
 
-DECLARE_OPERATOR_OUT_STREAM(bool&)
-DECLARE_OPERATOR_OUT_STREAM(int&)
-DECLARE_OPERATOR_OUT_STREAM(unsigned int&)
-DECLARE_OPERATOR_OUT_STREAM(char&)
-DECLARE_OPERATOR_OUT_STREAM(unsigned char&)
-DECLARE_OPERATOR_OUT_STREAM(short&)
-DECLARE_OPERATOR_OUT_STREAM(unsigned short&)
-DECLARE_OPERATOR_OUT_STREAM(long&)
-DECLARE_OPERATOR_OUT_STREAM(unsigned long&)
-DECLARE_OPERATOR_OUT_STREAM(long long&)
-DECLARE_OPERATOR_OUT_STREAM(unsigned long long&)
-
+#undef DECLARE_OPERATOR_OUT_STREAM
+#undef DECLARE_OPERATOR_IN_STREAM
 Buffer& Buffer::operator >> (std::string& str){
-	unsigned int cur = rd_;
+	uint32_t cur = rd_;
 	char ch = 'a';
 	while(true){
 		if(cur == wr_){
@@ -93,7 +125,7 @@ Buffer& Buffer::operator <<(const std::string& str){
 	this->Write(&s,1);
 	return *this;
 }
-void Buffer::Write(void*buf,unsigned int sz){
+void Buffer::Write(void*buf,uint32_t sz){
 	if(sz ==0){
 		return ;
 	}
@@ -103,7 +135,7 @@ void Buffer::Write(void*buf,unsigned int sz){
 	memcpy(buf_+wr_,buf,sz);
 	wr_+= sz;
 }
-unsigned int Buffer::Read(void *buf,unsigned int sz){
+uint32_t Buffer::Read(void *buf,uint32_t sz){
 	sz = sz > (wr_ - rd_)?(wr_ - rd_):sz;
 	memcpy(buf,(char*)buf_+rd_,sz);
 	rd_+= sz;
@@ -114,7 +146,7 @@ unsigned int Buffer::Read(void *buf,unsigned int sz){
 }
 
 
-unsigned int Buffer::ReadToWriter(BufferWriter writer,void*arg){
+uint32_t Buffer::ReadToWriter(BufferWriter writer,void*arg){
 	int size = wr_ - rd_;
 	int ret = 0;
 	if(size > 0){
@@ -126,7 +158,7 @@ unsigned int Buffer::ReadToWriter(BufferWriter writer,void*arg){
 	}
 	return 0;
 }
-unsigned int Buffer::WriteFromeReader(BufferReader reader,void*arg){
+uint32_t Buffer::WriteFromeReader(BufferReader reader,void*arg){
 	char buf[65535];
 	struct iovec io[2];
 	int size = size_ - wr_;
@@ -163,3 +195,32 @@ void Buffer::Grow(int needsize){
 	this->rd_ = 0;
 }
 
+
+uint16_t Buffer::HOST_ReadUint16(){
+	uint16_t val;
+	(*this) >> val;
+	return ntohs(val);
+}
+uint32_t Buffer::HOST_ReadUint32(){
+	uint32_t val;
+	(*this) >> val;
+	return ntohl(val);
+}
+uint64_t Buffer::HOST_ReadUint64(){
+	uint64_t val;
+	(*this) >> val;
+	return ntohll(val);
+}
+
+void Buffer::NET_WriteUint16(uint16_t val){
+	val = htons(val);
+	(*this) << val;
+}
+void Buffer::NET_WriteUint32(uint32_t val){
+	val = htonl(val);
+	(*this) << val;
+}
+void Buffer::NET_WriteUint64(uint64_t val){
+	val = htonll(val);
+	(*this) << val;
+}

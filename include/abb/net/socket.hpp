@@ -24,6 +24,7 @@ public:
 	static void SetKeepAlive(int fd,bool b);
 	static bool GetSockError(int fd,int*err);
 	static void Close(int fd);
+	static bool SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,int keep_cout);
 };
 
 } /* namespace net */

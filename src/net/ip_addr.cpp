@@ -127,6 +127,14 @@ bool IPAddr::SetByString(const std::string& str){
 	}
 	return false;
 }
+bool IPAddr::SetByStringIgnoreIP(const std::string& str){
+	std::string ip;
+	int port;
+	if(ParseAddr(str,&ip,&port)){
+		return this->SetV4(NULL,port);
+	}
+	return false;
+}
 /*
  * const char * inet_ntop(
 int fm,//AF_INET AF_INET6

@@ -5,6 +5,7 @@
 #include "abb/net/socket.hpp"
 #include <errno.h>
 #include "loop.hpp"
+#include <fcntl.h>
 namespace abb {
 namespace net {
 
@@ -31,16 +32,26 @@ void Acceptor::Destroy(){
 }
 bool Acceptor::Listen(const IPAddr& addr,int* save_err ){
 	if( Socket::Listen(&fd_,addr,save_err) ){
+		fcntl(fd_, F_SETFD, FD_CLOEXEC);
 		addr_ = addr;
 		this->entry_.SetFd(fd_);
 		return true;
 	}
 	return false;
 }
+void Acceptor::Close(){
+	if(fd_ != -1){
+		SetEnable(false);
+		this->entry_.SetFd(-1);
+		close(fd_);
+		fd_ = -1;
+	}
+}
 void Acceptor::SetEnable(bool benable){
 	if(this->enable_ == benable){
 		return;
 	}
+	if(fd_ == -1) return;
 	enable_ = benable;
 	if(enable_){
 		this->loop_->GetPoller().AddRead(&this->entry_);
@@ -53,6 +64,8 @@ void Acceptor::PollerEvent_OnRead(){
 	IPAddr addr;
 	int fd;
 	if( Socket::Accept(fd_,&fd,&addr,NULL) ){
+		addr.family = this->addr_.family;
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
 		this->lis_->L_Acceptor_OnConnection(this,fd,addr);
 	}
 }

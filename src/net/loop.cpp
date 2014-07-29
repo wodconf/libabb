@@ -2,9 +2,10 @@
 #include "loop.hpp"
 //#include <sys/eventfd.h>
 using namespace abb::net;
-Loop::Loop():stop_(false),entry_(this) {
+Loop::Loop():stop_(false),entry_(this){
 	//efd_ = eventfd(0, 0);
 	entry_.SetFd(sigler_.GetReadFd());
+	poller_.SetLastEmitFd(sigler_.GetReadFd());
 	poller_.AddRead(&entry_);
 }
 
@@ -14,7 +15,7 @@ Loop::~Loop() {
 }
 void Loop::Start(){
 	while(!stop_){
-		poller_.Poll(1000);
+		poller_.Poll(5000);
 	}
 }
 void Loop::RunInLoop(run_fn fn,void*arg){
@@ -27,7 +28,6 @@ void Loop::RunInLoop(run_fn fn,void*arg){
 	sigler_.Write();
 }
 void Loop::PollerEvent_OnRead(){
-	int i;
 	sigler_.Read();
 	mtx_.Lock();
 	if(!queue_.empty()){
