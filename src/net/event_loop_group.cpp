@@ -7,7 +7,9 @@ namespace abb{namespace net{
 
 	}
 	EventLoopGroup::~EventLoopGroup(){
-
+		for(int i=0;i<loops.size();i++){
+			delete loops[i];
+		}
 	}
 	void EventLoopGroup::Start(){
 		if(threads_.size() > 0) return;
