@@ -4,7 +4,10 @@
 namespace abb{namespace net{
 	EventLoopGroup::EventLoopGroup(int threads)
 	:num_thread_(threads){
-
+		for(int i=0;i<num_thread_;i++){
+			EventLoop* loop = new EventLoop();
+			loops.push_back(loop);
+		}
 	}
 	EventLoopGroup::~EventLoopGroup(){
 		for(int i=0;i<loops.size();i++){
@@ -14,14 +17,12 @@ namespace abb{namespace net{
 	void EventLoopGroup::Start(){
 		if(threads_.size() > 0) return;
 		for(int i=0;i<num_thread_;i++){
-			EventLoop* loop = new EventLoop();
-			loops.push_back(loop);
 			pthread_t tid;
 			pthread_attr_t *thread_attr = NULL;
 			thread_attr = (pthread_attr_t*) malloc(sizeof(pthread_attr_t));
 			pthread_attr_init(thread_attr);
 			pthread_attr_setstacksize(thread_attr, 1024*1024);
-			pthread_create(&tid,thread_attr,ThreadMain,loop);
+			pthread_create(&tid,thread_attr,ThreadMain,loops[i]);
 			threads_.push_back(tid);
 		}
 	}

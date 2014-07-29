@@ -6,16 +6,16 @@
  */
 
 #include "abb/net/tcp_client.hpp"
-#include "loop.hpp"
-#include "connector.hpp"
-#include "connection.hpp"
+#include "abb/net/event_loop.hpp"
+#include "abb/net/connector.hpp"
+#include "abb/net/connection.hpp"
 #include "abb/net/connection_ref.hpp"
 namespace abb {
 namespace net {
 
 class TcpClient:public IConnectorListener,IConnectionListener{
 public:
-	TcpClient(Loop* loop,ITcpClientListener* lis):loop_(loop),lis_(lis) {
+	TcpClient(EventLoop* loop,ITcpClientListener* lis):loop_(loop),lis_(lis) {
 	}
 	virtual ~TcpClient(){};
 	void L_Connection_OnMessage(Connection* conn,base::Buffer& buf){
@@ -51,10 +51,10 @@ public:
 		delete this;
 	}
 	ITcpClientListener* lis_;
-	Loop* loop_;
+	EventLoop* loop_;
 };
 namespace tcp{
-extern bool Connect(Loop* loop,const IPAddr& addr,int* save_error,ITcpClientListener* lis){
+extern bool Connect(EventLoop* loop,const IPAddr& addr,int* save_error,ITcpClientListener* lis){
 	Connector *ctor_ = new Connector(loop);
 	TcpClient* cli = new TcpClient(loop,lis);
 	ctor_->SetListener(cli);

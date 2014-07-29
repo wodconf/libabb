@@ -3,12 +3,12 @@
 
 #include "abb/net/ip_addr.hpp"
 #include "abb/net/listener.hpp"
-#include "abb/base/mutex.hpp"
+//#include "abb/base/mutex.hpp"
 #include "abb/net/connection_ref.hpp"
 #include <map>
 namespace abb{
 namespace net{
-class Context;
+class EventLoopGroup;
 class TcpServer:public IAcceptorListener,IConnectionListener{
 public:
 	class Listener{
@@ -34,12 +34,11 @@ private:
 	virtual void L_Connection_OnClose(Connection* self,int error);
 private:
 	Listener* lis_;
-	Context* ctx_;
+	EventLoopGroup* event_group_;
 	Acceptor* acceptor_;
-	typedef std::map<int,Connection*> ConnectionMap;
-	ConnectionMap conn_map_;
-	int id_;
-	base::Mutex mtx_;
+	//typedef std::map<long,Connection*> ConnectionMap;
+	//ConnectionMap conn_map_;
+	//base::Mutex mtx_;
 };
 }
 }

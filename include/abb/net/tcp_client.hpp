@@ -7,7 +7,7 @@
 namespace abb {
 namespace net {
 
-class Loop;
+class EventLoop;
 class ITcpClientListener{
 public:
 	virtual ~ITcpClientListener(){}
@@ -17,7 +17,7 @@ public:
 	virtual void L_TcpClient_OnClose(ConnectionRef* conn,int error) = 0;
 };
 namespace tcp{
-extern bool Connect(Loop* loop,const IPAddr& addr,int* save_error,ITcpClientListener* lis);
+extern bool Connect(EventLoop* loop,const IPAddr& addr,int* save_error,ITcpClientListener* lis);
 }
 
 } /* namespace monprxoy */
