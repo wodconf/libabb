@@ -55,10 +55,7 @@ void Context::Start(){
 	if(state_ == STATE_INITED){
 		state_ = STATE_STARTED;
 		for(int i=0;i<num_thread_;i++){
-			pthread_attr_t *thread_attr = NULL;
-			thread_attr = (pthread_attr_t*) malloc(sizeof(pthread_attr_t));
-			pthread_attr_init(thread_attr);
-			pthread_attr_setstacksize(thread_attr, 1024*1024);
+			
 			pthread_create(&threads[i],thread_attr,ThreadMain,(void*)(&loops_[i]));
 
 		}

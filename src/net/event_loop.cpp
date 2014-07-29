@@ -28,6 +28,7 @@ void EventLoop::ApplyIOEvent(IOEvent* event){
 	poller_->Apply(event);
 }
 void EventLoop::Loop(){
+	tid_ = pthread_self();
 	while(!stop_){
 		poller_->Poll(5000);
 	}

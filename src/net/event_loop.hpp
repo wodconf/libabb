@@ -4,7 +4,7 @@
 
 #include "abb/base/mutex.hpp"
 #include <queue>
-
+#include <pthread.h>
 namespace abb {
 namespace net{
 class Poller;
@@ -19,6 +19,9 @@ typedef void(*run_fn)(void* arg);
 	void Stop();
 	void RunInLoop(run_fn fn,void*arg);
 	void ApplyIOEvent(IOEvent* event);
+	bool IsInEventLoop(){
+		return tid_ == pthread_self();
+	}
 private:
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite(){}
@@ -33,6 +36,7 @@ private:
 	bool stop_;
 	//int efd_;
 	base::Mutex mtx_;
+	pthread_t tid_;
 };
 }
 }
