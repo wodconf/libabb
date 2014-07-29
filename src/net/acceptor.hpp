@@ -3,16 +3,16 @@
 #ifndef ABB_NET_ACCEPTOR_H_
 #define ABB_NET_ACCEPTOR_H_
 #include "abb/net/ip_addr.hpp"
-#include "i_poller_event.hpp"
-#include "poller.hpp"
 #include "abb/net/listener.hpp"
 #include "abb/base/define.hpp"
+#include "abb/net/event_handler.hpp"
+#include "abb/net/io_event.hpp"
 namespace abb {
 namespace net {
 class Loop;
 class Connection;
 class Context;
-class Acceptor :public IPollerEvent{
+class Acceptor :public IEventHandler{
 public:
 	explicit Acceptor(Loop* loop);
 	void SetListener(IAcceptorListener* lis){lis_ = lis;}
@@ -24,8 +24,7 @@ public:
 		return addr_;
 	}
 private:
-	virtual void PollerEvent_OnRead();
-		virtual void PollerEvent_OnWrite(){}
+	virtual void HandleEvent(int event);
 	static void StaticDelete(void*arg){
 		Acceptor* a = (Acceptor*)arg;
 		delete a;
@@ -33,7 +32,7 @@ private:
 	~Acceptor();
 private:
 	Loop* loop_;
-	PollerEntry entry_;
+	IOEvent entry_;
 	IAcceptorListener* lis_;
 	bool enable_;
 	IPAddr addr_;

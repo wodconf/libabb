@@ -11,7 +11,7 @@
 namespace abb {
 namespace net {
 
-Connection::Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer,int id)
+Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer)
 :loop_(loop),
  local_addr_(local),
  peer_addr_(peer),
@@ -20,7 +20,6 @@ Connection::Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer,
  fd_(fd),
  bfreed_(false),
  state_(STATE_OPEN),
- id_(id),
  data_(NULL),
  entry_(fd,this),
  enable_(false),
@@ -28,9 +27,7 @@ Connection::Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer,
 {
 	wr_buf_ = &wr_buf_1_;
 	wring_buf_ = NULL;
-	loop_->AddUse();
 	Socket::SetNoBlock(fd_,true);
-	
 }
 bool Connection::SetKeepAlive(bool kp,int idle,int interval,int cout){
 	Socket::SetKeepAlive(fd_,kp,idle,interval,cout);
@@ -39,7 +36,6 @@ void Connection::SetNoDelay(bool e){
 	Socket::SetNoDelay(fd_,e);
 }
 Connection::~Connection() {
-	loop_->RemoveUse();
 	close(fd_);
 }
 void Connection::Destroy(){
@@ -53,9 +49,13 @@ void  Connection::SetEnable(bool enable){
 	if(enable && (state_ != STATE_OPEN)) return;
 	enable_ = enable;
 	if(enable_){
-		loop_->GetPoller().AddReadWrite(&this->entry_);
+		entry_.SetRead(true);
+		entry_.SetWrite(true);
+		entry_->ApplyIOEvent(&entry_);
 	}else{
-		loop_->GetPoller().DelReadWrite(&this->entry_);
+		entry_.SetRead(false);
+		entry_.SetWrite(false);
+		entry_->ApplyIOEvent(&entry_);
 	}
 }
 base::Buffer& Connection::LockWrite(){
@@ -65,8 +65,8 @@ base::Buffer& Connection::LockWrite(){
 void Connection::Flush(){
 	if(!this->entry_.IsAddWrited()){
 		if(this->wr_buf_->Size() > 0 && this->IsConnected()){
-			//loop_->RunInLoop(StaticAddWrite,this);
-			loop_->GetPoller().AddWrite(&this->entry_);
+			entry_.SetWrite(true);
+			entry_->ApplyIOEvent(&entry_);
 		}
 	}
 }
@@ -109,15 +109,30 @@ int Connection::Writer(void*buf,int size){
 void Connection::ShutDownAfterWrite(){
 	shutdown(this->fd_,SHUT_RD);
 	__sync_bool_compare_and_swap(&shut_down_after_write_,false,true);
-	loop_->GetPoller().AddWrite(&this->entry_);
+	entry_.SetWrite(true);
+	entry_->ApplyIOEvent(&entry_);
 }
-void Connection::PollerEvent_OnRead(){
+void Connection::HandleEvent(int event){
 	if(this->bfreed_){
 		return;
 	}
 	if(!this->enable_){
 		return;
 	}
+	if(event&IO_EVENT_READ){
+		OnRead();
+	}
+	if(this->bfreed_){
+		return;
+	}
+	if(!this->enable_){
+		return;
+	}
+	if(event&IO_EVENT_WRITE){
+		OnWrite();
+	}
+}
+void Connection::OnRead(){
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(size > 0){
 		this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
@@ -127,14 +142,8 @@ void Connection::PollerEvent_OnRead(){
 		this->lis_->L_Connection_OnClose(this,this->err_);
 	}
 }
-void Connection::PollerEvent_OnWrite(){
+void Connection::OnWrite(){
 	if(state_ != STATE_OPEN){
-		return;
-	}
-	if(this->bfreed_){
-		return;
-	}
-	if(!this->enable_){
 		return;
 	}
 	if(wring_buf_){
@@ -164,7 +173,8 @@ void Connection::PollerEvent_OnWrite(){
 			return;
 		}
 	}else{
-		loop_->GetPoller().DelWrite(&this->entry_);
+		entry_.SetWrite(false);
+		entry_->ApplyIOEvent(&entry_);
 		if( __sync_bool_compare_and_swap(&shut_down_after_write_,true,true) ){
 			this->ShutDown();
 		}

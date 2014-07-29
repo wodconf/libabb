@@ -1,19 +1,21 @@
-#include "connector.hpp"
+#include "abb/net/connector.hpp"
+#include "abb/net/event_loop.hpp"
+#include "abb/net/socket.hpp"
 #include "abb/base/log.hpp"
 #include <errno.h>
-#include "loop.hpp"
-#include "abb/net/socket.hpp"
+
+
 #include <fcntl.h>
+
 using namespace abb::net;
 
 
-Connector::Connector(Loop* loop)
+Connector::Connector(EventLoop* loop)
 :fd_(-1),
  lis_(NULL),
  loop_(loop),
- entry_(this),
  connected_(0){
- loop_->AddUse();
+ 	io_event_.handler_ = this;
 }
 Connector::~Connector(){
 	this->Reset();
@@ -25,8 +27,9 @@ bool Connector::Connect(const IPAddr& addr,int* save_error){
 		}
 		fcntl(fd_, F_SETFD, FD_CLOEXEC);
 		addr_ = addr;
-		this->entry_.SetFd(fd_);
-		this->loop_->GetPoller().AddWrite(&this->entry_);
+		io_event_.fd_ = fd_;
+		io_event_->SetWrite(true);
+		this->loop_->ApplyIOEvent(&io_event_);
 		return true;
 	}
 	return false;
@@ -36,21 +39,19 @@ void Connector::Destroy(){
 }
 bool Connector::Reset(){
 	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
-		this->loop_->GetPoller().DelWrite(&this->entry_);
-		loop_->RemoveUse();
+		io_event_->SetWrite(false);
+		this->loop_->ApplyIOEvent(&io_event_);
 		Socket::Close(fd_);
 		fd_ = -1;
 		return true;
-
 	}else{
 		return false;
 	}
 }
-void Connector::PollerEvent_OnRead(){}
-void Connector::PollerEvent_OnWrite(){
+void Connector::HandleEvent(int event){
 	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
-		this->loop_->GetPoller().DelWrite(&this->entry_);
-		loop_->RemoveUse();
+		io_event_->SetWrite(false);
+		this->loop_->ApplyIOEvent(&io_event_);
 		int err;
 		if( Socket::GetSockError(fd_,&err) ){
 			if(err == 0){
@@ -63,6 +64,7 @@ void Connector::PollerEvent_OnWrite(){
 			err = errno;
 			Socket::Close(fd_);
 		}
+		fd_ = -1;
 		this->lis_->L_Connector_OnClose(this,err);
 	}
 

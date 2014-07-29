@@ -12,14 +12,14 @@
 #include "abb/net/listener.hpp"
 #include "poller.hpp"
 #include <sys/socket.h>
-#include "loop.hpp"
+
 namespace abb {
 namespace net {
-class Loop;
-class PollerEntry;
-class Connection :public IPollerEvent{
+class EventLoop;
+
+class Connection :public IEventHandler{
 public:
-	Connection(Loop* loop,int fd,const IPAddr& local,const IPAddr& peer,int id);
+	Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer);
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
 	base::Buffer& LockWrite();
 	void UnLockWrite();
@@ -28,7 +28,6 @@ public:
 	void ShutDownAfterWrite();
 	bool IsConnected(){return this->state_ == STATE_OPEN;}
 	int GetError(){return this->err_;}
-	int GetId(){return id_;}
 	void Destroy();
 	void SetData(void*data){data_ = data;}
 	void* GetData(){return data_;}
@@ -39,8 +38,9 @@ public:
 	const IPAddr& GetRemoteAddr(){return peer_addr_;}
 	bool SetKeepAlive(bool kp,int idle,int interval,int cout);
 private:
-	virtual void PollerEvent_OnRead();
-	virtual void PollerEvent_OnWrite();
+	virtual void HandleEvent(int event);
+	void OnRead();
+	void OnWrite();
 	void Flush();
 	static int StaticReader(void*arg,const struct iovec *iov, int iovcnt){
 		Connection* con = (Connection*)arg;
@@ -79,10 +79,9 @@ private:
 	base::Buffer* wring_buf_;
 	base::Buffer wr_buf_1_;
 	base::Buffer wr_buf_2_;
-	Loop* loop_;
-	PollerEntry entry_;
+	EventLoop* loop_;
+	IOEvent io_event_;
 	IConnectionListener* lis_;
-	int id_;
 	void* data_;
 	bool shut_down_after_write_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);

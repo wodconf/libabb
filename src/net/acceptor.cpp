@@ -17,7 +17,7 @@ Acceptor::Acceptor(Loop* loop)
  enable_(false),
  bfreed_(false)
 {
-
+	io_event_.handler_ = this;
 }
 Acceptor::~Acceptor() {
 	if(fd_ != -1){
@@ -34,7 +34,7 @@ bool Acceptor::Listen(const IPAddr& addr,int* save_err ){
 	if( Socket::Listen(&fd_,addr,save_err) ){
 		fcntl(fd_, F_SETFD, FD_CLOEXEC);
 		addr_ = addr;
-		this->entry_.SetFd(fd_);
+		io_event_.fd_ = fd_;
 		return true;
 	}
 	return false;
@@ -42,7 +42,7 @@ bool Acceptor::Listen(const IPAddr& addr,int* save_err ){
 void Acceptor::Close(){
 	if(fd_ != -1){
 		SetEnable(false);
-		this->entry_.SetFd(-1);
+		this->entry_.fd_ = -1;
 		close(fd_);
 		fd_ = -1;
 	}
@@ -54,12 +54,15 @@ void Acceptor::SetEnable(bool benable){
 	if(fd_ == -1) return;
 	enable_ = benable;
 	if(enable_){
-		this->loop_->GetPoller().AddRead(&this->entry_);
+
+		io_event_->SetRead(true);
+		this->loop_->ApplyIOEvent(&io_event_);
 	}else{
-		this->loop_->GetPoller().DelRead(&this->entry_);
+		io_event_->SetRead(false);
+		this->loop_->ApplyIOEvent(&io_event_);
 	}
 }
-void Acceptor::PollerEvent_OnRead(){
+void Acceptor::HandleEvent(int event){
 	if(!enable_)return;
 	IPAddr addr;
 	int fd;
