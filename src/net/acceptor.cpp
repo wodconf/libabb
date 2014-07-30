@@ -13,7 +13,6 @@ Acceptor::Acceptor(EventLoop* loop)
 :lis_(NULL),
  fd_(-1),
  loop_(loop),
- entry_(this),
  enable_(false)
 {
 	io_event_.handler_ = this;
