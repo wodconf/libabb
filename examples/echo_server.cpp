@@ -37,7 +37,7 @@ public:
 		num_pkt++;
 		buf.Clear();
 		int index = 1;
-				ref->Send(&index,sizeof(int));
+		ref->Send(&index,sizeof(int));
 	}
 	virtual void L_TcpServer_OnClose(ConnectionRef*,int error){
 

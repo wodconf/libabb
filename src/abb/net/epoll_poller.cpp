@@ -21,7 +21,7 @@ Poller::~Poller() {
 }
 
 void Poller::Apply(IOEvent* event){
-	int mod = event->flag_ ? EPOLL_CTL_ADD:EPOLL_CTL_MOD;
+	int mod = event->flag_ ? EPOLL_CTL_MOD:EPOLL_CTL_ADD;
 	struct epoll_event ep_ev;
 	ep_ev.data.ptr = event;
 	ep_ev.events = 0;
@@ -44,7 +44,7 @@ void Poller::Apply(IOEvent* event){
 				<< "desc: "<< strerror(error);
 	}
 	event->flag_ = event->wait_flag_;
-	event->wait_flag_ = 0;
+	event->wait_flag_ = event->flag_;
 	return ;
 }
 void Poller::Poll(int timeout){

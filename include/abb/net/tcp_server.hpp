@@ -9,6 +9,7 @@
 namespace abb{
 namespace net{
 class EventLoopGroup;
+class EventLoop;
 class TcpServer:public IAcceptorListener,IConnectionListener{
 public:
 	class Listener{
@@ -36,6 +37,7 @@ private:
 	Listener* lis_;
 	EventLoopGroup* event_group_;
 	Acceptor* acceptor_;
+	EventLoop* loop_;
 	//typedef std::map<long,Connection*> ConnectionMap;
 	//ConnectionMap conn_map_;
 	//base::Mutex mtx_;

@@ -1,9 +1,8 @@
 #include <abb/base/log.hpp>
 #include "abb/net/tcp_client.hpp"
 #include "abb/net/connection_ref.hpp"
-#include "abb/net/context.hpp"
+#include "abb/net/event_loop.hpp"
 using namespace abb::net;
-Context ctx;
 class ConnectCB:public ITcpClientListener{
 public:
 	ConnectCB():conn(NULL),index(0){
@@ -48,14 +47,9 @@ int main(){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
-
-
-
-	ctx.SetNumThread(4);
-	ctx.SetRunCureentThread(true);
-	ctx.Init();
+	EventLoop loop;
 	ConnectCB lis;
-	tcp::Connect(ctx.GetFreeLoop(),addr,NULL,&lis);
-	ctx.Start();
+	tcp::Connect(&loop,addr,NULL,&lis);
+	loop.Loop();
 
 }

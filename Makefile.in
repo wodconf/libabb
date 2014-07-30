@@ -265,7 +265,6 @@ baseinclude_HEADERS = $(top_srcdir)/include/abb/base/buffer.hpp\
 
 netincludedir = $(includedir)/abb/net
 netinclude_HEADERS = $(top_srcdir)/include/abb/net/connection_ref.hpp\
-						$(top_srcdir)/include/abb/net/acceptor_ref.hpp\
 						$(top_srcdir)/include/abb/net/event_loop_group.hpp\
 						$(top_srcdir)/include/abb/net/event_handler.hpp\
 						$(top_srcdir)/include/abb/net/event_loop.hpp\
@@ -906,6 +905,7 @@ uninstall-am: uninstall-baseincludeHEADERS uninstall-binPROGRAMS \
 	tags uninstall uninstall-am uninstall-baseincludeHEADERS \
 	uninstall-binPROGRAMS uninstall-libLTLIBRARIES \
 	uninstall-netincludeHEADERS
+
 
 export INCLUDES
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

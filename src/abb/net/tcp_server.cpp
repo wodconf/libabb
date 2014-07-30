@@ -3,9 +3,10 @@
 #include "abb/net/connection.hpp"
 #include "abb/net/acceptor.hpp"
 #include "abb/net/connection_ref.hpp"
+#include "abb/net/event_loop.hpp"
 namespace abb{
 namespace net{
-TcpServer::TcpServer():lis_(NULL),acceptor_(NULL),event_group_(NULL){
+TcpServer::TcpServer():lis_(NULL),acceptor_(NULL),event_group_(NULL),loop_(NULL){
 
 }
 TcpServer::~TcpServer(){
@@ -13,7 +14,13 @@ TcpServer::~TcpServer(){
 }
 void TcpServer::Init(int num_thread,bool run_curent_thread){
 	event_group_ = new EventLoopGroup(num_thread);
-	acceptor_ = new Acceptor(event_group_->Next());
+
+	if(run_curent_thread){
+		loop_ = new EventLoop();
+		acceptor_ = new Acceptor(event_group_->Next());
+	}else{
+		acceptor_ = new Acceptor(event_group_->Next());
+	}
 }
 bool TcpServer::Bind(const IPAddr& addr,int* save_error){
 	return acceptor_->Bind(addr,save_error);
@@ -25,6 +32,9 @@ void TcpServer::Start(){
 	acceptor_->SetListener(this);
 	acceptor_->SetEnable(true);
 	event_group_->Start();
+	if(loop_){
+		loop_->Loop();
+	}
 }
 void TcpServer::Close(){
 	acceptor_->Close();

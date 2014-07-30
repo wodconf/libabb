@@ -11,7 +11,7 @@ enum{
 class IEventHandler{
 public:
 	virtual ~IEventHandler(){}
-	virtual void HandleEvent(int event);
+	virtual void HandleEvent(int event) = 0;
 };
 }
 }
