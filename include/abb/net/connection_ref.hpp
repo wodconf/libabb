@@ -2,7 +2,6 @@
 #ifndef CONNECTION_REF_HPP_
 #define CONNECTION_REF_HPP_
 #include "abb/base/ref_object.hpp"
-#include "abb/base/mutex.hpp"
 #include "abb/base/buffer.hpp"
 #include "abb/net/ip_addr.hpp"
 namespace abb {
@@ -24,12 +23,7 @@ public:
 	void CloseAfterWrite();
 	void* Data;
 private:
-	friend class TcpServer;
-	friend class TcpClient;
-	bool TestAndSetNULL();
 	Connection* conn_;
-	base::Mutex mtx_;
-	bool block_write_;
 	IPAddr local_;
 	IPAddr remote_;
 };

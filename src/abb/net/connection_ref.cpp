@@ -4,7 +4,10 @@
 namespace abb {
 namespace net {
 
-ConnectionRef::ConnectionRef(Connection* conn):conn_(conn),Data(NULL),block_write_(false) {
+ConnectionRef::ConnectionRef(Connection* conn)
+:conn_(conn),
+Data(NULL)
+{
 	local_ = conn_->GetLocalAddr();
 	remote_ = conn_->GetRemoteAddr();
 }
@@ -29,14 +32,6 @@ bool  ConnectionRef::LockWrite(base::Buffer**buf){
 }
 void  ConnectionRef::UnLockWrite(){
 	conn_->UnLockWrite();
-}
-bool ConnectionRef::TestAndSetNULL(){
-	base::Mutex::Locker l(mtx_);
-	if(conn_){
-		conn_ = NULL;
-		return true;
-	}
-	return false;
 }
 void ConnectionRef::Close(){
 	conn_->ShutDown();

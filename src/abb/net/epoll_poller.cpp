@@ -38,13 +38,16 @@ void Poller::Apply(IOEvent* event){
 	if(rc !=  0){
 		int error = errno;
 		LOG(WARN)<< "epoll_ctl fail " 
-				<< "event: "<<event->wait_flag_  
+				<< "flag: "<<event->flag_  
+				<< "wait_flag: "<<event->wait_flag_  
 				<< "fd: "<<event->fd_
 				<< "code: " << error 
 				<< "desc: "<< strerror(error);
+		if(errno == EEXIST){
+			epoll_ctl(efd_,EPOLL_CTL_MOD,event->fd_,&ep_ev);
+		}
 	}
 	event->flag_ = event->wait_flag_;
-	event->wait_flag_ = event->flag_;
 	return ;
 }
 void Poller::Poll(int timeout){

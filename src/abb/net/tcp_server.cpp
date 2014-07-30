@@ -64,12 +64,10 @@ void TcpServer::L_Connection_OnMessage(Connection* conn,base::Buffer& buf){
 void TcpServer::L_Connection_OnClose(Connection* conn,int error){
 	ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 	conn->ShutDown();
-	conn->Destroy();
 	/*{
 		base::Mutex::Locker lock(mtx_);
 		this->conn_map_.erase(long(conn));
 	}*/
-	ref->TestAndSetNULL();
 	this->lis_->L_TcpServer_OnClose(ref,error);
 	ref->UnRef();
 }
