@@ -37,10 +37,11 @@ build_triplet = i686-pc-linux-gnu
 host_triplet = i686-pc-linux-gnu
 bin_PROGRAMS = echo_server$(EXEEXT) echo_client$(EXEEXT)
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(include_HEADERS) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	config.guess config.sub depcomp install-sh ltmain.sh missing
+DIST_COMMON = README $(am__configure_deps) $(baseinclude_HEADERS) \
+	$(netinclude_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
+	ChangeLog INSTALL NEWS config.guess config.sub depcomp \
+	install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -56,14 +57,14 @@ am__vpath_adj = case $$p in \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
-	"$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(baseincludedir)" "$(DESTDIR)$(netincludedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
-	acceptor.lo connector.lo connection.lo context.lo poller.lo \
-	loop.lo ip_addr.lo singler.lo tcp_server.lo connection_ref.lo \
-	tcp_client.lo
+	acceptor.lo connector.lo connection.lo event_loop_group.lo \
+	event_loop.lo poller.lo ip_addr.lo singler.lo tcp_server.lo \
+	connection_ref.lo tcp_client.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -89,8 +90,9 @@ SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
 	$(echo_server_SOURCES)
 DIST_SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
 	$(echo_server_SOURCES)
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(include_HEADERS)
+baseincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+netincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(baseinclude_HEADERS) $(netinclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -104,12 +106,12 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run aclocal-1.10
-AMTAR = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run tar
+ACLOCAL = ${SHELL} /home/wd/libabb/missing --run aclocal-1.10
+AMTAR = ${SHELL} /home/wd/libabb/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run automake-1.10
+AUTOCONF = ${SHELL} /home/wd/libabb/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/wd/libabb/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/wd/libabb/missing --run automake-1.10
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -121,7 +123,7 @@ CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"libabb\" -DPACKAGE_TARNAME=\"libabb\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"libabb\ 0.1\" -DPACKAGE_BUGREPORT=\"583032753@qq.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"libabb\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DHAVE_ARPA_INET_H=1 -DHAVE_FCNTL_H=1 -DHAVE_MEMORY_H=1 -DHAVE_NETDB_H=1 -DHAVE_NETINET_IN_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_SYS_SOCKET_H=1 -DHAVE_UNISTD_H=1 -DHAVE__BOOL=1 -DHAVE_MEMMOVE=1 -DHAVE_MEMSET=1 -DHAVE_STRERROR=1
+DEFS = -DPACKAGE_NAME=\"libabb\" -DPACKAGE_TARNAME=\"libabb\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"libabb\ 0.1\" -DPACKAGE_BUGREPORT=\"583032753@qq.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"libabb\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\"
 DEPDIR = .deps
 DLLTOOL = false
 DSYMUTIL = 
@@ -146,7 +148,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/wd/ad_cloud/deps/libabb/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/wd/libabb/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -169,10 +171,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 0.1
-abs_builddir = /home/wd/ad_cloud/deps/libabb
-abs_srcdir = /home/wd/ad_cloud/deps/libabb
-abs_top_builddir = /home/wd/ad_cloud/deps/libabb
-abs_top_srcdir = /home/wd/ad_cloud/deps/libabb
+abs_builddir = /home/wd/libabb
+abs_srcdir = /home/wd/libabb
+abs_top_builddir = /home/wd/libabb
+abs_top_srcdir = /home/wd/libabb
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -202,7 +204,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = $(SHELL) /home/wd/ad_cloud/deps/libabb/install-sh
+install_sh = $(SHELL) /home/wd/libabb/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -222,25 +224,26 @@ target_alias =
 top_build_prefix = 
 top_builddir = .
 top_srcdir = .
-INCLUDES = -I./include
-AM_LDFLAGS = -O0
-AM_CPPFLAGS = -O0
+INCLUDES = -I./include -I./src
+AM_LDFLAGS = -fPIC
+AM_CPPFLAGS = -fPIC 
+#-march=i686
 lib_LTLIBRARIES = libabb.la
-libabb_la_SOURCES = src/base/buffer.cpp\
-			src/base/log.cpp\
-			src/base/thread_pool.cpp\
-			src/net/socket.cpp\
-			src/net/acceptor.cpp\
-			src/net/connector.cpp\
-			src/net/connection.cpp\
-			src/net/context.cpp\
-			src/net/poller.cpp\
-			src/net/loop.cpp\
-			src/net/ip_addr.cpp\
-			src/net/singler.cpp\
-			src/net/tcp_server.cpp\
-			src/net/connection_ref.cpp\
-			src/net/tcp_client.cpp
+libabb_la_SOURCES = src/abb/base/buffer.cpp\
+			src/abb/base/log.cpp\
+			src/abb/base/thread_pool.cpp\
+			src/abb/net/socket.cpp\
+			src/abb/net/acceptor.cpp\
+			src/abb/net/connector.cpp\
+			src/abb/net/connection.cpp\
+			src/abb/net/event_loop_group.cpp\
+			src/abb/net/event_loop.cpp\
+			src/abb/net/poller.cpp\
+			src/abb/net/ip_addr.cpp\
+			src/abb/net/singler.cpp\
+			src/abb/net/tcp_server.cpp\
+			src/abb/net/connection_ref.cpp\
+			src/abb/net/tcp_client.cpp
 
 libabb_la_LIBADD = -lpthread
 echo_server_LDADD = -labb
@@ -249,7 +252,30 @@ echo_client_LDADD = -labb
 echo_client_SOURCES = examples/echo_client.cpp
 
 #EXTRA_DIST=./include
-include_HEADERS = ./include
+baseincludedir = $(includedir)/abb/base
+baseinclude_HEADERS = $(top_srcdir)/include/abb/base/buffer.hpp\
+						$(top_srcdir)/include/abb/base/callback.hpp\
+						$(top_srcdir)/include/abb/base/cond.hpp\
+						$(top_srcdir)/include/abb/base/define.hpp\
+						$(top_srcdir)/include/abb/base/log.hpp\
+						$(top_srcdir)/include/abb/base/mutex.hpp\
+						$(top_srcdir)/include/abb/base/ref_object.hpp\
+						$(top_srcdir)/include/abb/base/rw_lock.hpp\
+						$(top_srcdir)/include/abb/base/thread_pool.hpp
+
+netincludedir = $(includedir)/abb/net
+netinclude_HEADERS = $(top_srcdir)/include/abb/net/connection_ref.hpp\
+						$(top_srcdir)/include/abb/net/acceptor_ref.hpp\
+						$(top_srcdir)/include/abb/net/event_loop_group.hpp\
+						$(top_srcdir)/include/abb/net/event_handler.hpp\
+						$(top_srcdir)/include/abb/net/event_loop.hpp\
+						$(top_srcdir)/include/abb/net/io_event.hpp\
+						$(top_srcdir)/include/abb/net/ip_addr.hpp\
+						$(top_srcdir)/include/abb/net/listener.hpp\
+						$(top_srcdir)/include/abb/net/socket.hpp\
+						$(top_srcdir)/include/abb/net/tcp_client.hpp\
+						$(top_srcdir)/include/abb/net/tcp_server.hpp
+
 all: all-am
 
 .SUFFIXES:
@@ -362,12 +388,12 @@ include ./$(DEPDIR)/buffer.Plo
 include ./$(DEPDIR)/connection.Plo
 include ./$(DEPDIR)/connection_ref.Plo
 include ./$(DEPDIR)/connector.Plo
-include ./$(DEPDIR)/context.Plo
 include ./$(DEPDIR)/echo_client.Po
 include ./$(DEPDIR)/echo_server.Po
+include ./$(DEPDIR)/event_loop.Plo
+include ./$(DEPDIR)/event_loop_group.Plo
 include ./$(DEPDIR)/ip_addr.Plo
 include ./$(DEPDIR)/log.Plo
-include ./$(DEPDIR)/loop.Plo
 include ./$(DEPDIR)/poller.Plo
 include ./$(DEPDIR)/singler.Plo
 include ./$(DEPDIR)/socket.Plo
@@ -396,110 +422,110 @@ include ./$(DEPDIR)/thread_pool.Plo
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LTCXXCOMPILE) -c -o $@ $<
 
-buffer.lo: src/base/buffer.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT buffer.lo -MD -MP -MF $(DEPDIR)/buffer.Tpo -c -o buffer.lo `test -f 'src/base/buffer.cpp' || echo '$(srcdir)/'`src/base/buffer.cpp
+buffer.lo: src/abb/base/buffer.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT buffer.lo -MD -MP -MF $(DEPDIR)/buffer.Tpo -c -o buffer.lo `test -f 'src/abb/base/buffer.cpp' || echo '$(srcdir)/'`src/abb/base/buffer.cpp
 	mv -f $(DEPDIR)/buffer.Tpo $(DEPDIR)/buffer.Plo
-#	source='src/base/buffer.cpp' object='buffer.lo' libtool=yes \
+#	source='src/abb/base/buffer.cpp' object='buffer.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o buffer.lo `test -f 'src/base/buffer.cpp' || echo '$(srcdir)/'`src/base/buffer.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o buffer.lo `test -f 'src/abb/base/buffer.cpp' || echo '$(srcdir)/'`src/abb/base/buffer.cpp
 
-log.lo: src/base/log.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT log.lo -MD -MP -MF $(DEPDIR)/log.Tpo -c -o log.lo `test -f 'src/base/log.cpp' || echo '$(srcdir)/'`src/base/log.cpp
+log.lo: src/abb/base/log.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT log.lo -MD -MP -MF $(DEPDIR)/log.Tpo -c -o log.lo `test -f 'src/abb/base/log.cpp' || echo '$(srcdir)/'`src/abb/base/log.cpp
 	mv -f $(DEPDIR)/log.Tpo $(DEPDIR)/log.Plo
-#	source='src/base/log.cpp' object='log.lo' libtool=yes \
+#	source='src/abb/base/log.cpp' object='log.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o log.lo `test -f 'src/base/log.cpp' || echo '$(srcdir)/'`src/base/log.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o log.lo `test -f 'src/abb/base/log.cpp' || echo '$(srcdir)/'`src/abb/base/log.cpp
 
-thread_pool.lo: src/base/thread_pool.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT thread_pool.lo -MD -MP -MF $(DEPDIR)/thread_pool.Tpo -c -o thread_pool.lo `test -f 'src/base/thread_pool.cpp' || echo '$(srcdir)/'`src/base/thread_pool.cpp
+thread_pool.lo: src/abb/base/thread_pool.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT thread_pool.lo -MD -MP -MF $(DEPDIR)/thread_pool.Tpo -c -o thread_pool.lo `test -f 'src/abb/base/thread_pool.cpp' || echo '$(srcdir)/'`src/abb/base/thread_pool.cpp
 	mv -f $(DEPDIR)/thread_pool.Tpo $(DEPDIR)/thread_pool.Plo
-#	source='src/base/thread_pool.cpp' object='thread_pool.lo' libtool=yes \
+#	source='src/abb/base/thread_pool.cpp' object='thread_pool.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o thread_pool.lo `test -f 'src/base/thread_pool.cpp' || echo '$(srcdir)/'`src/base/thread_pool.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o thread_pool.lo `test -f 'src/abb/base/thread_pool.cpp' || echo '$(srcdir)/'`src/abb/base/thread_pool.cpp
 
-socket.lo: src/net/socket.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT socket.lo -MD -MP -MF $(DEPDIR)/socket.Tpo -c -o socket.lo `test -f 'src/net/socket.cpp' || echo '$(srcdir)/'`src/net/socket.cpp
+socket.lo: src/abb/net/socket.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT socket.lo -MD -MP -MF $(DEPDIR)/socket.Tpo -c -o socket.lo `test -f 'src/abb/net/socket.cpp' || echo '$(srcdir)/'`src/abb/net/socket.cpp
 	mv -f $(DEPDIR)/socket.Tpo $(DEPDIR)/socket.Plo
-#	source='src/net/socket.cpp' object='socket.lo' libtool=yes \
+#	source='src/abb/net/socket.cpp' object='socket.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o socket.lo `test -f 'src/net/socket.cpp' || echo '$(srcdir)/'`src/net/socket.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o socket.lo `test -f 'src/abb/net/socket.cpp' || echo '$(srcdir)/'`src/abb/net/socket.cpp
 
-acceptor.lo: src/net/acceptor.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT acceptor.lo -MD -MP -MF $(DEPDIR)/acceptor.Tpo -c -o acceptor.lo `test -f 'src/net/acceptor.cpp' || echo '$(srcdir)/'`src/net/acceptor.cpp
+acceptor.lo: src/abb/net/acceptor.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT acceptor.lo -MD -MP -MF $(DEPDIR)/acceptor.Tpo -c -o acceptor.lo `test -f 'src/abb/net/acceptor.cpp' || echo '$(srcdir)/'`src/abb/net/acceptor.cpp
 	mv -f $(DEPDIR)/acceptor.Tpo $(DEPDIR)/acceptor.Plo
-#	source='src/net/acceptor.cpp' object='acceptor.lo' libtool=yes \
+#	source='src/abb/net/acceptor.cpp' object='acceptor.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o acceptor.lo `test -f 'src/net/acceptor.cpp' || echo '$(srcdir)/'`src/net/acceptor.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o acceptor.lo `test -f 'src/abb/net/acceptor.cpp' || echo '$(srcdir)/'`src/abb/net/acceptor.cpp
 
-connector.lo: src/net/connector.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connector.lo -MD -MP -MF $(DEPDIR)/connector.Tpo -c -o connector.lo `test -f 'src/net/connector.cpp' || echo '$(srcdir)/'`src/net/connector.cpp
+connector.lo: src/abb/net/connector.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connector.lo -MD -MP -MF $(DEPDIR)/connector.Tpo -c -o connector.lo `test -f 'src/abb/net/connector.cpp' || echo '$(srcdir)/'`src/abb/net/connector.cpp
 	mv -f $(DEPDIR)/connector.Tpo $(DEPDIR)/connector.Plo
-#	source='src/net/connector.cpp' object='connector.lo' libtool=yes \
+#	source='src/abb/net/connector.cpp' object='connector.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connector.lo `test -f 'src/net/connector.cpp' || echo '$(srcdir)/'`src/net/connector.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connector.lo `test -f 'src/abb/net/connector.cpp' || echo '$(srcdir)/'`src/abb/net/connector.cpp
 
-connection.lo: src/net/connection.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connection.lo -MD -MP -MF $(DEPDIR)/connection.Tpo -c -o connection.lo `test -f 'src/net/connection.cpp' || echo '$(srcdir)/'`src/net/connection.cpp
+connection.lo: src/abb/net/connection.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connection.lo -MD -MP -MF $(DEPDIR)/connection.Tpo -c -o connection.lo `test -f 'src/abb/net/connection.cpp' || echo '$(srcdir)/'`src/abb/net/connection.cpp
 	mv -f $(DEPDIR)/connection.Tpo $(DEPDIR)/connection.Plo
-#	source='src/net/connection.cpp' object='connection.lo' libtool=yes \
+#	source='src/abb/net/connection.cpp' object='connection.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connection.lo `test -f 'src/net/connection.cpp' || echo '$(srcdir)/'`src/net/connection.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connection.lo `test -f 'src/abb/net/connection.cpp' || echo '$(srcdir)/'`src/abb/net/connection.cpp
 
-context.lo: src/net/context.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT context.lo -MD -MP -MF $(DEPDIR)/context.Tpo -c -o context.lo `test -f 'src/net/context.cpp' || echo '$(srcdir)/'`src/net/context.cpp
-	mv -f $(DEPDIR)/context.Tpo $(DEPDIR)/context.Plo
-#	source='src/net/context.cpp' object='context.lo' libtool=yes \
+event_loop_group.lo: src/abb/net/event_loop_group.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT event_loop_group.lo -MD -MP -MF $(DEPDIR)/event_loop_group.Tpo -c -o event_loop_group.lo `test -f 'src/abb/net/event_loop_group.cpp' || echo '$(srcdir)/'`src/abb/net/event_loop_group.cpp
+	mv -f $(DEPDIR)/event_loop_group.Tpo $(DEPDIR)/event_loop_group.Plo
+#	source='src/abb/net/event_loop_group.cpp' object='event_loop_group.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o context.lo `test -f 'src/net/context.cpp' || echo '$(srcdir)/'`src/net/context.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o event_loop_group.lo `test -f 'src/abb/net/event_loop_group.cpp' || echo '$(srcdir)/'`src/abb/net/event_loop_group.cpp
 
-poller.lo: src/net/poller.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT poller.lo -MD -MP -MF $(DEPDIR)/poller.Tpo -c -o poller.lo `test -f 'src/net/poller.cpp' || echo '$(srcdir)/'`src/net/poller.cpp
+event_loop.lo: src/abb/net/event_loop.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT event_loop.lo -MD -MP -MF $(DEPDIR)/event_loop.Tpo -c -o event_loop.lo `test -f 'src/abb/net/event_loop.cpp' || echo '$(srcdir)/'`src/abb/net/event_loop.cpp
+	mv -f $(DEPDIR)/event_loop.Tpo $(DEPDIR)/event_loop.Plo
+#	source='src/abb/net/event_loop.cpp' object='event_loop.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o event_loop.lo `test -f 'src/abb/net/event_loop.cpp' || echo '$(srcdir)/'`src/abb/net/event_loop.cpp
+
+poller.lo: src/abb/net/poller.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT poller.lo -MD -MP -MF $(DEPDIR)/poller.Tpo -c -o poller.lo `test -f 'src/abb/net/poller.cpp' || echo '$(srcdir)/'`src/abb/net/poller.cpp
 	mv -f $(DEPDIR)/poller.Tpo $(DEPDIR)/poller.Plo
-#	source='src/net/poller.cpp' object='poller.lo' libtool=yes \
+#	source='src/abb/net/poller.cpp' object='poller.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o poller.lo `test -f 'src/net/poller.cpp' || echo '$(srcdir)/'`src/net/poller.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o poller.lo `test -f 'src/abb/net/poller.cpp' || echo '$(srcdir)/'`src/abb/net/poller.cpp
 
-loop.lo: src/net/loop.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT loop.lo -MD -MP -MF $(DEPDIR)/loop.Tpo -c -o loop.lo `test -f 'src/net/loop.cpp' || echo '$(srcdir)/'`src/net/loop.cpp
-	mv -f $(DEPDIR)/loop.Tpo $(DEPDIR)/loop.Plo
-#	source='src/net/loop.cpp' object='loop.lo' libtool=yes \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o loop.lo `test -f 'src/net/loop.cpp' || echo '$(srcdir)/'`src/net/loop.cpp
-
-ip_addr.lo: src/net/ip_addr.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ip_addr.lo -MD -MP -MF $(DEPDIR)/ip_addr.Tpo -c -o ip_addr.lo `test -f 'src/net/ip_addr.cpp' || echo '$(srcdir)/'`src/net/ip_addr.cpp
+ip_addr.lo: src/abb/net/ip_addr.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ip_addr.lo -MD -MP -MF $(DEPDIR)/ip_addr.Tpo -c -o ip_addr.lo `test -f 'src/abb/net/ip_addr.cpp' || echo '$(srcdir)/'`src/abb/net/ip_addr.cpp
 	mv -f $(DEPDIR)/ip_addr.Tpo $(DEPDIR)/ip_addr.Plo
-#	source='src/net/ip_addr.cpp' object='ip_addr.lo' libtool=yes \
+#	source='src/abb/net/ip_addr.cpp' object='ip_addr.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ip_addr.lo `test -f 'src/net/ip_addr.cpp' || echo '$(srcdir)/'`src/net/ip_addr.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ip_addr.lo `test -f 'src/abb/net/ip_addr.cpp' || echo '$(srcdir)/'`src/abb/net/ip_addr.cpp
 
-singler.lo: src/net/singler.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT singler.lo -MD -MP -MF $(DEPDIR)/singler.Tpo -c -o singler.lo `test -f 'src/net/singler.cpp' || echo '$(srcdir)/'`src/net/singler.cpp
+singler.lo: src/abb/net/singler.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT singler.lo -MD -MP -MF $(DEPDIR)/singler.Tpo -c -o singler.lo `test -f 'src/abb/net/singler.cpp' || echo '$(srcdir)/'`src/abb/net/singler.cpp
 	mv -f $(DEPDIR)/singler.Tpo $(DEPDIR)/singler.Plo
-#	source='src/net/singler.cpp' object='singler.lo' libtool=yes \
+#	source='src/abb/net/singler.cpp' object='singler.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o singler.lo `test -f 'src/net/singler.cpp' || echo '$(srcdir)/'`src/net/singler.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o singler.lo `test -f 'src/abb/net/singler.cpp' || echo '$(srcdir)/'`src/abb/net/singler.cpp
 
-tcp_server.lo: src/net/tcp_server.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tcp_server.lo -MD -MP -MF $(DEPDIR)/tcp_server.Tpo -c -o tcp_server.lo `test -f 'src/net/tcp_server.cpp' || echo '$(srcdir)/'`src/net/tcp_server.cpp
+tcp_server.lo: src/abb/net/tcp_server.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tcp_server.lo -MD -MP -MF $(DEPDIR)/tcp_server.Tpo -c -o tcp_server.lo `test -f 'src/abb/net/tcp_server.cpp' || echo '$(srcdir)/'`src/abb/net/tcp_server.cpp
 	mv -f $(DEPDIR)/tcp_server.Tpo $(DEPDIR)/tcp_server.Plo
-#	source='src/net/tcp_server.cpp' object='tcp_server.lo' libtool=yes \
+#	source='src/abb/net/tcp_server.cpp' object='tcp_server.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tcp_server.lo `test -f 'src/net/tcp_server.cpp' || echo '$(srcdir)/'`src/net/tcp_server.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tcp_server.lo `test -f 'src/abb/net/tcp_server.cpp' || echo '$(srcdir)/'`src/abb/net/tcp_server.cpp
 
-connection_ref.lo: src/net/connection_ref.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connection_ref.lo -MD -MP -MF $(DEPDIR)/connection_ref.Tpo -c -o connection_ref.lo `test -f 'src/net/connection_ref.cpp' || echo '$(srcdir)/'`src/net/connection_ref.cpp
+connection_ref.lo: src/abb/net/connection_ref.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connection_ref.lo -MD -MP -MF $(DEPDIR)/connection_ref.Tpo -c -o connection_ref.lo `test -f 'src/abb/net/connection_ref.cpp' || echo '$(srcdir)/'`src/abb/net/connection_ref.cpp
 	mv -f $(DEPDIR)/connection_ref.Tpo $(DEPDIR)/connection_ref.Plo
-#	source='src/net/connection_ref.cpp' object='connection_ref.lo' libtool=yes \
+#	source='src/abb/net/connection_ref.cpp' object='connection_ref.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connection_ref.lo `test -f 'src/net/connection_ref.cpp' || echo '$(srcdir)/'`src/net/connection_ref.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o connection_ref.lo `test -f 'src/abb/net/connection_ref.cpp' || echo '$(srcdir)/'`src/abb/net/connection_ref.cpp
 
-tcp_client.lo: src/net/tcp_client.cpp
-	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tcp_client.lo -MD -MP -MF $(DEPDIR)/tcp_client.Tpo -c -o tcp_client.lo `test -f 'src/net/tcp_client.cpp' || echo '$(srcdir)/'`src/net/tcp_client.cpp
+tcp_client.lo: src/abb/net/tcp_client.cpp
+	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tcp_client.lo -MD -MP -MF $(DEPDIR)/tcp_client.Tpo -c -o tcp_client.lo `test -f 'src/abb/net/tcp_client.cpp' || echo '$(srcdir)/'`src/abb/net/tcp_client.cpp
 	mv -f $(DEPDIR)/tcp_client.Tpo $(DEPDIR)/tcp_client.Plo
-#	source='src/net/tcp_client.cpp' object='tcp_client.lo' libtool=yes \
+#	source='src/abb/net/tcp_client.cpp' object='tcp_client.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tcp_client.lo `test -f 'src/net/tcp_client.cpp' || echo '$(srcdir)/'`src/net/tcp_client.cpp
+#	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o tcp_client.lo `test -f 'src/abb/net/tcp_client.cpp' || echo '$(srcdir)/'`src/abb/net/tcp_client.cpp
 
 echo_client.o: examples/echo_client.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT echo_client.o -MD -MP -MF $(DEPDIR)/echo_client.Tpo -c -o echo_client.o `test -f 'examples/echo_client.cpp' || echo '$(srcdir)/'`examples/echo_client.cpp
@@ -537,22 +563,39 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
-install-includeHEADERS: $(include_HEADERS)
+install-baseincludeHEADERS: $(baseinclude_HEADERS)
 	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	test -z "$(baseincludedir)" || $(MKDIR_P) "$(DESTDIR)$(baseincludedir)"
+	@list='$(baseinclude_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
-	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " $(baseincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(baseincludedir)/$$f'"; \
+	  $(baseincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(baseincludedir)/$$f"; \
 	done
 
-uninstall-includeHEADERS:
+uninstall-baseincludeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	@list='$(baseinclude_HEADERS)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(baseincludedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(baseincludedir)/$$f"; \
+	done
+install-netincludeHEADERS: $(netinclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(netincludedir)" || $(MKDIR_P) "$(DESTDIR)$(netincludedir)"
+	@list='$(netinclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(netincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(netincludedir)/$$f'"; \
+	  $(netincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(netincludedir)/$$f"; \
+	done
+
+uninstall-netincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(netinclude_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(netincludedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(netincludedir)/$$f"; \
 	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -740,7 +783,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(baseincludedir)" "$(DESTDIR)$(netincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -791,7 +834,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am: install-baseincludeHEADERS install-netincludeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -839,8 +882,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES
+uninstall-am: uninstall-baseincludeHEADERS uninstall-binPROGRAMS \
+	uninstall-libLTLIBRARIES uninstall-netincludeHEADERS
 
 .MAKE: install-am install-strip
 
@@ -851,16 +894,18 @@ uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-includeHEADERS install-info \
-	install-info-am install-libLTLIBRARIES install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-baseincludeHEADERS install-binPROGRAMS install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-libLTLIBRARIES install-man \
+	install-netincludeHEADERS install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-includeHEADERS uninstall-libLTLIBRARIES
+	tags uninstall uninstall-am uninstall-baseincludeHEADERS \
+	uninstall-binPROGRAMS uninstall-libLTLIBRARIES \
+	uninstall-netincludeHEADERS
 
 export INCLUDES
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

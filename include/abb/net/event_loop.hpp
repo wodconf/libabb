@@ -11,12 +11,12 @@ namespace net{
 class Poller;
 class Singler;
 class IOEvent;
-class EventLoop:public IPollerEvent {
+class EventLoop:public IEventHandler {
 public:
 typedef void(*run_fn)(void* arg);
 	EventLoop();
 	virtual ~EventLoop();
-	void Start();
+	void Loop();
 	void Stop();
 	void RunInLoop(run_fn fn,void*arg);
 	void ApplyIOEvent(IOEvent* event);

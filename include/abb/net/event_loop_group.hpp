@@ -14,7 +14,7 @@ public:
 	void Wait();
 	EventLoop* Next();
 private:
-	static void ThreadMain(void* arg);
+	static void* ThreadMain(void* arg);
 	std::vector<EventLoop*> loops_;
 	std::vector<pthread_t> threads_;
 	int num_thread_;

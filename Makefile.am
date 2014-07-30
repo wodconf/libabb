@@ -1,25 +1,25 @@
-INCLUDES=-I./include ./src
+INCLUDES=-I./include -I./src
 
 AM_LDFLAGS=-fPIC
 AM_CPPFLAGS= -fPIC 
 #-march=i686
 lib_LTLIBRARIES=libabb.la
 
-libabb_la_SOURCES=src/base/buffer.cpp\
-			src/base/log.cpp\
-			src/base/thread_pool.cpp\
-			src/net/socket.cpp\
-			src/net/acceptor.cpp\
-			src/net/connector.cpp\
-			src/net/connection.cpp\
-			src/net/event_loop_group.cpp\
-			src/net/event_loop.cpp\
-			src/net/poller.cpp\
-			src/net/ip_addr.cpp\
-			src/net/singler.cpp\
-			src/net/tcp_server.cpp\
-			src/net/connection_ref.cpp\
-			src/net/tcp_client.cpp
+libabb_la_SOURCES=src/abb/base/buffer.cpp\
+			src/abb/base/log.cpp\
+			src/abb/base/thread_pool.cpp\
+			src/abb/net/socket.cpp\
+			src/abb/net/acceptor.cpp\
+			src/abb/net/connector.cpp\
+			src/abb/net/connection.cpp\
+			src/abb/net/event_loop_group.cpp\
+			src/abb/net/event_loop.cpp\
+			src/abb/net/poller.cpp\
+			src/abb/net/ip_addr.cpp\
+			src/abb/net/singler.cpp\
+			src/abb/net/tcp_server.cpp\
+			src/abb/net/connection_ref.cpp\
+			src/abb/net/tcp_client.cpp
 export INCLUDES
 libabb_la_LIBADD=-lpthread
 
