@@ -1,4 +1,4 @@
-INCLUDES=-I./include
+INCLUDES=-I./include ./src
 
 AM_LDFLAGS=-fPIC
 AM_CPPFLAGS= -fPIC 
@@ -12,9 +12,9 @@ libabb_la_SOURCES=src/base/buffer.cpp\
 			src/net/acceptor.cpp\
 			src/net/connector.cpp\
 			src/net/connection.cpp\
-			src/net/context.cpp\
+			src/net/event_loop_group.cpp\
+			src/net/event_loop.cpp\
 			src/net/poller.cpp\
-			src/net/loop.cpp\
 			src/net/ip_addr.cpp\
 			src/net/singler.cpp\
 			src/net/tcp_server.cpp\
@@ -46,7 +46,11 @@ baseinclude_HEADERS=$(top_srcdir)/include/abb/base/buffer.hpp\
 
 netincludedir=$(includedir)/abb/net
 netinclude_HEADERS=$(top_srcdir)/include/abb/net/connection_ref.hpp\
-						$(top_srcdir)/include/abb/net/context.hpp\
+						$(top_srcdir)/include/abb/net/acceptor_ref.hpp\
+						$(top_srcdir)/include/abb/net/event_loop_group.hpp\
+						$(top_srcdir)/include/abb/net/event_handler.hpp\
+						$(top_srcdir)/include/abb/net/event_loop.hpp\
+						$(top_srcdir)/include/abb/net/io_event.hpp\
 						$(top_srcdir)/include/abb/net/ip_addr.hpp\
 						$(top_srcdir)/include/abb/net/listener.hpp\
 						$(top_srcdir)/include/abb/net/socket.hpp\
