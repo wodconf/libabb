@@ -2,8 +2,6 @@
 #define __ABB_NET_ACCEPT_REF_HPP__
 
 #include "abb/base/ref_object.hpp"
-#include "abb/base/mutex.hpp"
-#include "abb/base/buffer.hpp"
 #include "abb/net/ip_addr.hpp"
 namespace abb {
 namespace net {
@@ -16,9 +14,6 @@ public:
 	bool Close();
 private:
 	Acceptor* actor_;
-	base::Mutex mtx_;
-	bool block_write_;
-	IPAddr local_;
 };
 
 } /* namespace net */
