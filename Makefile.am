@@ -10,6 +10,7 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/base/thread_pool.cpp\
 			src/abb/net/socket.cpp\
 			src/abb/net/acceptor.cpp\
+			src/abb/net/acceptor_ref.cpp\
 			src/abb/net/connector.cpp\
 			src/abb/net/connection.cpp\
 			src/abb/net/event_loop_group.cpp\
@@ -47,6 +48,7 @@ baseinclude_HEADERS=$(top_srcdir)/include/abb/base/buffer.hpp\
 
 netincludedir=$(includedir)/abb/net
 netinclude_HEADERS=$(top_srcdir)/include/abb/net/connection_ref.hpp\
+						$(top_srcdir)/include/abb/net/acceptor_ref.hpp\
 						$(top_srcdir)/include/abb/net/event_loop_group.hpp\
 						$(top_srcdir)/include/abb/net/event_handler.hpp\
 						$(top_srcdir)/include/abb/net/event_loop.hpp\
