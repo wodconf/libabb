@@ -5,6 +5,7 @@
 #include "abb/base/mutex.hpp"
 #include <queue>
 #include <pthread.h>
+#include "abb/net/event_handler.hpp"
 namespace abb {
 namespace net{
 class Poller;
