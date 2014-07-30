@@ -40,7 +40,7 @@ public:
 		if(b){
 			wait_flag_ |= IO_EVENT_WRITE;
 		}else{
-			wait_flag_ ~= IO_EVENT_WRITE;	
+			wait_flag_ &= ~IO_EVENT_WRITE;	
 		}
 	}
 	void Emitter(){
