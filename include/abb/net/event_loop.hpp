@@ -24,8 +24,7 @@ typedef void(*run_fn)(void* arg);
 		return tid_ == pthread_self();
 	}
 private:
-	virtual void PollerEvent_OnRead();
-	virtual void PollerEvent_OnWrite(){}
+	virtual void HandleEvent(int event);
 	struct Task{
 		Task():fn(NULL),arg(NULL){}
 		run_fn fn;

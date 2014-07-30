@@ -59,7 +59,6 @@ void EventLoop::RunInLoop(run_fn fn,void*arg){
 	}
 	sigler_.Write();
 }
-void EventLoop::PollerEvent_OnRead(){
+void EventLoop::HandleEvent(int event){
 	sigler_.Read();
-	
 }
