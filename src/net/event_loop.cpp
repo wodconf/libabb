@@ -31,6 +31,18 @@ void EventLoop::Loop(){
 	tid_ = pthread_self();
 	while(!stop_){
 		poller_->Poll(5000);
+		Task task;
+		{
+			base::Mutex::Locker lock(mtx_);
+			if(!queue_.empty()){
+				task = queue_.front();
+				queue_.pop();
+			}
+		}
+		
+		if(task.fn){
+			task.fn(task.arg);
+		}
 	}
 }
 void EventLoop::Stop(){
@@ -38,23 +50,16 @@ void EventLoop::Stop(){
 	sigler_.Write();
 }
 void EventLoop::RunInLoop(run_fn fn,void*arg){
-	mtx_.Lock();
-	Task task;
-	task.fn = fn;
-	task.arg = arg;
-	queue_.push(task);
-	mtx_.UnLock();
+	{
+		base::Mutex::Locker lock(mtx_);
+		Task task;
+		task.fn = fn;
+		task.arg = arg;
+		queue_.push(task);
+	}
 	sigler_.Write();
 }
 void EventLoop::PollerEvent_OnRead(){
 	sigler_.Read();
-	mtx_.Lock();
-	if(!queue_.empty()){
-		Task task = queue_.front();
-		queue_.pop();
-		mtx_.UnLock();
-		task.fn(task.arg);
-	}else{
-		mtx_.UnLock();
-	}
+	
 }

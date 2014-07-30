@@ -1,10 +1,10 @@
 
 #ifndef CONNECTION_REF_HPP_
 #define CONNECTION_REF_HPP_
-#include "../base/ref_object.hpp"
-#include "../base/mutex.hpp"
-#include "../base/buffer.hpp"
-#include "ip_addr.hpp"
+#include "abb/base/ref_object.hpp"
+#include "abb/base/mutex.hpp"
+#include "abb/base/buffer.hpp"
+#include "abb/net/ip_addr.hpp"
 namespace abb {
 namespace net {
 class Connection;
@@ -12,7 +12,7 @@ class ConnectionRef :public base::RefObject{
 public:
 	explicit ConnectionRef(Connection* conn);
 	virtual ~ConnectionRef();
-	bool IsClosed(){return conn_==NULL;}
+	bool IsClosed();
 	bool Send(void*data,int len);
 	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite();
@@ -20,8 +20,8 @@ public:
 	void SetKeepAlive(bool kp,int idle,int interval,int cout);
 	const IPAddr& GetLocalAddr(){return local_;}
 	const IPAddr& GetRemoteAddr(){return remote_;}
-	bool Close();
-	bool CloseAfterWrite();
+	void Close();
+	void CloseAfterWrite();
 	void* Data;
 private:
 	friend class TcpServer;

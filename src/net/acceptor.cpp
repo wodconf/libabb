@@ -9,13 +9,12 @@
 namespace abb {
 namespace net {
 
-Acceptor::Acceptor(Loop* loop)
+Acceptor::Acceptor(EventLoop* loop)
 :lis_(NULL),
  fd_(-1),
  loop_(loop),
  entry_(this),
- enable_(false),
- bfreed_(false)
+ enable_(false)
 {
 	io_event_.handler_ = this;
 }
@@ -25,12 +24,10 @@ Acceptor::~Acceptor() {
 	}
 }
 void Acceptor::Destroy(){
-	if(bfreed_) return;
-	bfreed_ = true;
 	SetEnable(false);
 	this->loop_->RunInLoop(StaticDelete,this);
 }
-bool Acceptor::Listen(const IPAddr& addr,int* save_err ){
+bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
 	if( Socket::Listen(&fd_,addr,save_err) ){
 		fcntl(fd_, F_SETFD, FD_CLOEXEC);
 		addr_ = addr;

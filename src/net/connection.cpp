@@ -18,7 +18,6 @@ Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& 
  lis_(NULL),
  err_(0),
  fd_(fd),
- bfreed_(false),
  state_(STATE_OPEN),
  data_(NULL),
  entry_(fd,this),
@@ -39,8 +38,6 @@ Connection::~Connection() {
 	close(fd_);
 }
 void Connection::Destroy(){
-	if(bfreed_) return;
-	bfreed_ = true;
 	SetEnable(false);
 	loop_->RunInLoop(StaticFree,this);
 }
@@ -58,10 +55,28 @@ void  Connection::SetEnable(bool enable){
 		entry_->ApplyIOEvent(&entry_);
 	}
 }
-base::Buffer& Connection::LockWrite(){
+bool Connection::LockWrite(base::Buffer**buf){
 	wr_lock_.Lock();
-	return *wr_buf_;
+	if(this->IsConnected()){
+		block_write_ = true;
+		*buf = wr_buf_;
+		return true;
+	}else{
+		wr_lock_.UnLock();
+		return false;
+	}
 }
+
+void Connection::UnLockWrite(){
+	if(!block_write_) return;
+	if(this->IsConnected()){
+		Flush();
+	}else{
+		wr_buf_->Clear();
+	}
+	wr_lock_.UnLock();
+}
+
 void Connection::Flush(){
 	if(!this->entry_.IsAddWrited()){
 		if(this->wr_buf_->Size() > 0 && this->IsConnected()){
@@ -70,14 +85,7 @@ void Connection::Flush(){
 		}
 	}
 }
-void Connection::UnLockWrite(){
-	if(this->IsConnected()){
-		Flush();
-	}else{
-		wr_buf_->Clear();
-	}
-	wr_lock_.UnLock();
-}
+
 void Connection::SendData(void*buf,unsigned int size){
 	if(!this->IsConnected()){
 		return;
@@ -113,17 +121,11 @@ void Connection::ShutDownAfterWrite(){
 	entry_->ApplyIOEvent(&entry_);
 }
 void Connection::HandleEvent(int event){
-	if(this->bfreed_){
-		return;
-	}
 	if(!this->enable_){
 		return;
 	}
 	if(event&IO_EVENT_READ){
 		OnRead();
-	}
-	if(this->bfreed_){
-		return;
 	}
 	if(!this->enable_){
 		return;

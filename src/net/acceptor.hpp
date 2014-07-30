@@ -9,14 +9,14 @@
 #include "abb/net/io_event.hpp"
 namespace abb {
 namespace net {
-class Loop;
+class EventLoop;
 class Connection;
 class Context;
 class Acceptor :public IEventHandler{
 public:
-	explicit Acceptor(Loop* loop);
+	explicit Acceptor(EventLoop* loop);
 	void SetListener(IAcceptorListener* lis){lis_ = lis;}
-	bool Listen(const IPAddr& addr,int* save_err = NULL);
+	bool Bind(const IPAddr& addr,int* save_err = NULL);
 	void SetEnable(bool benable);
 	void Close();
 	void Destroy();
@@ -31,13 +31,12 @@ private:
 	}
 	~Acceptor();
 private:
-	Loop* loop_;
+	EventLoop* loop_;
 	IOEvent entry_;
 	IAcceptorListener* lis_;
 	bool enable_;
 	IPAddr addr_;
 	int fd_;
-	bool bfreed_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Acceptor);
 };
 

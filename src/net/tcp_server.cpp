@@ -16,7 +16,7 @@ void TcpServer::Init(int num_thread,bool run_curent_thread){
 	acceptor_ = new Acceptor(event_group_->Next());
 }
 bool TcpServer::Bind(const IPAddr& addr,int* save_error){
-	return acceptor_->Listen(addr,save_error);
+	return acceptor_->Bind(addr,save_error);
 }
 const IPAddr& TcpServer::GetAddr(){
 	return acceptor_->GetIpAddr();

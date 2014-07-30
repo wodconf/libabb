@@ -21,7 +21,7 @@ class Connection :public IEventHandler{
 public:
 	Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer);
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
-	base::Buffer& LockWrite();
+	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
 	int ShutDown(int how = SHUT_RDWR){return shutdown(this->fd_,how);}
@@ -69,7 +69,6 @@ private:
 	}state_;
 	int fd_;
 	int err_;
-	int bfreed_;
 	IPAddr local_addr_;
 	IPAddr peer_addr_;
 	bool enable_;
@@ -81,6 +80,7 @@ private:
 	base::Buffer wr_buf_2_;
 	EventLoop* loop_;
 	IOEvent io_event_;
+	bool block_write_;
 	IConnectionListener* lis_;
 	void* data_;
 	bool shut_down_after_write_;

@@ -26,6 +26,7 @@ private:
 	virtual void PollerEvent_OnRead();
 	virtual void PollerEvent_OnWrite(){}
 	struct Task{
+		Task():fn(NULL),arg(NULL){}
 		run_fn fn;
 		void* arg;
 	};
