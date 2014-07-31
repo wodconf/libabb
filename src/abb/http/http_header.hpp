@@ -89,7 +89,38 @@ public:
 };
 class HeaderValue{
 public:
-	static const char* APPLICATION_X_WWW_FORM_URLENCODED;	
+	static const char* APPLICATION_X_WWW_FORM_URLENCODED;
+	static const char* BASE64;
+	static const char* BINARY;
+	static const char* BOUNDARY;
+	static const char* BYTES ;
+	static const char* CHARSET ;
+	static const char* CHUNKED ;
+	static const char* CLOSE ;
+	static const char* COMPRESS ;
+	static const char* CONTINUE ;
+	static const char* DEFLATE ;
+	static const char* GZIP ;
+	static const char* IDENTITY;
+	static const char* KEEP_ALIVE;
+	static const char* MAX_AGE;
+	static const char* MAX_STALE;
+	static const char* MIN_FRESH;
+	static const char* MULTIPART_FORM_DATA;
+	static const char* MUST_REVALIDATE ;
+	static const char* NO_CACHE ;
+	static const char* NO_STORE;
+	static const char* NO_TRANSFORM;
+	static const char* NONE;
+	static const char* ONLY_IF_CACHED;
+	static const char* PRIVATE;
+	static const char* PROXY_REVALIDATE;
+	static const char* PUBLIC ;
+	static const char* QUOTED_PRINTABLE ;
+	static const char* S_MAXAGE ;
+	static const char* TRAILERS ;
+	static const char* UPGRADE ;
+	static const char* WEBSOCKET ;	
 };
 class Header{
 public:

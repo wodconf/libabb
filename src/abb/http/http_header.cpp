@@ -83,7 +83,37 @@ const char* HeaderKey::WWW_AUTHENTICATE = "WWW-Authenticate";
 
 
 const char* HeaderValue::APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
-
+const char* HeaderValue::BASE64 = "base64";
+const char* HeaderValue::BINARY = "binary";
+const char* HeaderValue::BOUNDARY = "boundary";
+const char* HeaderValue::BYTES = "bytes";
+const char* HeaderValue::CHARSET = "charset";
+const char* HeaderValue::CHUNKED = "chunked";
+const char* HeaderValue::CLOSE = "close";
+const char* HeaderValue::COMPRESS = "compress";
+const char* HeaderValue::CONTINUE = "100-continue";
+const char* HeaderValue::DEFLATE = "deflate";
+const char* HeaderValue::GZIP = "gzip";
+const char* HeaderValue::IDENTITY = "identity";
+const char* HeaderValue::KEEP_ALIVE = "keep-alive";
+const char* HeaderValue::MAX_AGE = "max-age";
+const char* HeaderValue::MAX_STALE = "max-stale";
+const char* HeaderValue::MIN_FRESH = "min-fresh";
+const char* HeaderValue::MULTIPART_FORM_DATA = "multipart/form-data";
+const char* HeaderValue::MUST_REVALIDATE = "must-revalidate";
+const char* HeaderValue::NO_CACHE = "no-cache";
+const char* HeaderValue::NO_STORE = "no-store";
+const char* HeaderValue::NO_TRANSFORM = "no-transform";
+const char* HeaderValue::NONE = "none";
+const char* HeaderValue::ONLY_IF_CACHED = "only-if-cached";
+const char* HeaderValue::PRIVATE = "private";
+const char* HeaderValue::PROXY_REVALIDATE = "proxy-revalidate";
+const char* HeaderValue::PUBLIC = "public";
+const char* HeaderValue::QUOTED_PRINTABLE = "quoted-printable";
+const char* HeaderValue::S_MAXAGE = "s-maxage";
+const char* HeaderValue::TRAILERS = "trailers";
+const char* HeaderValue::UPGRADE = "Upgrade";
+const char* HeaderValue::WEBSOCKET = "WebSocket";
 
 void Header::Set(const std::string& key,const std::string& val){
 	kv_[key] = val;
