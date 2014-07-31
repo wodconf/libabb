@@ -9,7 +9,7 @@ namespace net {
 class Connection;
 class ConnectionRef :public base::RefObject{
 public:
-	explicit ConnectionRef(Connection* conn);
+	explicit ConnectionRef(Connection* conn,AcceptorRef* parent);
 	virtual ~ConnectionRef();
 	bool IsClosed();
 	bool Send(void*data,int len);
@@ -22,7 +22,9 @@ public:
 	void Close();
 	void CloseAfterWrite();
 	void* Data;
+	AcceptorRef* Parent(){return parent_;}
 private:
+	AcceptorRef* parent_;
 	Connection* conn_;
 	IPAddr local_;
 	IPAddr remote_;

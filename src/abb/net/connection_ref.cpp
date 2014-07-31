@@ -4,12 +4,14 @@
 namespace abb {
 namespace net {
 
-ConnectionRef::ConnectionRef(Connection* conn)
+ConnectionRef::ConnectionRef(Connection* conn,AcceptorRef* parent)
 :conn_(conn),
-Data(NULL)
+Data(NULL),
+parent_(parent)
 {
 	local_ = conn_->GetLocalAddr();
 	remote_ = conn_->GetRemoteAddr();
+	parent_->Ref();
 }
 bool ConnectionRef::Send(void*data,int len){
 	if(conn_->IsConnected()){
@@ -42,6 +44,7 @@ void ConnectionRef::CloseAfterWrite(){
 
 ConnectionRef::~ConnectionRef() {
 	conn_->Destroy();
+	parent_->UnRef();
 }
 
 

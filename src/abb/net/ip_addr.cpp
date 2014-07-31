@@ -1,9 +1,24 @@
 
 
-
 #include "abb/net/ip_addr.hpp"
 #include <stdlib.h>
 #include <sstream>
+
+static bool CheckIp(const std::string& host){
+	unsigned int i=0,count = 0;
+	size_t len = host.size();
+	for ( ; i < len ; i++ ) {
+		if ( !(host[i] >= '0' && host[i] <= '9' )) {
+			if ( host[i] == '.' ) {
+				count++;
+				continue;
+			}
+			return false;
+		}
+	}
+	return  (count == 3 );
+}
+
 using namespace abb::net;
 IPAddr::IPAddr():family(0){
 	memset(this,0,sizeof(IPAddr));
@@ -15,6 +30,11 @@ bool IPAddr::SetV4(const char *addr, uint16_t port){
 	int res = 1;
 
 	if (addr) {
+		if( !CheckIp(addr) ){
+			struct hostent* htt = gethostbyname(addr);
+			if(!htt) return false;
+			return this->SetFromHostent(htt,port);
+		}
 		res = inet_pton(AF_INET, addr, &this->sa.v4.sin_addr);
 	}
 	else {
@@ -94,15 +114,17 @@ bool IPAddr::SetUnix(const char *path,unsigned int pathlen){
 	memcpy(&this->sa.nix.sun_path, path, pathlen);
 	return true;
 }
-bool IPAddr::SetFromAddrInfo(struct addrinfo* ai){
+bool IPAddr::SetFromAddrInfo(struct addrinfo* ai, uint16_t port){
 	this->family = ai->ai_family;
 	switch (this->family) {
 	case AF_INET6:
 		memcpy(&this->sa.sa, ai->ai_addr, sizeof(this->sa.v6));
+		sa.v6.sin6_port = htons(port);
 		return true;
 
 	case AF_INET:
 		memcpy(&this->sa.sa, ai->ai_addr, sizeof(this->sa.v4));
+		sa.v4.sin_port = htons(port);
 		return true;
 
 	default:
@@ -159,7 +181,7 @@ std::string IPAddr::ToString() const{
 	}
 	return "";
 }
-bool IPAddr::SetFromHostent(struct hostent *ent)
+bool IPAddr::SetFromHostent(struct hostent *ent, uint16_t port)
 {
 	this->family = ent->h_addrtype;
 
@@ -168,12 +190,14 @@ bool IPAddr::SetFromHostent(struct hostent *ent)
 		this->sa.v6.sin6_family = this->family;
 		memcpy(&this->sa.v6.sin6_addr, ent->h_addr_list[0],
 				sizeof(this->sa.v6.sin6_addr));
+		sa.v6.sin6_port = htons(port);
 		return true;
 
 	case AF_INET:
 		this->sa.v4.sin_family = this->family;
 		memcpy(&this->sa.v4.sin_addr, ent->h_addr_list[0],
 				sizeof(this->sa.v4.sin_addr));
+		sa.v4.sin_port = htons(port);
 		return true;
 
 	default:

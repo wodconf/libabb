@@ -47,7 +47,7 @@ void TcpServer::Resume(){
 }
 void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr){
 	Connection* conn = new Connection(event_group_->Next(),fd,acceptor_->GetIpAddr(),addr);
-	ConnectionRef* ref = new ConnectionRef(conn);
+	ConnectionRef* ref = new ConnectionRef(conn,NULL);
 	conn->SetData(ref);
 	ref->Ref();
 	/*{

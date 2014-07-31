@@ -31,8 +31,8 @@ public:
 	bool SetV4(const char *addr, uint16_t port);
 	bool SetV6(const char *addr, uint16_t port);
 	bool SetUnix(const char *path,unsigned int pathlen);
-	bool SetFromAddrInfo(struct addrinfo* a);
-	bool SetFromHostent(struct hostent *ent);
+	bool SetFromAddrInfo(struct addrinfo* a , uint16_t port);
+	bool SetFromHostent(struct hostent *ent , uint16_t port);
 	//127.0.0.1:1398
 	bool SetByString(const std::string& str);
 	bool SetByStringIgnoreIP(const std::string& str);

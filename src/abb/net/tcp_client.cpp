@@ -36,7 +36,7 @@ public:
 	void L_Connector_OnOpen(Connector* cotr,int fd){
 		cotr->Destroy();
 		Connection* conn = new Connection(	loop_,fd,cotr->GetIpAddr(),cotr->GetIpAddr());
-		ConnectionRef* conn_ref_ = new ConnectionRef(conn);
+		ConnectionRef* conn_ref_ = new ConnectionRef(conn,NULL);
 		conn->SetData(conn_ref_);
 		conn->SetListener(this);
 		conn->SetEnable(true);
