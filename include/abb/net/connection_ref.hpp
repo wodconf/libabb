@@ -1,12 +1,13 @@
 
-#ifndef CONNECTION_REF_HPP_
-#define CONNECTION_REF_HPP_
+#ifndef __ABB_NET_CONNECTION_REF_HPP__
+#define __ABB_NET_CONNECTION_REF_HPP__
 #include "abb/base/ref_object.hpp"
 #include "abb/base/buffer.hpp"
 #include "abb/net/ip_addr.hpp"
 namespace abb {
 namespace net {
 class Connection;
+class AcceptorRef;
 class ConnectionRef :public base::RefObject{
 public:
 	explicit ConnectionRef(Connection* conn,AcceptorRef* parent);

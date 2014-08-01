@@ -124,6 +124,8 @@ public:
 };
 class Header{
 public:
+	Header(){}
+	~Header(){}
 	typedef std::map<std::string,std::string> KV;
 	void Set(const std::string& key,const std::string& val);
 	bool Get(const std::string& key,std::string& val);

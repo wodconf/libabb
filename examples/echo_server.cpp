@@ -35,6 +35,7 @@ public:
 	}
 	virtual void L_TcpServer_OnMesssage(ConnectionRef* ref,base::Buffer& buf){
 		num_pkt++;
+		LOG(DEBUG) << std::string((char *)buf.Data(),buf.Size());
 		buf.Clear();
 		int index = 1;
 		ref->Send(&index,sizeof(int));

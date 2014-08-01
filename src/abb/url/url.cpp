@@ -3,19 +3,19 @@
 namespace abb{
 namespace url{
 static void split(const std::string& s, const std::string& c,bool cutc,std::string& left,std::string& rigth ) {
-	int pos = inurl.find(c);
+	int pos = s.find(c);
 	if(pos == std::string::npos){
 		left = s;
 		rigth = "";
 		return ;
 	}
 	if (cutc) {
-		left = s.substring(0,pos);
-		rigth = s.substring(pos+c.size());
+		left = s.substr(0,pos);
+		rigth = s.substr(pos+c.size());
 		return;
 	}
-	left = s.substring(0,pos);
-	rigth = s.substring(pos);
+	left = s.substr(0,pos);
+	rigth = s.substr(pos);
 } 
 static bool getscheme(const std::string& rawurl ,std::string& scheme,std::string& path);
 static bool parse(const std::string& url,URL* outurl,bool viaRequest){
@@ -25,7 +25,7 @@ static bool parse(const std::string& url,URL* outurl,bool viaRequest){
 	}
 
 	if(url == "*"){
-		url->Path = "*";
+		outurl->Path = "*";
 		return true;
 	}
 	//http://test.com/path?q=1
@@ -49,7 +49,7 @@ static bool parse(const std::string& url,URL* outurl,bool viaRequest){
 
 	if(outurl->Scheme != "" || !viaRequest && left.find("///") != 0 && left.find("//") == 0){
 	// test.com/path
-		split(left.substring(2), "/", false,outurl->Host,left);
+		split(left.substr(2), "/", false,outurl->Host,left);
 		//  /path
 		if( outurl->Host.find("%") != std::string::npos){
 			LOG(WARN) << "hexadecimal escape in host";
@@ -62,22 +62,22 @@ static bool parse(const std::string& url,URL* outurl,bool viaRequest){
 static bool getscheme(const std::string& rawurl ,std::string& scheme,std::string& path) {
 	for(int i=0;i<rawurl.size();i++) {
 		char c = rawurl[i];
-		if( 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z'){
+		if( ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') ){
 			;
-		}else if('0' <= c && c <= '9' || c == '+' || c == '-' || c == '.'){
+		}else if( ('0' <= c && c <= '9') || c == '+' || c == '-' || c == '.'){
 			if( i == 0 ) {
 				scheme = "";
 				path = rawurl; 
 			}
-		}else if(c == ":"){
+		}else if(c == ':'){
 			if(i == 0){
 				scheme = "";
 				path = "";
 				//miss scheme;
 				return false;
 			}else{
-				scheme = rawurl.substring(0,i);
-				path = rawurl.substring(i+1);
+				scheme = rawurl.substr(0,i);
+				path = rawurl.substr(i+1);
 				return true;
 			}
 		}else{
@@ -91,11 +91,10 @@ static bool getscheme(const std::string& rawurl ,std::string& scheme,std::string
 	return true;
 }
 bool ParseUrl(const std::string& inurl,URL* url){
-	int pos = inurl.find("#");
 	std::string left,right;
-	split(inurl,left,right);
+	split(inurl,"#",false,left,right);
 
-	if( !parse(left,url) ){
+	if( !parse(left,url,false) ){
 		return false;
 	}
 	if( !right.empty() ){
@@ -118,6 +117,6 @@ std::string URL::RequestURI(){
 	if (this->RawQuery != "") {
 		result += "?" + this->RawQuery;
 	}
-	return result
+	return result;
 }
 }}
