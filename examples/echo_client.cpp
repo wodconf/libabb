@@ -2,7 +2,9 @@
 #include "abb/net/tcp_client.hpp"
 #include "abb/net/connection_ref.hpp"
 #include "abb/net/event_loop.hpp"
+#include "abb/http/http_request.hpp"
 using namespace abb::net;
+using namespace abb;
 class ConnectCB:public ITcpClientListener{
 public:
 	ConnectCB():conn(NULL),index(0){
@@ -14,7 +16,13 @@ public:
 	}
 	virtual void L_TcpClient_OnConnection(ConnectionRef* ref){
 		conn = ref;
-		this->Send();
+		//this->Send();
+		http::Request req(http::Method::GET,"");
+		abb::base::Buffer* buf;
+		if( this->conn->LockWrite(&buf)){
+			req.Encode(*buf);
+			this->conn->UnLockWrite();
+		}
 	}
 	virtual void L_TcpClient_OnMessage(ConnectionRef* conn,abb::base::Buffer& buf){
 		this->Send();
@@ -43,7 +51,7 @@ void sleep(int ms){
 }
 int main(){
 	abb::net::IPAddr addr;
-	if( ! addr.SetV4("127.0.0.1",9922) ){
+	if( ! addr.SetV4("127.0.0.1",80) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}

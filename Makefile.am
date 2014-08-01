@@ -20,7 +20,10 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/net/singler.cpp\
 			src/abb/net/tcp_server.cpp\
 			src/abb/net/connection_ref.cpp\
-			src/abb/net/tcp_client.cpp
+			src/abb/net/tcp_client.cpp\
+			src/abb/http/http_header.cpp\
+			src/abb/http/http_request.cpp\
+			src/abb/http/http_method.cpp
 
 export INCLUDES
 libabb_la_LIBADD=-lpthread

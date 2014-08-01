@@ -7,6 +7,6 @@ namespace http{
 
 bool POST(std::string& url,const std::string& body_type,void* body,int size);
 bool GET(std::string& url,const std::string& body_type,void* body,int size);
-bool Do(Request req);
+
 }}
 #endif
