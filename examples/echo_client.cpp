@@ -3,7 +3,7 @@
 #include "abb/net/connection_ref.hpp"
 #include "abb/net/event_loop.hpp"
 #include "abb/http/http_request.hpp"
-#include "abb/http/http_method.hpp"
+#include "abb/http/http_const.hpp"
 using namespace abb::net;
 using namespace abb;
 class ConnectCB:public ITcpClientListener{
