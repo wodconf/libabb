@@ -15,9 +15,20 @@ namespace net {
 
 class TcpClient:public IConnectorListener,IConnectionListener{
 public:
-	TcpClient(EventLoop* loop,ITcpClientListener* lis):loop_(loop),lis_(lis) {
+	TcpClient(EventLoop* loop,ITcpClientListener* lis,const IPAddr& addr)
+	:loop_(loop),
+	lis_(lis),
+	addr_(addr)
+	{
+		ctor_ = new Connector(loop);
+		ctor_->SetListener(this);
 	}
-	virtual ~TcpClient(){};
+	void Start(){
+		ctor_->Connect(addr_);
+	}
+	virtual ~TcpClient(){
+		ctor_->Destroy();
+	};
 	void L_Connection_OnMessage(Connection* conn,base::Buffer& buf){
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 		if(ref->IsClosed()){
@@ -36,7 +47,7 @@ public:
 	void L_Connector_OnOpen(Connector* cotr,int fd){
 		cotr->Destroy();
 		Connection* conn = new Connection(	loop_,fd,cotr->GetIpAddr(),cotr->GetIpAddr());
-		ConnectionRef* conn_ref_ = new ConnectionRef(conn,NULL);
+		ConnectionRef* conn_ref_ = new ConnectionRef(conn);
 		conn->SetData(conn_ref_);
 		conn->SetListener(this);
 		conn->SetEnable(true);
@@ -49,19 +60,21 @@ public:
 	}
 	ITcpClientListener* lis_;
 	EventLoop* loop_;
+	Connector *ctor_;
+	IPAddr addr_;
 };
 namespace tcp{
-extern bool Connect(EventLoop* loop,const IPAddr& addr,int* save_error,ITcpClientListener* lis){
-	Connector *ctor_ = new Connector(loop);
-	TcpClient* cli = new TcpClient(loop,lis);
-	ctor_->SetListener(cli);
-	if(ctor_->Connect(addr,save_error)){
-		return true;
-	}else{
-		delete cli;
-		ctor_->Destroy();
-		return false;
+
+namespace{
+	void RealConnect(void* arg){
+		TcpClient* cli = (TcpClient*)arg;
+		cli->Start();
 	}
+}
+
+extern void Connect(EventLoop* loop,const IPAddr& addr,ITcpClientListener* lis){
+	TcpClient* cli = new TcpClient(loop,lis,addr);
+	cli->Start();
 }
 }
 } /* namespace monprxoy */

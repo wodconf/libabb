@@ -1,14 +1,12 @@
 
 #include "abb/net/connection_ref.hpp"
 #include "abb/net/connection.hpp"
-#include "abb/net/acceptor_ref.hpp"
 namespace abb {
 namespace net {
 
-ConnectionRef::ConnectionRef(Connection* conn,AcceptorRef* parent)
+ConnectionRef::ConnectionRef(Connection* conn)
 :conn_(conn),
-Data(NULL),
-parent_(parent)
+Data(NULL)
 {
 	local_ = conn_->GetLocalAddr();
 	remote_ = conn_->GetRemoteAddr();
@@ -45,9 +43,10 @@ void ConnectionRef::CloseAfterWrite(){
 
 ConnectionRef::~ConnectionRef() {
 	conn_->Destroy();
-	if(parent_)parent_->UnRef();
 }
-
+EventLoop* ConnectionRef::GetEventLoop(){
+	return conn_->GetEventLoop();
+}
 
 } /* namespace net */
 } /* namespace abb */

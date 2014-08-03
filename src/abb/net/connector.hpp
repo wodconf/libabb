@@ -14,19 +14,32 @@ class PollerEntry;
 class Connector:public IEventHandler{
 public:
 	Connector(EventLoop* loop);
-	bool Connect(const IPAddr& addr,int* save_error);
-	bool Reset();
+	void Connect(const IPAddr& addr);
+	void Reset();
 	void SetListener(IConnectorListener* lis){lis_=lis;}
 	void Destroy();
 	const IPAddr& GetIpAddr(){
 		return addr_;
 	}
+	EventLoop* GetEventLoop(){
+		return loop_;
+	}
 private:
+	void RealConnect();
+	void RealReset();
 	virtual void HandleEvent(int event);
 	virtual ~Connector();
 	static void StaticDelete(void*arg){
 		Connector* c = (Connector*)arg;
 		delete c;
+	}
+	static void StaticConnect(void* arg){
+		Connector* c = (Connector*)arg;
+		c->RealConnect();
+	}
+	static void StaticReset(void* arg){
+		Connector* c = (Connector*)arg;
+		c->RealReset();
 	}
 private:
 	int fd_;

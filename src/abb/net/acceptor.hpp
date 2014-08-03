@@ -23,6 +23,9 @@ public:
 	const IPAddr& GetIpAddr(){
 		return addr_;
 	}
+	EventLoop* GetEventLoop(){
+		return loop_;
+	}
 private:
 	virtual void HandleEvent(int event);
 	static void StaticDelete(void*arg){

@@ -23,7 +23,6 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/net/tcp_client.cpp\
 			src/abb/http/http_header.cpp\
 			src/abb/http/http_request.cpp\
-			src/abb/http/http_method.cpp\
 			src/abb/url/url.cpp
 
 export INCLUDES

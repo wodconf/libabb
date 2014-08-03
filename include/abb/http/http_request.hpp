@@ -10,8 +10,9 @@ namespace abb{
 namespace http{
 	class Request:public base::RefObject{
 	public:
-		Request(const std::string& Method,const std::string& version,const std::string& url);
+		Request(const std::string& Method,const std::string& version);
 		~Request();
+		bool SetUrl(const std::string& url);
 		const std::string& Method(){return method_;}
 		const std::string& Protocol(){return proto_;}
 		uint32_t ContentLength(){return content_length_;}

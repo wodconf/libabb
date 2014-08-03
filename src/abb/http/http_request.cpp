@@ -4,15 +4,21 @@
 #define CRLF "\r\n"
 namespace abb{
 namespace http{
-	Request::Request( const std::string& m,const std::string& version,const std::string& url )
+	Request::Request( const std::string& m,const std::string& version )
 	:method_(m),
 	 proto_(version)
 	 {
-		url::ParseUrl(url,&this->url_);
-		this->host_ = this->url_.Host;
+		
 	}
 	Request::~Request(){
 
+	}
+	bool Request::SetUrl(const std::string& url){
+		if( url::ParseUrl(url,&this->url_) ){
+			this->host_ = this->url_.Host;
+			return true;
+		}
+		return false;
 	}
 	bool Request::Encode(abb::base::Buffer& buf){
 		std::ostringstream out;

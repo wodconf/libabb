@@ -38,6 +38,9 @@ public:
 	const IPAddr& GetLocalAddr(){return local_addr_;}
 	const IPAddr& GetRemoteAddr(){return peer_addr_;}
 	bool SetKeepAlive(bool kp,int idle,int interval,int cout);
+	EventLoop* GetEventLoop(){
+		return loop_;
+	}
 private:
 	virtual void HandleEvent(int event);
 	void OnRead();

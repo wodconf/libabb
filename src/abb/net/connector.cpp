@@ -18,34 +18,39 @@ Connector::Connector(EventLoop* loop)
  	io_event_.handler_ = this;
 }
 Connector::~Connector(){
-	this->Reset();
+	if(fd_!=-1)
+		Socket::Close(fd_);
 }
-bool Connector::Connect(const IPAddr& addr,int* save_error){
+void Connector::Connect(const IPAddr& addr,int* save_error){
 	if(__sync_bool_compare_and_swap(&connected_,0,1) ){
-		if( !Socket::Connect(&fd_,false,addr,save_error) ){
-			return false;
-		}
-		fcntl(fd_, F_SETFD, FD_CLOEXEC);
 		addr_ = addr;
-		io_event_.fd_ = fd_;
-		io_event_.SetWrite(true);
-		this->loop_->ApplyIOEvent(&io_event_);
-		return true;
+		this->loop_->QueueInLoop(StaticConnect,this);
 	}
-	return false;
+}
+void Connector::RealConnect(){
+	int err;
+	if( !Socket::Connect(&fd_,false,addr,&err) ){
+		this->lis_->L_Connector_OnClose(this,err);
+		return;
+	}
+	fcntl(fd_, F_SETFD, FD_CLOEXEC);
+	addr_ = addr;
+	io_event_.fd_ = fd_;
+	io_event_.SetWrite(true);
+	this->loop_->ApplyIOEvent(&io_event_);
+}
+void Connector::RealReset(){
+	io_event_.SetWrite(false);
+	this->loop_->ApplyIOEvent(&io_event_);
+	Socket::Close(fd_);
+	fd_ = -1;
 }
 void Connector::Destroy(){
-	this->loop_->RunInLoop(StaticDelete,this);
+	this->loop_->QueueInLoop(StaticDelete,this);
 }
-bool Connector::Reset(){
+void Connector::Reset(){
 	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
-		io_event_.SetWrite(false);
-		this->loop_->ApplyIOEvent(&io_event_);
-		Socket::Close(fd_);
-		fd_ = -1;
-		return true;
-	}else{
-		return false;
+		this->loop_->QueueInLoop(StaticReset,this);
 	}
 }
 void Connector::HandleEvent(int event){

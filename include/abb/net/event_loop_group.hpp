@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <pthread.h>
+
+#include "abb/base/define.hpp"
+
 namespace abb{namespace net{
 class EventLoop;
 class EventLoopGroup{
@@ -19,6 +22,7 @@ private:
 	std::vector<pthread_t> threads_;
 	int num_thread_;
 	int cur_;
+	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(EventLoopGroup);
 };
 }}
 

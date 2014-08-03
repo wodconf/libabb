@@ -40,7 +40,7 @@ Connection::~Connection() {
 }
 void Connection::Destroy(){
 	SetEnable(false);
-	loop_->RunInLoop(StaticFree,this);
+	loop_->QueueInLoop(StaticFree,this);
 }
 void  Connection::SetEnable(bool enable){
 	if(enable_ == enable) return;

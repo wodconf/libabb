@@ -24,7 +24,7 @@ Acceptor::~Acceptor() {
 }
 void Acceptor::Destroy(){
 	SetEnable(false);
-	this->loop_->RunInLoop(StaticDelete,this);
+	this->loop_->QueueInLoop(StaticDelete,this);
 }
 bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
 	if( Socket::Listen(&fd_,addr,save_err) ){

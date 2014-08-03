@@ -17,7 +17,7 @@ void TcpServer::Init(int num_thread,bool run_curent_thread){
 
 	if(run_curent_thread){
 		loop_ = new EventLoop();
-		acceptor_ = new Acceptor(event_group_->Next());
+		acceptor_ = new Acceptor(loop_);
 	}else{
 		acceptor_ = new Acceptor(event_group_->Next());
 	}

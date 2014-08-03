@@ -1,6 +1,8 @@
 #ifndef __ABB_NET_LISTENER_HPP__
 #define __ABB_NET_LISTENER_HPP__
-#include "../base/buffer.hpp"
+
+#include "abb/base/buffer.hpp"
+
 namespace abb{
 namespace net{
 class Connection;

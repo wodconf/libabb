@@ -1,9 +1,11 @@
 
 #ifndef __ABB_NET_TCP_CLIENT_HPP_
 #define __ABB_NET_TCP_CLIENT_HPP_
+
 #include "abb/net/listener.hpp"
 #include "abb/net/connection_ref.hpp"
 #include "abb/net/ip_addr.hpp"
+
 namespace abb {
 namespace net {
 
@@ -17,7 +19,7 @@ public:
 	virtual void L_TcpClient_OnClose(ConnectionRef* conn,int error) = 0;
 };
 namespace tcp{
-extern bool Connect(EventLoop* loop,const IPAddr& addr,int* save_error,ITcpClientListener* lis);
+extern void Connect(EventLoop* loop,const IPAddr& addr,ITcpClientListener* lis);
 }
 
 } /* namespace monprxoy */

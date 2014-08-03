@@ -49,6 +49,16 @@ void EventLoop::Stop(){
 	sigler_->Write();
 }
 void EventLoop::RunInLoop(run_fn fn,void*arg){
+	if(IsInEventLoop()){
+		fn(arg);
+	}else{
+		QueueInLoop(fn,arg);
+	}
+}
+void EventLoop::RunAfter(run_fn fn,void*arg,int ms){
+	
+}
+void EventLoop::QueueInLoop(run_fn fn,void* arg){
 	{
 		base::Mutex::Locker lock(mtx_);
 		Task task;
