@@ -23,7 +23,7 @@ EventLoop::~EventLoop() {
 	//close(efd_);
 }
 void EventLoop::ApplyIOEvent(IOEvent* event){
-	if(event->flag_ | event->wait_flag_ != event->flag_)
+	if(event->flag_ != event->wait_flag_)
 		poller_->Apply(event);
 }
 void EventLoop::Loop(){

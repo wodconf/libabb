@@ -36,7 +36,7 @@ void Connector::RealConnect(){
 	fcntl(fd_, F_SETFD, FD_CLOEXEC);
 	addr_ = addr;
 	io_event_.fd_ = fd_;
-	io_event_.SetWrite(true);
+	io_event_.SetWrite(true);	
 	this->loop_->ApplyIOEvent(&io_event_);
 }
 void Connector::RealReset(){
