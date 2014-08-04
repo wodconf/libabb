@@ -45,7 +45,6 @@ public:
 		delete this;
 	}
 	void L_Connector_OnOpen(Connector* cotr,int fd){
-		cotr->Destroy();
 		Connection* conn = new Connection(	loop_,fd,cotr->GetIpAddr(),cotr->GetIpAddr());
 		ConnectionRef* conn_ref_ = new ConnectionRef(conn);
 		conn->SetData(conn_ref_);
@@ -54,7 +53,6 @@ public:
 		lis_->L_TcpClient_OnConnection(conn_ref_);
 	}
 	void L_Connector_OnClose(Connector* cotr,int error){
-		cotr->Destroy();
 		lis_->L_TcpClient_OnConnectFail(error);
 		delete this;
 	}

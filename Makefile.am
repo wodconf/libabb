@@ -24,6 +24,7 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/http/http_request.cpp\
 			src/abb/http/http_request_decoder.cpp\
 			src/abb/http/http_server.cpp\
+			src/abb/http/http_client.cpp\
 			src/abb/url/url.cpp
 
 export INCLUDES
@@ -36,6 +37,10 @@ echo_server_SOURCES = examples/echo_server.cpp
 bin_PROGRAMS += http_hello_service
 http_hello_service_LDADD = -labb
 http_hello_service_SOURCES = examples/http_hello_service.cpp
+
+bin_PROGRAMS += http_hello_client
+http_hello_client_LDADD = -labb
+http_hello_client_SOURCES = examples/http_hello_client.cpp
 
 bin_PROGRAMS += echo_client
 echo_client_LDADD = -labb

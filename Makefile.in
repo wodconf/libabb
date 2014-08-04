@@ -35,7 +35,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = echo_server$(EXEEXT) echo_client$(EXEEXT)
+bin_PROGRAMS = echo_server$(EXEEXT) http_hello_service$(EXEEXT) \
+	http_hello_client$(EXEEXT) echo_client$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(baseinclude_HEADERS) \
 	$(netinclude_HEADERS) $(srcdir)/Makefile.am \
@@ -62,10 +63,10 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
 am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
-	acceptor.lo acceptor_ref.lo connector.lo connection.lo \
-	event_loop_group.lo event_loop.lo poller.lo ip_addr.lo \
-	singler.lo tcp_server.lo connection_ref.lo tcp_client.lo \
-	http_header.lo http_request.lo http_method.lo url.lo
+	acceptor.lo connector.lo connection.lo event_loop_group.lo \
+	event_loop.lo poller.lo ip_addr.lo singler.lo tcp_server.lo \
+	connection_ref.lo tcp_client.lo http_header.lo http_request.lo \
+	http_request_decoder.lo http_server.lo http_client.lo url.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -75,6 +76,12 @@ echo_client_DEPENDENCIES =
 am_echo_server_OBJECTS = echo_server.$(OBJEXT)
 echo_server_OBJECTS = $(am_echo_server_OBJECTS)
 echo_server_DEPENDENCIES =
+am_http_hello_client_OBJECTS = http_hello_client.$(OBJEXT)
+http_hello_client_OBJECTS = $(am_http_hello_client_OBJECTS)
+http_hello_client_DEPENDENCIES =
+am_http_hello_service_OBJECTS = http_hello_service.$(OBJEXT)
+http_hello_service_OBJECTS = $(am_http_hello_service_OBJECTS)
+http_hello_service_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -88,9 +95,11 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
-	$(echo_server_SOURCES)
+	$(echo_server_SOURCES) $(http_hello_client_SOURCES) \
+	$(http_hello_service_SOURCES)
 DIST_SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
-	$(echo_server_SOURCES)
+	$(echo_server_SOURCES) $(http_hello_client_SOURCES) \
+	$(http_hello_service_SOURCES)
 baseincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 netincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(baseinclude_HEADERS) $(netinclude_HEADERS)
@@ -235,7 +244,6 @@ libabb_la_SOURCES = src/abb/base/buffer.cpp\
 			src/abb/base/thread_pool.cpp\
 			src/abb/net/socket.cpp\
 			src/abb/net/acceptor.cpp\
-			src/abb/net/acceptor_ref.cpp\
 			src/abb/net/connector.cpp\
 			src/abb/net/connection.cpp\
 			src/abb/net/event_loop_group.cpp\
@@ -248,12 +256,18 @@ libabb_la_SOURCES = src/abb/base/buffer.cpp\
 			src/abb/net/tcp_client.cpp\
 			src/abb/http/http_header.cpp\
 			src/abb/http/http_request.cpp\
-			src/abb/http/http_method.cpp\
+			src/abb/http/http_request_decoder.cpp\
+			src/abb/http/http_server.cpp\
+			src/abb/http/http_client.cpp\
 			src/abb/url/url.cpp
 
 libabb_la_LIBADD = -lpthread
 echo_server_LDADD = -labb
 echo_server_SOURCES = examples/echo_server.cpp
+http_hello_service_LDADD = -labb
+http_hello_service_SOURCES = examples/http_hello_service.cpp
+http_hello_client_LDADD = -labb
+http_hello_client_SOURCES = examples/http_hello_client.cpp
 echo_client_LDADD = -labb
 echo_client_SOURCES = examples/echo_client.cpp
 
@@ -271,7 +285,6 @@ baseinclude_HEADERS = $(top_srcdir)/include/abb/base/buffer.hpp\
 
 netincludedir = $(includedir)/abb/net
 netinclude_HEADERS = $(top_srcdir)/include/abb/net/connection_ref.hpp\
-						$(top_srcdir)/include/abb/net/acceptor_ref.hpp\
 						$(top_srcdir)/include/abb/net/event_loop_group.hpp\
 						$(top_srcdir)/include/abb/net/event_handler.hpp\
 						$(top_srcdir)/include/abb/net/event_loop.hpp\
@@ -382,6 +395,12 @@ echo_client$(EXEEXT): $(echo_client_OBJECTS) $(echo_client_DEPENDENCIES)
 echo_server$(EXEEXT): $(echo_server_OBJECTS) $(echo_server_DEPENDENCIES) 
 	@rm -f echo_server$(EXEEXT)
 	$(CXXLINK) $(echo_server_OBJECTS) $(echo_server_LDADD) $(LIBS)
+http_hello_client$(EXEEXT): $(http_hello_client_OBJECTS) $(http_hello_client_DEPENDENCIES) 
+	@rm -f http_hello_client$(EXEEXT)
+	$(CXXLINK) $(http_hello_client_OBJECTS) $(http_hello_client_LDADD) $(LIBS)
+http_hello_service$(EXEEXT): $(http_hello_service_OBJECTS) $(http_hello_service_DEPENDENCIES) 
+	@rm -f http_hello_service$(EXEEXT)
+	$(CXXLINK) $(http_hello_service_OBJECTS) $(http_hello_service_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -390,7 +409,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acceptor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acceptor_ref.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connection_ref.Plo@am__quote@
@@ -399,9 +417,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/echo_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/event_loop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/event_loop_group.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_client.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_header.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_method.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_hello_client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_hello_service.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_request.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_request_decoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_server.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_addr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poller.Plo@am__quote@
@@ -467,13 +489,6 @@ acceptor.lo: src/abb/net/acceptor.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/net/acceptor.cpp' object='acceptor.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o acceptor.lo `test -f 'src/abb/net/acceptor.cpp' || echo '$(srcdir)/'`src/abb/net/acceptor.cpp
-
-acceptor_ref.lo: src/abb/net/acceptor_ref.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT acceptor_ref.lo -MD -MP -MF $(DEPDIR)/acceptor_ref.Tpo -c -o acceptor_ref.lo `test -f 'src/abb/net/acceptor_ref.cpp' || echo '$(srcdir)/'`src/abb/net/acceptor_ref.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/acceptor_ref.Tpo $(DEPDIR)/acceptor_ref.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/net/acceptor_ref.cpp' object='acceptor_ref.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o acceptor_ref.lo `test -f 'src/abb/net/acceptor_ref.cpp' || echo '$(srcdir)/'`src/abb/net/acceptor_ref.cpp
 
 connector.lo: src/abb/net/connector.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT connector.lo -MD -MP -MF $(DEPDIR)/connector.Tpo -c -o connector.lo `test -f 'src/abb/net/connector.cpp' || echo '$(srcdir)/'`src/abb/net/connector.cpp
@@ -559,12 +574,26 @@ http_request.lo: src/abb/http/http_request.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_request.lo `test -f 'src/abb/http/http_request.cpp' || echo '$(srcdir)/'`src/abb/http/http_request.cpp
 
-http_method.lo: src/abb/http/http_method.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_method.lo -MD -MP -MF $(DEPDIR)/http_method.Tpo -c -o http_method.lo `test -f 'src/abb/http/http_method.cpp' || echo '$(srcdir)/'`src/abb/http/http_method.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_method.Tpo $(DEPDIR)/http_method.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/http/http_method.cpp' object='http_method.lo' libtool=yes @AMDEPBACKSLASH@
+http_request_decoder.lo: src/abb/http/http_request_decoder.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_request_decoder.lo -MD -MP -MF $(DEPDIR)/http_request_decoder.Tpo -c -o http_request_decoder.lo `test -f 'src/abb/http/http_request_decoder.cpp' || echo '$(srcdir)/'`src/abb/http/http_request_decoder.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_request_decoder.Tpo $(DEPDIR)/http_request_decoder.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/http/http_request_decoder.cpp' object='http_request_decoder.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_method.lo `test -f 'src/abb/http/http_method.cpp' || echo '$(srcdir)/'`src/abb/http/http_method.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_request_decoder.lo `test -f 'src/abb/http/http_request_decoder.cpp' || echo '$(srcdir)/'`src/abb/http/http_request_decoder.cpp
+
+http_server.lo: src/abb/http/http_server.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_server.lo -MD -MP -MF $(DEPDIR)/http_server.Tpo -c -o http_server.lo `test -f 'src/abb/http/http_server.cpp' || echo '$(srcdir)/'`src/abb/http/http_server.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_server.Tpo $(DEPDIR)/http_server.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/http/http_server.cpp' object='http_server.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_server.lo `test -f 'src/abb/http/http_server.cpp' || echo '$(srcdir)/'`src/abb/http/http_server.cpp
+
+http_client.lo: src/abb/http/http_client.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_client.lo -MD -MP -MF $(DEPDIR)/http_client.Tpo -c -o http_client.lo `test -f 'src/abb/http/http_client.cpp' || echo '$(srcdir)/'`src/abb/http/http_client.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_client.Tpo $(DEPDIR)/http_client.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/http/http_client.cpp' object='http_client.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_client.lo `test -f 'src/abb/http/http_client.cpp' || echo '$(srcdir)/'`src/abb/http/http_client.cpp
 
 url.lo: src/abb/url/url.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT url.lo -MD -MP -MF $(DEPDIR)/url.Tpo -c -o url.lo `test -f 'src/abb/url/url.cpp' || echo '$(srcdir)/'`src/abb/url/url.cpp
@@ -600,6 +629,34 @@ echo_server.obj: examples/echo_server.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/echo_server.cpp' object='echo_server.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o echo_server.obj `if test -f 'examples/echo_server.cpp'; then $(CYGPATH_W) 'examples/echo_server.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/echo_server.cpp'; fi`
+
+http_hello_client.o: examples/http_hello_client.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_hello_client.o -MD -MP -MF $(DEPDIR)/http_hello_client.Tpo -c -o http_hello_client.o `test -f 'examples/http_hello_client.cpp' || echo '$(srcdir)/'`examples/http_hello_client.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_hello_client.Tpo $(DEPDIR)/http_hello_client.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/http_hello_client.cpp' object='http_hello_client.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_hello_client.o `test -f 'examples/http_hello_client.cpp' || echo '$(srcdir)/'`examples/http_hello_client.cpp
+
+http_hello_client.obj: examples/http_hello_client.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_hello_client.obj -MD -MP -MF $(DEPDIR)/http_hello_client.Tpo -c -o http_hello_client.obj `if test -f 'examples/http_hello_client.cpp'; then $(CYGPATH_W) 'examples/http_hello_client.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/http_hello_client.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_hello_client.Tpo $(DEPDIR)/http_hello_client.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/http_hello_client.cpp' object='http_hello_client.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_hello_client.obj `if test -f 'examples/http_hello_client.cpp'; then $(CYGPATH_W) 'examples/http_hello_client.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/http_hello_client.cpp'; fi`
+
+http_hello_service.o: examples/http_hello_service.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_hello_service.o -MD -MP -MF $(DEPDIR)/http_hello_service.Tpo -c -o http_hello_service.o `test -f 'examples/http_hello_service.cpp' || echo '$(srcdir)/'`examples/http_hello_service.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_hello_service.Tpo $(DEPDIR)/http_hello_service.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/http_hello_service.cpp' object='http_hello_service.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_hello_service.o `test -f 'examples/http_hello_service.cpp' || echo '$(srcdir)/'`examples/http_hello_service.cpp
+
+http_hello_service.obj: examples/http_hello_service.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_hello_service.obj -MD -MP -MF $(DEPDIR)/http_hello_service.Tpo -c -o http_hello_service.obj `if test -f 'examples/http_hello_service.cpp'; then $(CYGPATH_W) 'examples/http_hello_service.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/http_hello_service.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_hello_service.Tpo $(DEPDIR)/http_hello_service.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='examples/http_hello_service.cpp' object='http_hello_service.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_hello_service.obj `if test -f 'examples/http_hello_service.cpp'; then $(CYGPATH_W) 'examples/http_hello_service.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/http_hello_service.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

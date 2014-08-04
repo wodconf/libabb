@@ -10,7 +10,6 @@ Data(NULL)
 {
 	local_ = conn_->GetLocalAddr();
 	remote_ = conn_->GetRemoteAddr();
-	if(parent_)parent_->Ref();
 }
 bool ConnectionRef::Send(void*data,int len){
 	if(conn_->IsConnected()){

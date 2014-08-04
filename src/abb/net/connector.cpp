@@ -7,7 +7,7 @@
 
 #include <fcntl.h>
 
-using namespace abb::net;
+namespace abb{namespace net{
 
 
 Connector::Connector(EventLoop* loop)
@@ -15,13 +15,14 @@ Connector::Connector(EventLoop* loop)
  lis_(NULL),
  loop_(loop),
  connected_(0){
- 	io_event_.handler_ = this;
+	io_event_.handler_ = this;
 }
 Connector::~Connector(){
-	if(fd_!=-1)
+	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
 		Socket::Close(fd_);
+	}
 }
-void Connector::Connect(const IPAddr& addr,int* save_error){
+void Connector::Connect(const IPAddr& addr){
 	if(__sync_bool_compare_and_swap(&connected_,0,1) ){
 		addr_ = addr;
 		this->loop_->QueueInLoop(StaticConnect,this);
@@ -57,20 +58,22 @@ void Connector::HandleEvent(int event){
 		io_event_.SetWrite(false);
 		this->loop_->ApplyIOEvent(&io_event_);
 		int err;
-		if( Socket::GetSockError(fd_,&err) ){
+		int fd = fd_;
+		fd_ = -1;
+		if( Socket::GetSockError(fd,&err) ){
 			if(err == 0){
-				this->lis_->L_Connector_OnOpen(this,fd_);
+				this->lis_->L_Connector_OnOpen(this,fd);
 				return;
 			}else{
-				Socket::Close(fd_);
+				Socket::Close(fd);
 			}
 		}else{
 			err = errno;
-			Socket::Close(fd_);
+			Socket::Close(fd);
 		}
-		fd_ = -1;
 		this->lis_->L_Connector_OnClose(this,err);
 	}
 
 }
 
+}}

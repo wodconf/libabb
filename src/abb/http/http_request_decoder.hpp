@@ -1,8 +1,8 @@
-#ifndef __ABB_HTTP_SESSION_HPP__
-#define __ABB_HTTP_SESSION_HPP__
+#ifndef __ABB_HTTP_REQUEST_DECODER_HPP__
+#define __ABB_HTTP_REQUEST_DECODER_HPP__
 
 #include "abb/http/http_request.hpp"
-
+#include "abb/base/buffer.hpp"
 namespace abb{
 namespace http{	
 	class RequestDecoder{
@@ -14,6 +14,7 @@ namespace http{
 			if(state_ == STATE_COMPLETE){
 				return req_;
 			}
+			return NULL;
 		}
 	private:
 		enum{

@@ -6,7 +6,9 @@ namespace abb{
 namespace http{
 	Request::Request( const std::string& m,const std::string& version )
 	:method_(m),
-	 proto_(version)
+	 proto_(version),
+	 content_buf_(NULL),
+	 content_length_(0)
 	 {
 		
 	}
@@ -15,7 +17,6 @@ namespace http{
 	}
 	bool Request::SetUrl(const std::string& url){
 		if( url::ParseUrl(url,&this->url_) ){
-			this->host_ = this->url_.Host;
 			return true;
 		}
 		return false;
@@ -23,7 +24,7 @@ namespace http{
 	bool Request::Encode(abb::base::Buffer& buf){
 		std::ostringstream out;
 		out << this->method_ << SPACE << this->url_.RequestURI() << SPACE << proto_ << CRLF;
-		out << "Host: " << this->host_<< CRLF;
+		out << "Host: " << this->url_.Host<< CRLF;
 		const Header::KV& kv = this->header_.GetKV();
 		Header::KV::const_iterator iter = kv.begin();
 		for(;iter != kv.end();iter++){

@@ -4,11 +4,12 @@
 #include <abb/http/http_request.hpp>
 
 class HttpHandler:public abb::http::Server::Listener{
-	HttpHandler(){};
+public:
+HttpHandler(){};
 	virtual ~HttpHandler(){};
-	virtual void OnRequest(Request* req){
+	virtual void OnRequest(abb::http::Request* req){
 		abb::base::Buffer buf;
-		req.Encode(buf);
+		req->Encode(buf);
 		LOG(DEBUG) << std::string((char *)buf.Data(),buf.Size());
 	}
 };
@@ -23,7 +24,7 @@ int main(){
 	int err;
 	if( ! svr.Bind(addr,&err) ){
 		LOG(INFO) << "Bind fail" << strerror(err);
-		exit(0);
+		return 0;
 	}
 	HttpHandler h;
 	svr.SetListener(&h);

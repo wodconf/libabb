@@ -1,5 +1,5 @@
-#ifndef __ABB_HTTP_SESSION_HPP__
-#define __ABB_HTTP_SESSION_HPP__
+#ifndef __ABB_HTTP_REQUEST_HPP__
+#define __ABB_HTTP_REQUEST_HPP__
 
 #include <string>
 #include <abb/base/buffer.hpp>
@@ -11,7 +11,6 @@ namespace http{
 	class Request:public base::RefObject{
 	public:
 		Request(const std::string& Method,const std::string& version);
-		Request();
 		~Request();
 		bool SetUrl(const std::string& url);
 		const std::string& Method(){return method_;}
@@ -26,8 +25,8 @@ namespace http{
 		Header header_;
 		void* content_buf_;
 		uint32_t content_length_;
-		std::string host_;
 		url::URL url_;
+		ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Request);
 	};
 }
 }

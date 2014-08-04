@@ -1,13 +1,17 @@
-#include "http_client.hpp"
-
+#include "abb/http/http_client.hpp"
+#include "abb/net/tcp_client.hpp"
+#include "abb/http/http_request.hpp"
+#include "abb/http/http_const.hpp"
 namespace abb{
 namespace http{
 
 class HttpClient:public net::ITcpClientListener{
+public:
 	HttpClient(Request* req,IRequestHandler* handler)
 	:req_(req),
-	handler_(handler){
-
+	handler_(handler),
+	read_responced_(false)
+	{
 	}
 	virtual ~HttpClient(){
 
@@ -15,17 +19,17 @@ class HttpClient:public net::ITcpClientListener{
 	virtual void L_TcpClient_OnConnectFail(int error){
 		handler_->HandleError(error);
 	}
-	virtual void L_TcpClient_OnConnection(ConnectionRef* conn){
+	virtual void L_TcpClient_OnConnection(net::ConnectionRef* conn){
 		abb::base::Buffer* buf;
-		if( this->conn->LockWrite(&buf)){
+		if( conn->LockWrite(&buf)){
 			req_->Encode(*buf);
-			this->conn->UnLockWrite();
+			conn->UnLockWrite();
 		}
 	}
-	virtual void L_TcpClient_OnMessage(ConnectionRef* conn,base::Buffer& buf){
+	virtual void L_TcpClient_OnMessage(net::ConnectionRef* conn,base::Buffer& buf){
 
 	}
-	virtual void L_TcpClient_OnClose(ConnectionRef* conn,int error){
+	virtual void L_TcpClient_OnClose(net::ConnectionRef* conn,int error){
 		
 	}
 	bool read_responced_;
@@ -33,7 +37,7 @@ class HttpClient:public net::ITcpClientListener{
 	Request* req_;
 };
 
-bool POST(EventLoop* loop,
+bool POST(net::EventLoop* loop,
 				std::string& url,
 				const std::string& body_type,
 				void* body,
@@ -43,18 +47,18 @@ bool POST(EventLoop* loop,
 	if(!req->SetUrl(url)){
 		return false;
 	}else{
-		Do(loop,req,handler);
+		return Do(loop,req,handler);
 	}
 }
-bool GET(EventLoop* loop,std::string& url,IRequestHandler* handler){
+bool GET(net::EventLoop* loop,std::string& url,IRequestHandler* handler){
 	Request* req = new Request(http::method::GET,"HTTP/1.1");
 	if(!req->SetUrl(url)){
 		return false;
 	}else{
-		return Do(req);
+		return Do(loop,req,handler);
 	}
 }
-bool Do(EventLoop* loop,Request* req,IRequestHandler* handler){
+bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler){
 	net::IPAddr addr;
 	if( req->GetURL().Host.find(":") == std::string::npos){
 		if(!addr.SetByString(req->GetURL().Host + ":80")){
@@ -66,8 +70,8 @@ bool Do(EventLoop* loop,Request* req,IRequestHandler* handler){
 		}
 	}
 	HttpClient* htc = new HttpClient(req,handler);
-	int err;
-	return net::tcp::Connect(loop,addr,&err,htc);
+	net::tcp::Connect(loop,addr,htc);
+	return true;
 }
 
 
