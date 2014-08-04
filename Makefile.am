@@ -56,7 +56,6 @@ baseinclude_HEADERS=$(top_srcdir)/include/abb/base/buffer.hpp\
 
 netincludedir=$(includedir)/abb/net
 netinclude_HEADERS=$(top_srcdir)/include/abb/net/connection_ref.hpp\
-						$(top_srcdir)/include/abb/net/acceptor_ref.hpp\
 						$(top_srcdir)/include/abb/net/event_loop_group.hpp\
 						$(top_srcdir)/include/abb/net/event_handler.hpp\
 						$(top_srcdir)/include/abb/net/event_loop.hpp\
