@@ -24,7 +24,7 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/http/http_request.cpp\
 			src/abb/http/http_request_decoder.cpp\
 			src/abb/http/http_server.cpp\
-			src/abb/url/url.cpp\
+			src/abb/url/url.cpp
 
 export INCLUDES
 libabb_la_LIBADD=-lpthread
