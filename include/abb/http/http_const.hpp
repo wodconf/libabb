@@ -11,6 +11,64 @@ namespace method{
 	const char* const	PUT = "PUT";
 	const char* const	DELETE = "DELETE";
 }
+namespace version{
+	const char* const HTTP_1_1 = "HTTP/1.1";
+	const char* const HTTP_1_0 = "HTTP/1.0";
+}
+namespace code{
+	const int StatusContinue           = 100;
+	const int StatusSwitchingProtocols = 101;
+
+	const int StatusOK                   = 200;
+	const int StatusCreated              = 201;
+	const int StatusAccepted             = 202;
+	const int StatusNonAuthoritativeInfo = 203;
+	const int StatusNoContent            = 204;
+	const int StatusResetContent         = 205;
+	const int StatusPartialContent       = 206;
+
+	const int StatusMultipleChoices   = 300;
+	const int StatusMovedPermanently  = 301;
+	const int StatusFound             = 302;
+	const int StatusSeeOther          = 303;
+	const int StatusNotModified       = 304;
+	const int StatusUseProxy          = 305;
+	const int StatusTemporaryRedirect = 307;
+
+	const int StatusBadRequest                   = 400;
+	const int StatusUnauthorized                 = 401;
+	const int StatusPaymentRequired              = 402;
+	const int StatusForbidden                    = 403;
+	const int StatusNotFound                     = 404;
+	const int StatusMethodNotAllowed             = 405;
+	const int StatusNotAcceptable                = 406;
+	const int StatusProxyAuthRequired            = 407;
+	const int StatusRequestTimeout               = 408;
+	const int StatusConflict                     = 409;
+	const int StatusGone                         = 410;
+	const int StatusLengthRequired               = 411;
+	const int StatusPreconditionFailed           = 412;
+	const int StatusRequestEntityTooLarge        = 413;
+	const int StatusRequestURITooLong            = 414;
+	const int StatusUnsupportedMediaType         = 415;
+	const int StatusRequestedRangeNotSatisfiable = 416;
+	const int StatusExpectationFailed            = 417;
+	const int StatusTeapot                       = 418;
+
+	const int StatusInternalServerError     = 500;
+	const int StatusNotImplemented          = 501;
+	const int StatusBadGateway              = 502;
+	const int StatusServiceUnavailable      = 503;
+	const int StatusGatewayTimeout          = 504;
+	const int StatusHTTPVersionNotSupported = 505;
+
+	// New HTTP status codes from RFC 6585. Not exported yet in Go 1.1.
+	// See discussion at https://codereview.appspot.com/7678043/
+	const int statusPreconditionRequired          = 428;
+	const int statusTooManyRequests               = 429;
+	const int statusRequestHeaderFieldsTooLarge   = 431;
+	const int statusNetworkAuthenticationRequired = 511;
+}
 namespace header{
 	const char* const ACCEPT = "Accept";
 	const char* const ACCEPT_CHARSET = "Accept-Charset";

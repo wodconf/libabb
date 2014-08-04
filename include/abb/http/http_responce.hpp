@@ -7,22 +7,29 @@
 #include <abb/http/http_header.hpp>
 #include "abb/base/ref_object.hpp"
 
-namespace abb
-{
-	namespace http
-	{
-		class Responce
-		{
-		public:
-			Responce();
-			~Responce();
-			void SetStatusCode(int code);
-		private:
-			Header header_;
-			int code_;
-			int content_length_;
-		};
+namespace abb{
+namespace http{
+
+class Responce{
+public:
+	Responce(const std::string& version);
+	~Responce();
+	void SetStatusCode(int code){
+		code_ = code;
 	}
+	int GetStatusCode(){return code_;}
+	const std::string& Protocol(){return proto_;}
+	Header& GetHeader(){return header_;}
+	bool Encode(base::Buffer& buf);
+	base::Buffer& Body(){return body;}
+private:
+	std::string proto_;
+	Header header_;
+	int code_;
+	base::Buffer body;
+};
+
+}
 }
 
 #endif

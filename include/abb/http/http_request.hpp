@@ -15,16 +15,15 @@ namespace http{
 		bool SetUrl(const std::string& url);
 		const std::string& Method(){return method_;}
 		const std::string& Protocol(){return proto_;}
-		uint32_t ContentLength(){return content_length_;}
 		Header& GetHeader(){return header_;}
 		url::URL& GetURL(){return url_;}
-		bool Encode(abb::base::Buffer& buf);
+		bool Encode(base::Buffer& buf);
+		base::Buffer& Body(){return body;}
 	private:
 		std::string method_;
 		std::string proto_; // "HTTP/1.0"
 		Header header_;
-		void* content_buf_;
-		uint32_t content_length_;
+		base::Buffer body;
 		url::URL url_;
 		ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Request);
 	};
