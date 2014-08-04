@@ -11,6 +11,7 @@ namespace http{
 	class Request:public base::RefObject{
 	public:
 		Request(const std::string& Method,const std::string& version);
+		Request();
 		~Request();
 		bool SetUrl(const std::string& url);
 		const std::string& Method(){return method_;}

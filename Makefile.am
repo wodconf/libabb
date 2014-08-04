@@ -23,7 +23,9 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/net/tcp_client.cpp\
 			src/abb/http/http_header.cpp\
 			src/abb/http/http_request.cpp\
-			src/abb/url/url.cpp
+			src/abb/http/http_request_decoder.cpp\
+			src/abb/http/http_server.cpp\
+			src/abb/url/url.cpp\
 
 export INCLUDES
 libabb_la_LIBADD=-lpthread
@@ -31,6 +33,10 @@ libabb_la_LIBADD=-lpthread
 bin_PROGRAMS = echo_server
 echo_server_LDADD = -labb
 echo_server_SOURCES = examples/echo_server.cpp
+
+bin_PROGRAMS = http_hello_service
+http_hello_service_LDADD = -labb
+http_hello_service_SOURCES = examples/http_hello_service.cpp
 
 bin_PROGRAMS += echo_client
 echo_client_LDADD = -labb
