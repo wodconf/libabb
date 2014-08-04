@@ -144,6 +144,7 @@ bool ResponceDecoder::Decode(base::Buffer& buf){
 			if(pos == std::string::npos){
 				continue;
 			}
+			LOG(INFO) << line.substr(0,pos) << "|"<< line.substr(pos+2);
 			rsp_->GetHeader().Set(line.substr(0,pos),line.substr(pos+2));
 		}
 

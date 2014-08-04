@@ -40,6 +40,7 @@ public:
 			if(req){
 				read_responced_= true;
 				this->handler_->HandleResponce(req);
+				conn->Close();
 			}
 		}
 	}

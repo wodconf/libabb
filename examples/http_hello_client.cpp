@@ -22,7 +22,7 @@ public:
 int main(){
 	EventLoop loop;
 	http::Request req(http::method::GET,"HTTP/1.1");
-	req.SetUrl("http://localhost:8080/");
+	req.SetUrl("http://www.baidu.com/");
 	req.GetHeader().Set(http::header::USER_AGENT," Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:30.0) Gecko/20100101 Firefox/30.0");
 	req.GetHeader().Set(http::header::CONTENT_LENGTH,"0");
 	req.GetHeader().Set(http::header::ACCEPT,"*/*");
