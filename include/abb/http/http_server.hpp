@@ -6,12 +6,13 @@
 namespace abb{
 namespace http{
 class Request;
+class Responce;
 class Server:public net::TcpServer::Listener{
 public:
 	class Listener{
 	public:
 		virtual ~Listener(){};
-		virtual void HandleRequest(Request* req) = 0;
+		virtual void HandleRequest(Request* req,Responce* rsp) = 0;
 	};
 	Server();
 	virtual ~Server();

@@ -11,7 +11,7 @@ class RequestHandler:public http::IRequestHandler{
 public:
 	virtual ~RequestHandler(){};
 	virtual void HandleResponce(http::Responce* rsp){
-
+		LOG(DEBUG) << std::string((char *)rsp->Body().Data(),rsp->Body().Size());
 	}
 	virtual void HandleError(int error){
 

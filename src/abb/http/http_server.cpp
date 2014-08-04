@@ -13,7 +13,13 @@ void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
 	}else{
 		Request* req = d->GetRequest();
 		if(req){
-			this->lis_->HandleRequest(req);
+			Responce rsp;
+			this->lis_->HandleRequest(req,&rsp);
+			abb::base::Buffer* buf;
+			if( conn->LockWrite(&buf)){
+				rsp->.Encode(*buf);
+				conn->UnLockWrite();
+			}
 		}
 	}
 }
