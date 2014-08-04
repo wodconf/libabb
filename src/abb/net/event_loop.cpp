@@ -22,9 +22,19 @@ EventLoop::~EventLoop() {
 	delete sigler_;
 	//close(efd_);
 }
+void EventLoop::RunApply(void*arg){
+	IOEvent* event = static_cast<IOEvent*>(arg);
+	event->loop_->poller_->Apply(event);
+}
 void EventLoop::ApplyIOEvent(IOEvent* event){
-	if(event->flag_ != event->wait_flag_)
-		poller_->Apply(event);
+	event->loop_ = this;
+	if(event->flag_ != event->wait_flag_){
+		if(this->IsInEventLoop()){
+			poller_->Apply(event);
+		}else{
+			this->QueueInLoop(event);
+		}
+	}
 }
 void EventLoop::Loop(){
 	tid_ = pthread_self();

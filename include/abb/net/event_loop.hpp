@@ -31,6 +31,7 @@ public:
 	void RunAfter(run_fn fn,void*arg,int ms);
 private:
 	virtual void HandleEvent(int event);
+	static void RunApply(void*arg);
 	struct Task{
 		Task():fn(NULL),arg(NULL){}
 		run_fn fn;

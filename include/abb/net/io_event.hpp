@@ -5,7 +5,7 @@
 
 namespace abb{
 namespace net{
-
+class EventLoop;
 class IOEvent{
 public:
 	IOEvent()
@@ -30,6 +30,7 @@ public:
 	int wait_flag_;
 	int pending_flag_;
 	IEventHandler* handler_;
+	EventLoop* loop_;
 public:
 	void SetRead(bool b){
 		if(b){
