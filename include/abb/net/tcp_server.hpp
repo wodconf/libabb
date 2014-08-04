@@ -39,9 +39,6 @@ private:
 	EventLoopGroup* event_group_;
 	Acceptor* acceptor_;
 	EventLoop* loop_;
-	//typedef std::map<long,Connection*> ConnectionMap;
-	//ConnectionMap conn_map_;
-	//base::Mutex mtx_;
 };
 }
 }
