@@ -29,12 +29,11 @@ void Connector::Connect(const IPAddr& addr,int* save_error){
 }
 void Connector::RealConnect(){
 	int err;
-	if( !Socket::Connect(&fd_,false,addr,&err) ){
+	if( !Socket::Connect(&fd_,false,addr_,&err) ){
 		this->lis_->L_Connector_OnClose(this,err);
 		return;
 	}
 	fcntl(fd_, F_SETFD, FD_CLOEXEC);
-	addr_ = addr;
 	io_event_.fd_ = fd_;
 	io_event_.SetWrite(true);	
 	this->loop_->ApplyIOEvent(&io_event_);
