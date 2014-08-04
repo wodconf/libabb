@@ -33,7 +33,7 @@ bin_PROGRAMS = echo_server
 echo_server_LDADD = -labb
 echo_server_SOURCES = examples/echo_server.cpp
 
-bin_PROGRAMS = http_hello_service
+bin_PROGRAMS += http_hello_service
 http_hello_service_LDADD = -labb
 http_hello_service_SOURCES = examples/http_hello_service.cpp
 
