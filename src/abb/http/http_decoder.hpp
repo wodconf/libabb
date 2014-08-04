@@ -6,7 +6,7 @@
 #include "abb/base/buffer.hpp"
 namespace abb{
 namespace http{	
-	class ResponceDecoder{
+	class RequestDecoder{
 	public:
 		RequestDecoder();
 		~RequestDecoder();

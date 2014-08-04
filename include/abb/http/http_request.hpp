@@ -18,12 +18,12 @@ namespace http{
 		Header& GetHeader(){return header_;}
 		url::URL& GetURL(){return url_;}
 		bool Encode(base::Buffer& buf);
-		base::Buffer& Body(){return body;}
+		base::Buffer& Body(){return body_;}
 	private:
 		std::string method_;
 		std::string proto_; // "HTTP/1.0"
 		Header header_;
-		base::Buffer body;
+		base::Buffer body_;
 		url::URL url_;
 		ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Request);
 	};

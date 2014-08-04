@@ -1,6 +1,7 @@
 #include "abb/http/http_client.hpp"
 #include "abb/net/tcp_client.hpp"
 #include "abb/http/http_request.hpp"
+#include "abb/http/http_responce.hpp"
 #include "abb/http/http_const.hpp"
 #include "abb/http/http_decoder.hpp"
 namespace abb{

@@ -28,12 +28,12 @@ namespace http{
 		for(;iter != kv.end();iter++){
 			out << iter->first << ": " << iter->second << "\r\n";
 		}
-		if(body.Size() > 0){
-			out << head::CONTENT_LENGTH << ": "<< body.Size() << "\r\n";
+		if(body_.Size() > 0){
+			out << header::CONTENT_LENGTH << ": "<< body_.Size() << "\r\n";
 		}
 		out<<"\r\n";
 		buf.Write((void*)out.str().c_str(),out.str().size());
-		buf.Write(body.Data(),body.Size());
+		buf.Write(body_.Data(),body_.Size());
 		return true;
 	}
 }

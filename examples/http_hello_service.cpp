@@ -12,7 +12,7 @@ HttpHandler(){};
 		abb::base::Buffer buf;
 		req->Encode(buf);
 		LOG(DEBUG) << std::string((char *)buf.Data(),buf.Size());
-		rsp->GetStatusCode(abb::http::code::StatusOK);
+		rsp->SetStatusCode(abb::http::code::StatusOK);
 		const char* hello = "hello";
 		rsp->Body().Write((void*)hello,strlen(hello));
 	}

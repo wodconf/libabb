@@ -1,5 +1,6 @@
 #include "abb/http/http_server.hpp"
 #include "abb/http/http_decoder.hpp"
+#include "abb/http/http_responce.hpp"
 namespace abb{
 namespace http{
 void Server::L_TcpServer_OnConnection(net::ConnectionRef*req){
@@ -13,12 +14,12 @@ void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
 	}else{
 		Request* req = d->GetRequest();
 		if(req){
-			Responce rsp;
+			Responce rsp(req->Protocol());
 			this->lis_->HandleRequest(req,&rsp);
 			abb::base::Buffer* buf;
-			if( conn->LockWrite(&buf)){
-				rsp->.Encode(*buf);
-				conn->UnLockWrite();
+			if( ref->LockWrite(&buf)){
+				rsp.Encode(*buf);
+				ref->UnLockWrite();
 			}
 		}
 	}

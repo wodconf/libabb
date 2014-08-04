@@ -66,7 +66,8 @@ am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
 	acceptor.lo connector.lo connection.lo event_loop_group.lo \
 	event_loop.lo poller.lo ip_addr.lo singler.lo tcp_server.lo \
 	connection_ref.lo tcp_client.lo http_header.lo http_request.lo \
-	http_request_decoder.lo http_server.lo http_client.lo url.lo
+	http_responce.lo http_decoder.lo http_server.lo http_client.lo \
+	url.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -256,7 +257,8 @@ libabb_la_SOURCES = src/abb/base/buffer.cpp\
 			src/abb/net/tcp_client.cpp\
 			src/abb/http/http_header.cpp\
 			src/abb/http/http_request.cpp\
-			src/abb/http/http_request_decoder.cpp\
+			src/abb/http/http_responce.cpp\
+			src/abb/http/http_decoder.cpp\
 			src/abb/http/http_server.cpp\
 			src/abb/http/http_client.cpp\
 			src/abb/url/url.cpp
@@ -418,11 +420,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/event_loop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/event_loop_group.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_client.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_decoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_header.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_hello_client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_hello_service.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_request.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_request_decoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_responce.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_server.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_addr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Plo@am__quote@
@@ -574,12 +577,19 @@ http_request.lo: src/abb/http/http_request.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_request.lo `test -f 'src/abb/http/http_request.cpp' || echo '$(srcdir)/'`src/abb/http/http_request.cpp
 
-http_request_decoder.lo: src/abb/http/http_request_decoder.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_request_decoder.lo -MD -MP -MF $(DEPDIR)/http_request_decoder.Tpo -c -o http_request_decoder.lo `test -f 'src/abb/http/http_request_decoder.cpp' || echo '$(srcdir)/'`src/abb/http/http_request_decoder.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_request_decoder.Tpo $(DEPDIR)/http_request_decoder.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/http/http_request_decoder.cpp' object='http_request_decoder.lo' libtool=yes @AMDEPBACKSLASH@
+http_responce.lo: src/abb/http/http_responce.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_responce.lo -MD -MP -MF $(DEPDIR)/http_responce.Tpo -c -o http_responce.lo `test -f 'src/abb/http/http_responce.cpp' || echo '$(srcdir)/'`src/abb/http/http_responce.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_responce.Tpo $(DEPDIR)/http_responce.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/http/http_responce.cpp' object='http_responce.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_request_decoder.lo `test -f 'src/abb/http/http_request_decoder.cpp' || echo '$(srcdir)/'`src/abb/http/http_request_decoder.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_responce.lo `test -f 'src/abb/http/http_responce.cpp' || echo '$(srcdir)/'`src/abb/http/http_responce.cpp
+
+http_decoder.lo: src/abb/http/http_decoder.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_decoder.lo -MD -MP -MF $(DEPDIR)/http_decoder.Tpo -c -o http_decoder.lo `test -f 'src/abb/http/http_decoder.cpp' || echo '$(srcdir)/'`src/abb/http/http_decoder.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/http_decoder.Tpo $(DEPDIR)/http_decoder.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/http/http_decoder.cpp' object='http_decoder.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o http_decoder.lo `test -f 'src/abb/http/http_decoder.cpp' || echo '$(srcdir)/'`src/abb/http/http_decoder.cpp
 
 http_server.lo: src/abb/http/http_server.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT http_server.lo -MD -MP -MF $(DEPDIR)/http_server.Tpo -c -o http_server.lo `test -f 'src/abb/http/http_server.cpp' || echo '$(srcdir)/'`src/abb/http/http_server.cpp

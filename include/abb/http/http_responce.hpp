@@ -14,19 +14,19 @@ class Responce{
 public:
 	Responce(const std::string& version);
 	~Responce();
-	void SetStatusCode(int code){
+	void SetStatusCode(const int code){
 		code_ = code;
 	}
 	int GetStatusCode(){return code_;}
 	const std::string& Protocol(){return proto_;}
 	Header& GetHeader(){return header_;}
 	bool Encode(base::Buffer& buf);
-	base::Buffer& Body(){return body;}
+	base::Buffer& Body(){return body_;}
 private:
 	std::string proto_;
 	Header header_;
 	int code_;
-	base::Buffer body;
+	base::Buffer body_;
 };
 
 }
