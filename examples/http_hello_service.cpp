@@ -7,7 +7,7 @@ class HttpHandler:public abb::http::Server::Listener{
 public:
 HttpHandler(){};
 	virtual ~HttpHandler(){};
-	virtual void OnRequest(abb::http::Request* req){
+	virtual void HandleRequest(abb::http::Request* req){
 		abb::base::Buffer buf;
 		req->Encode(buf);
 		LOG(DEBUG) << std::string((char *)buf.Data(),buf.Size());

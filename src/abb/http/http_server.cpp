@@ -13,7 +13,7 @@ void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
 	}else{
 		Request* req = d->GetRequest();
 		if(req){
-			this->lis_->OnRequest(req);
+			this->lis_->HandleRequest(req);
 		}
 	}
 }

@@ -2,6 +2,7 @@
 #include "abb/net/tcp_client.hpp"
 #include "abb/http/http_request.hpp"
 #include "abb/http/http_const.hpp"
+#include "abb/http/http_decoder.hpp"
 namespace abb{
 namespace http{
 
@@ -10,7 +11,8 @@ public:
 	HttpClient(Request* req,IRequestHandler* handler)
 	:req_(req),
 	handler_(handler),
-	read_responced_(false)
+	read_responced_(false),
+	error_(-1)
 	{
 	}
 	virtual ~HttpClient(){
@@ -24,14 +26,32 @@ public:
 		if( conn->LockWrite(&buf)){
 			req_->Encode(*buf);
 			conn->UnLockWrite();
+			conn->Data = new ResponceDecoder();
 		}
 	}
 	virtual void L_TcpClient_OnMessage(net::ConnectionRef* conn,base::Buffer& buf){
-
+		ResponceDecoder* d = static_cast<ResponceDecoder*>(conn->Data);
+		if( !d->Decode(buf) ){
+			conn->Close();
+			error_ = 1001;
+		}else{
+			Responce* req = d->GetResponce();
+			if(req){
+				read_responced_= true;
+				this->handler_->HandleResponce(req);
+			}
+		}
 	}
 	virtual void L_TcpClient_OnClose(net::ConnectionRef* conn,int error){
-		
+		if(!read_responced_){
+			if(error_ > 0){
+				this->handler_->HandleError(error_);
+			}else{
+				this->handler_->HandleError(error);
+			}
+		}
 	}
+	int error_;
 	bool read_responced_;
 	IRequestHandler* handler_;
 	Request* req_;

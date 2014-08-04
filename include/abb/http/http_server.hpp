@@ -11,7 +11,7 @@ public:
 	class Listener{
 	public:
 		virtual ~Listener(){};
-		virtual void OnRequest(Request* req) = 0;
+		virtual void HandleRequest(Request* req) = 0;
 	};
 	Server();
 	virtual ~Server();
