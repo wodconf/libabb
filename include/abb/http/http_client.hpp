@@ -19,13 +19,13 @@ public:
 	virtual void HandleError(int error) = 0;
 };
 
-extern bool POST(net::EventLoop* loop,
+extern bool Post(net::EventLoop* loop,
 				std::string& url,
 				const std::string& body_type,
 				void* body,
 				int size,
 				IRequestHandler* handler);
-extern bool GET(net::EventLoop* loop,std::string& url,IRequestHandler* handler);
+extern bool Get(net::EventLoop* loop,std::string& url,IRequestHandler* handler);
 extern bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler);
 
 }}

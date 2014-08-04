@@ -59,7 +59,7 @@ public:
 	Request* req_;
 };
 
-bool POST(net::EventLoop* loop,
+bool Post(net::EventLoop* loop,
 				std::string& url,
 				const std::string& body_type,
 				void* body,
@@ -69,10 +69,11 @@ bool POST(net::EventLoop* loop,
 	if(!req->SetUrl(url)){
 		return false;
 	}else{
+		req->Body().Write(body,size);
 		return Do(loop,req,handler);
 	}
 }
-bool GET(net::EventLoop* loop,std::string& url,IRequestHandler* handler){
+bool Get(net::EventLoop* loop,std::string& url,IRequestHandler* handler){
 	Request* req = new Request(http::method::GET,"HTTP/1.1");
 	if(!req->SetUrl(url)){
 		return false;

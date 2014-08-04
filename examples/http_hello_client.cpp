@@ -33,6 +33,7 @@ int main(){
 	if( !http::Do(&loop,&req,&h) ){
 		LOG(DEBUG) << "FAIL";
 	}
+	http::Get(&loop,"http://www.baidu.com/",&h);
 	loop.Loop();
 
 }
