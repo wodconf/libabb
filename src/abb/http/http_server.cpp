@@ -5,9 +5,10 @@ namespace abb{
 namespace http{
 void Server::L_TcpServer_OnConnection(net::ConnectionRef*req){
 	req->Data = new RequestDecoder();
+	LOG(DEBUG) << "L_TcpServer_OnConnection";
 }
 void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
-	LOG(DEBUG) << "L_TcpServer_OnMesssage" << std::string((char*)buf.Data(),buf.Size());
+	LOG(DEBUG) << "L_TcpServer_OnMesssage";
 	RequestDecoder* d = static_cast<RequestDecoder*>(ref->Data);
 	if(!d->Decode(buf)){
 		LOG(WARN) << "close";
