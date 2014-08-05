@@ -25,7 +25,7 @@ public:
 	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
-	int ShutDown(int how = SHUT_RDWR){return shutdown(this->fd_,how);}
+	int ShutDown(int how = SHUT_RDWR){LOG(INFO) << "shutdown1";return shutdown(this->fd_,how);}
 	void ShutDownAfterWrite();
 	bool IsConnected(){return this->state_ == STATE_OPEN;}
 	int GetError(){return this->err_;}
