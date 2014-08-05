@@ -20,12 +20,12 @@ public:
 };
 
 extern bool Post(net::EventLoop* loop,
-				std::string& url,
+				const std::string& url,
 				const std::string& body_type,
 				void* body,
 				int size,
 				IRequestHandler* handler);
-extern bool Get(net::EventLoop* loop,std::string& url,IRequestHandler* handler);
+extern bool Get(net::EventLoop* loop,const std::string& url,IRequestHandler* handler);
 extern bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler);
 
 }}
