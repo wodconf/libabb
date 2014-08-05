@@ -35,6 +35,7 @@ public:
 		LOG(DEBUG) << "L_TcpClient_OnMessage" << std::string((char*)buf.Data(),buf.Size());
 		ResponceDecoder* d = static_cast<ResponceDecoder*>(conn->Data);
 		if( !d->Decode(buf) ){
+			LOG(INFO) << "close";
 			conn->Close();
 			error_ = 1001;
 		}else{
