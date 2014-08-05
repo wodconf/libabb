@@ -5,8 +5,6 @@
 #include <errno.h>
 
 
-#include <fcntl.h>
-
 namespace abb{namespace net{
 
 
@@ -34,7 +32,7 @@ void Connector::RealConnect(){
 		this->lis_->L_Connector_OnClose(this,err);
 		return;
 	}
-	fcntl(fd_, F_SETFD, FD_CLOEXEC);
+	Socket::SetCloseExec(fd_,true,NULL);
 	io_event_.fd_ = fd_;
 	io_event_.SetWrite(true);	
 	this->loop_->ApplyIOEvent(&io_event_);

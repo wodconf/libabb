@@ -199,5 +199,37 @@ bool Socket::SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,i
 	}
 }
 
+bool Socket::ShutDown(int fd,bool read,bool write,int* error){
+	int mod;
+	if(read && write){
+		mod = SHUT_RDWR;
+	}else if(read){
+		mod = SHUT_RD;
+	}else if(write){
+		mod = SHUT_WR;
+	}else{
+		return true;
+	}
+	if(shutdown(fd,mod) != 0){
+		if(error) *error = errno;
+		return false;
+	}
+	return true;
+}
+
+bool Socket::SetCloseExec(int fd,bool bset,int* error){
+	if(bset){
+		if(0 != fcntl(fd, F_SETFD, FD_CLOEXEC)){
+			if(error) *error = errno;
+			return false;
+		}
+	}else{
+		if(0 != fcntl(fd, F_SETFD, 0)){
+			if(error) *error = errno;
+			return false;
+		}
+	}
+	return true;
+}
 } /* namespace translate */
 } /* namespace adcloud */

@@ -31,8 +31,7 @@ void  ConnectionRef::UnLockWrite(){
 	conn_->UnLockWrite();
 }
 void ConnectionRef::Close(){
-	LOG(INFO) << "close";
-	conn_->ShutDown();
+	conn_->ShutDown(true,true);
 }
 void ConnectionRef::CloseAfterWrite(){
 	conn_->ShutDownAfterWrite();

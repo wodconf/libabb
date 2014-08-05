@@ -39,7 +39,7 @@ public:
 	}
 	void L_Connection_OnClose(Connection* conn,int error){
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
-		conn->ShutDown();
+		conn->ShutDown(true,true);
 		lis_->L_TcpClient_OnClose(ref,error);
 		ref->UnRef();
 		delete this;

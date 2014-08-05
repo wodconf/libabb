@@ -1,7 +1,7 @@
 
 
-#ifndef ABB_NET_CONNECTION_H_
-#define ABB_NET_CONNECTION_H_
+#ifndef __ABB_NET_CONNECTION_H__
+#define __ABB_NET_CONNECTION_H__
 
 #include "abb/base/callback.hpp"
 #include "abb/base/mutex.hpp"
@@ -12,7 +12,6 @@
 #include "abb/net/event_handler.hpp"
 #include "abb/net/io_event.hpp"
 #include "poller.hpp"
-#include <sys/socket.h>
 
 namespace abb {
 namespace net {
@@ -25,7 +24,7 @@ public:
 	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite();
 	void SendData(void*buf,unsigned int size);
-	int ShutDown(int how = SHUT_RDWR){return shutdown(this->fd_,how);}
+	void ShutDown(bool read,bool write);
 	void ShutDownAfterWrite();
 	bool IsConnected(){return this->state_ == STATE_OPEN && !shut_down_after_write_;}
 	int GetError(){return this->err_;}
@@ -37,7 +36,7 @@ public:
 	void SetNoDelay(bool e);
 	const IPAddr& GetLocalAddr(){return local_addr_;}
 	const IPAddr& GetRemoteAddr(){return peer_addr_;}
-	bool SetKeepAlive(bool kp,int idle,int interval,int cout);
+	//bool SetKeepAlive(bool kp,int idle,int interval,int cout);
 	EventLoop* GetEventLoop(){
 		return loop_;
 	}

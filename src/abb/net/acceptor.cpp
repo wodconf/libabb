@@ -1,11 +1,9 @@
 
 #include "abb/base/log.hpp"
-#include "acceptor.hpp"
-#include <unistd.h>
+#include "abb/net/acceptor.hpp"
 #include "abb/net/socket.hpp"
 #include <errno.h>
 #include "abb/net/event_loop.hpp"
-#include <fcntl.h>
 namespace abb {
 namespace net {
 
@@ -19,7 +17,7 @@ Acceptor::Acceptor(EventLoop* loop)
 }
 Acceptor::~Acceptor() {
 	if(fd_ != -1){
-		close(fd_);
+		Socket::Close(fd_);
 	}
 }
 void Acceptor::Destroy(){
@@ -28,7 +26,7 @@ void Acceptor::Destroy(){
 }
 bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
 	if( Socket::Listen(&fd_,addr,save_err) ){
-		fcntl(fd_, F_SETFD, FD_CLOEXEC);
+		Socket::SetCloseExec(fd_,true,NULL);
 		addr_ = addr;
 		io_event_.fd_ = fd_;
 		return true;
@@ -39,7 +37,7 @@ void Acceptor::Close(){
 	if(fd_ != -1){
 		SetEnable(false);
 		this->io_event_.fd_ = -1;
-		close(fd_);
+		Socket::Close(fd_);
 		fd_ = -1;
 	}
 }
@@ -63,7 +61,7 @@ void Acceptor::HandleEvent(int event){
 	int fd;
 	if( Socket::Accept(fd_,&fd,&addr,NULL) ){
 		addr.family = this->addr_.family;
-		fcntl(fd, F_SETFD, FD_CLOEXEC);
+		Socket::SetCloseExec(fd,true,NULL);
 		this->lis_->L_Acceptor_OnConnection(this,fd,addr);
 	}
 }

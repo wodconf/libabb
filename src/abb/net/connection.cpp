@@ -1,13 +1,11 @@
 
 
-#include "connection.hpp"
-#include <unistd.h>
+#include "abb/net/connection.hpp"
 #include "abb/net/socket.hpp"
 #include "abb/base/log.hpp"
-#include <errno.h>
-#include "./poller.hpp"
 #include "abb/net/event_loop.hpp"
-#include <fcntl.h>
+#include <errno.h>
+
 namespace abb {
 namespace net {
 
@@ -33,7 +31,7 @@ void Connection::SetNoDelay(bool e){
 	Socket::SetNoDelay(fd_,e);
 }
 Connection::~Connection() {
-	close(fd_);
+	Socket::Close(fd_);
 }
 void Connection::Destroy(){
 	SetEnable(false);
@@ -64,7 +62,9 @@ bool Connection::LockWrite(base::Buffer**buf){
 		return false;
 	}
 }
-
+void Connection::ShutDown(bool read,bool write){
+	Socket::ShutDown(this->fd_,read,write,NULL);
+}
 void Connection::UnLockWrite(){
 	if(!block_write_) return;
 	if(this->IsConnected()){

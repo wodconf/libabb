@@ -27,6 +27,8 @@ public:
 	static bool GetSockError(int fd,int*err);
 	static void Close(int fd);
 	static bool SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,int keep_cout);
+	static bool ShutDown(int fd,bool read,bool write,int* error);
+	static bool SetCloseExec(int fd,bool bset,int*error);
 };
 
 } /* namespace net */
