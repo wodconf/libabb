@@ -24,16 +24,17 @@ EventLoop::~EventLoop() {
 }
 void EventLoop::RunApply(void*arg){
 	IOEvent* event = static_cast<IOEvent*>(arg);
-	event->loop_->poller_->Apply(event);
+	if(event->flag_ != event->wait_flag_)
+		event->loop_->poller_->Apply(event);
+
 }
 void EventLoop::ApplyIOEvent(IOEvent* event){
 	event->loop_ = this;
-	if(event->flag_ != event->wait_flag_){
-		if(this->IsInEventLoop()){
-			poller_->Apply(event);
-		}else{
-			this->QueueInLoop(RunApply,event);
-		}
+	if(event->flag_ == event->wait_flag_) return;
+	if(this->IsInEventLoop()){
+		poller_->Apply(event);
+	}else{
+		this->QueueInLoop(RunApply,event);
 	}
 }
 void EventLoop::Loop(){
