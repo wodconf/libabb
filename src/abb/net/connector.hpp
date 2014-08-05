@@ -6,7 +6,7 @@
 #include "abb/net/listener.hpp"
 #include "abb/base/define.hpp"
 #include "abb/net/event_handler.hpp"
-#include "abb/net/io_event.hpp"
+#include "abb/net/event_io.hpp"
 namespace abb{
 namespace net{
 class EventLoop;
@@ -22,7 +22,7 @@ public:
 		return addr_;
 	}
 	EventLoop* GetEventLoop(){
-		return loop_;
+		return io_event_->GetEventLoop();
 	}
 private:
 	void RealConnect();
@@ -42,11 +42,9 @@ private:
 		c->RealReset();
 	}
 private:
-	int fd_;
 	IConnectorListener* lis_;
 	IPAddr addr_;
 	IOEvent io_event_;
-	EventLoop* loop_;
 	int connected_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connector);
 };

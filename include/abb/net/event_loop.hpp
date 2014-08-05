@@ -4,6 +4,7 @@
 
 #include <queue>
 #include <pthread.h>
+#include <map>
 
 #include "abb/base/mutex.hpp"
 #include "abb/base/define.hpp"
@@ -15,6 +16,8 @@ namespace net{
 class Poller;
 class Singler;
 class IOEvent;
+class TimerSet;
+typedef int TimeId;
 class EventLoop:public IEventHandler {
 public:
 	typedef void(*run_fn)(void* arg);
@@ -22,13 +25,16 @@ public:
 	virtual ~EventLoop();
 	void Loop();
 	void Stop();
-	void RunInLoop(run_fn fn,void*arg);
+	void ExecuteInLoop(run_fn fn,void*arg);
 	void QueueInLoop(run_fn fn,void* arg);
-	void ApplyIOEvent(IOEvent* event);
+	TimeId ExecuteAfter(int ms,run_fn fn,void*arg);
+	TimeId ExecuteEvery(int ms,run_fn fn,void* arg);
+	void Cancel(TimeId id);
+
 	bool IsInEventLoop(){
 		return tid_ == pthread_self();
 	}
-	void RunAfter(run_fn fn,void*arg,int ms);
+	void ApplyIOEvent(IOEvent* event);
 private:
 	virtual void HandleEvent(int event);
 	static void RunApply(void*arg);
@@ -41,6 +47,7 @@ private:
 	Poller* poller_;
 	IOEvent* io_event_;
 	Singler* sigler_;
+	TimerSet* timer_set_;
 	bool stop_;
 	//int efd_;
 	base::Mutex mtx_;

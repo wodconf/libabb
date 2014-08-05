@@ -6,7 +6,7 @@
 #include "abb/net/listener.hpp"
 #include "abb/base/define.hpp"
 #include "abb/net/event_handler.hpp"
-#include "abb/net/io_event.hpp"
+#include "abb/net/event_io.hpp"
 namespace abb {
 namespace net {
 class EventLoop;
@@ -24,7 +24,7 @@ public:
 		return addr_;
 	}
 	EventLoop* GetEventLoop(){
-		return loop_;
+		return io_event_.GetEventLoop();
 	}
 private:
 	virtual void HandleEvent(int event);
@@ -34,12 +34,10 @@ private:
 	}
 	~Acceptor();
 private:
-	EventLoop* loop_;
 	IOEvent io_event_;
 	IAcceptorListener* lis_;
 	bool enable_;
 	IPAddr addr_;
-	int fd_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Acceptor);
 };
 

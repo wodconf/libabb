@@ -10,46 +10,32 @@ namespace abb {
 namespace net {
 
 Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer)
-:loop_(loop),
+:io_event_(loop,fd,this)
  local_addr_(local),
  peer_addr_(peer),
  lis_(NULL),
  err_(0),
- fd_(fd),
  state_(STATE_OPEN),
  data_(NULL),
- io_event_(fd,this),
- enable_(false),
  shut_down_after_write_(false),
  block_write_(false)
 {
 	wr_buf_ = &wr_buf_1_;
 	wring_buf_ = NULL;
-	Socket::SetNoBlock(fd_,true);
+	Socket::SetNoBlock(io_event_.Fd(),true);
+	io_event_.AllowAll();
 }
 void Connection::SetNoDelay(bool e){
-	Socket::SetNoDelay(fd_,e);
+	Socket::SetNoDelay(io_event_.Fd(),e);
 }
 Connection::~Connection() {
-	Socket::Close(fd_);
+	io_event_.DisAllowAll();
+	Socket::Close(io_event_.Fd());
 }
 void Connection::Destroy(){
-	SetEnable(false);
 	loop_->QueueInLoop(StaticFree,this);
 }
 void  Connection::SetEnable(bool enable){
-	if(enable_ == enable) return;
-	if(enable && (state_ != STATE_OPEN)) return;
-	enable_ = enable;
-	if(enable_){
-		io_event_.SetRead(true);
-		io_event_.SetWrite(true);
-		loop_->ApplyIOEvent(&io_event_);
-	}else{
-		io_event_.SetRead(false);
-		io_event_.SetWrite(false);
-		loop_->ApplyIOEvent(&io_event_);
-	}
 }
 bool Connection::LockWrite(base::Buffer**buf){
 	wr_lock_.Lock();
@@ -63,7 +49,7 @@ bool Connection::LockWrite(base::Buffer**buf){
 	}
 }
 void Connection::ShutDown(bool read,bool write){
-	Socket::ShutDown(this->fd_,read,write,NULL);
+	Socket::ShutDown(this->io_event_.Fd(),read,write,NULL);
 }
 void Connection::UnLockWrite(){
 	if(!block_write_) return;
@@ -77,8 +63,7 @@ void Connection::UnLockWrite(){
 
 void Connection::Flush(){
 	if(this->wr_buf_->Size() > 0 && this->IsConnected()){
-		io_event_.SetWrite(true);
-		loop_->ApplyIOEvent(&io_event_);
+		io_event_.AllowWrite();
 	}
 }
 
@@ -93,7 +78,7 @@ void Connection::SendData(void*buf,unsigned int size){
 int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;
 	int err = 0;
-	if( Socket::ReadV(this->fd_,iov,iovcnt,&nrd,&err) ){
+	if( Socket::ReadV(this->io_event_.Fd(),iov,iovcnt,&nrd,&err) ){
 		if(nrd == 0 ){
 			if(err == 0){
 				state_ = STATE_CLOSE;
@@ -107,23 +92,16 @@ int Connection::Reader(const struct iovec *iov, int iovcnt){
 }
 int Connection::Writer(void*buf,int size){
 	int nwd;
-	Socket::Write(this->fd_,buf,size,&nwd,NULL);
+	Socket::Write(this->io_event_.Fd(),buf,size,&nwd,NULL);
 	return nwd;
 }
 void Connection::ShutDownAfterWrite(){
 	__sync_bool_compare_and_swap((int*)&shut_down_after_write_,false,true);
-	io_event_.SetWrite(true);
-	loop_->ApplyIOEvent(&io_event_);
+	io_event_.AllowWrite();
 }
 void Connection::HandleEvent(int event){
-	if(!this->enable_){
-		return;
-	}
 	if(event&IO_EVENT_READ){
 		OnRead();
-	}
-	if(!this->enable_){
-		return;
 	}
 	if(event&IO_EVENT_WRITE){
 		OnWrite();
@@ -135,7 +113,7 @@ void Connection::OnRead(){
 		this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
 	}
 	if(state_ != STATE_OPEN){
-		this->SetEnable(false);
+		io_event_.DisAllowAll();
 		this->lis_->L_Connection_OnClose(this,this->err_);
 	}
 }
@@ -170,8 +148,7 @@ void Connection::OnWrite(){
 			return;
 		}
 	}else{
-		io_event_.SetWrite(false);
-		loop_->ApplyIOEvent(&io_event_);
+		io_event_.DisAllowWrite();
 		if( __sync_bool_compare_and_swap((int*)&shut_down_after_write_,true,true) ){
 			this->ShutDown(true,true);
 		}

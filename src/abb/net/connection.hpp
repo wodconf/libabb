@@ -10,8 +10,7 @@
 #include "abb/net/ip_addr.hpp"
 #include "abb/net/listener.hpp"
 #include "abb/net/event_handler.hpp"
-#include "abb/net/io_event.hpp"
-#include "poller.hpp"
+#include "abb/net/event_io.hpp"
 
 namespace abb {
 namespace net {
@@ -27,18 +26,14 @@ public:
 	void ShutDown(bool read,bool write);
 	void ShutDownAfterWrite();
 	bool IsConnected(){return this->state_ == STATE_OPEN && !shut_down_after_write_;}
-	int GetError(){return this->err_;}
 	void Destroy();
 	void SetData(void*data){data_ = data;}
 	void* GetData(){return data_;}
-
-	void SetEnable(bool enable);
 	void SetNoDelay(bool e);
 	const IPAddr& GetLocalAddr(){return local_addr_;}
 	const IPAddr& GetRemoteAddr(){return peer_addr_;}
-	//bool SetKeepAlive(bool kp,int idle,int interval,int cout);
 	EventLoop* GetEventLoop(){
-		return loop_;
+		return io_event_.GetEventLoop();
 	}
 private:
 	virtual void HandleEvent(int event);
@@ -70,14 +65,12 @@ private:
 	int err_;
 	IPAddr local_addr_;
 	IPAddr peer_addr_;
-	bool enable_;
 	base::Buffer rd_buf_;
 	base::Mutex wr_lock_;
 	base::Buffer* wr_buf_;
 	base::Buffer* wring_buf_;
 	base::Buffer wr_buf_1_;
 	base::Buffer wr_buf_2_;
-	EventLoop* loop_;
 	IOEvent io_event_;
 	bool block_write_;
 	IConnectionListener* lis_;

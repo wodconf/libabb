@@ -2,7 +2,8 @@
 #include "abb/net/event_loop.hpp"
 #include "abb/net/poller.hpp"
 #include "abb/net/singler.hpp"
-#include "abb/net/io_event.hpp"
+#include "abb/net/event_io.hpp"
+#include "abb/net/timer_set.hpp"
 //#include <sys/eventfd.h>
 using namespace abb::net;
 EventLoop::EventLoop():stop_(false),tid_(0){
@@ -10,6 +11,7 @@ EventLoop::EventLoop():stop_(false),tid_(0){
 	poller_ = new Poller();
 	sigler_ = new Singler();
 	io_event_ = new IOEvent(sigler_->GetReadFd(),this);
+	timer_set_ = new TimerSet(this);
 	io_event_->SetRead(true);
 	poller_->Apply(io_event_);
 }
@@ -24,18 +26,27 @@ EventLoop::~EventLoop() {
 }
 void EventLoop::RunApply(void*arg){
 	IOEvent* event = static_cast<IOEvent*>(arg);
-	if(event->flag_ != event->wait_flag_)
-		event->loop_->poller_->Apply(event);
+	event->GetEventLoop()->poller_->Apply(event);
 
 }
 void EventLoop::ApplyIOEvent(IOEvent* event){
 	event->loop_ = this;
-	if(event->flag_ == event->wait_flag_) return;
-	//if(this->IsInEventLoop()){
+	if(this->IsInEventLoop()){
 		poller_->Apply(event);
-	//}else{
-	//	this->QueueInLoop(RunApply,event);
-	//}
+	}else{
+		this->QueueInLoop(RunApply,event);
+	}
+}
+TimeId ExecuteAfter(int ms,run_fn fn,void*arg){
+	if(ms <= 0){ return -1;}
+	return timer_set_->AddTimer(ms,false,fn,arg);
+}
+TimeId ExecuteEvery(int ms,run_fn fn,void* arg){
+	if(ms <= 0){ return -1;}
+	return timer_set_->AddTimer(ms,true,fn,arg);
+}
+void Cancel(TimeId id){
+	timer_set_->RemoveTimer(id);
 }
 void EventLoop::Loop(){
 	tid_ = pthread_self();

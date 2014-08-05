@@ -1,6 +1,6 @@
 
 #include "abb/net/epoll_poller.hpp"
-#include "abb/net/io_event.hpp"
+#include "abb/net/event_io.hpp"
 #include "abb/base/log.hpp"
 #include <unistd.h>
 #include <string.h>
@@ -21,20 +21,22 @@ Poller::~Poller() {
 }
 
 void Poller::Apply(IOEvent* event){
-	int mod = event->flag_ ? EPOLL_CTL_MOD:EPOLL_CTL_ADD;
+	int mod = event->badd_ ? EPOLL_CTL_MOD:EPOLL_CTL_ADD;
+	event->badd_ = true;
 	struct epoll_event ep_ev;
 	ep_ev.data.ptr = event;
 	ep_ev.events = 0;
-	if(event->wait_flag_ & IO_EVENT_READ){
+	if(event->GetEvent() & IO_EVENT_READ){
 		ep_ev.events |=  EPOLLIN | EPOLLERR  | EPOLLHUP ;
 	}
-	if(event->wait_flag_ & IO_EVENT_WRITE){
+	if(event->GetEvent() & IO_EVENT_WRITE){
 		ep_ev.events |= EPOLLOUT | EPOLLERR | EPOLLHUP ;
 	}
-	if(event->wait_flag_ == 0){
+	if(event->GetEvent() == 0){
 		mod = EPOLL_CTL_DEL;
+		event->badd_ = false;
 	}
-	int rc = epoll_ctl(efd_,mod,event->fd_,&ep_ev);
+	int rc = epoll_ctl(efd_,mod,event->Fd(),&ep_ev);
 	if(rc !=  0){
 		int error = errno;
 		LOG(WARN)<< "epoll_ctl fail " 
@@ -47,7 +49,6 @@ void Poller::Apply(IOEvent* event){
 			epoll_ctl(efd_,EPOLL_CTL_MOD,event->fd_,&ep_ev);
 		}
 	}
-	event->flag_ = event->wait_flag_;
 	return ;
 }
 void Poller::Poll(int timeout){

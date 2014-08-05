@@ -9,15 +9,14 @@ namespace net {
 
 Acceptor::Acceptor(EventLoop* loop)
 :lis_(NULL),
- fd_(-1),
- loop_(loop),
- enable_(false)
+ enable_(false),
+ io_event_(loop,this)
 {
-	io_event_.handler_ = this;
+	
 }
 Acceptor::~Acceptor() {
-	if(fd_ != -1){
-		Socket::Close(fd_);
+	if(io_event_.Fd() != -1){
+		Socket::Close(io_event_.Fd());
 	}
 }
 void Acceptor::Destroy(){
@@ -25,41 +24,39 @@ void Acceptor::Destroy(){
 	this->loop_->QueueInLoop(StaticDelete,this);
 }
 bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
-	if( Socket::Listen(&fd_,addr,save_err) ){
-		Socket::SetCloseExec(fd_,true,NULL);
+	int fd;
+	if( Socket::Listen(&fd,addr,save_err) ){
+		Socket::SetCloseExec(fd,true,NULL);
 		addr_ = addr;
-		io_event_.fd_ = fd_;
+		io_event_.SetFd(fd);
 		return true;
 	}
 	return false;
 }
 void Acceptor::Close(){
-	if(fd_ != -1){
+	if(io_event_.Fd() != -1){
 		SetEnable(false);
-		this->io_event_.fd_ = -1;
-		Socket::Close(fd_);
-		fd_ = -1;
+		Socket::Close(io_event_.Fd());
+		io_event_.SetFd(-1);
 	}
 }
 void Acceptor::SetEnable(bool benable){
 	if(this->enable_ == benable){
 		return;
 	}
-	if(fd_ == -1) return;
+	if(io_event_.Fd() == -1) return;
 	enable_ = benable;
 	if(enable_){
-		io_event_.SetRead(true);
-		this->loop_->ApplyIOEvent(&io_event_);
+		io_event_.AllowRead();
 	}else{
-		io_event_.SetRead(false);
-		this->loop_->ApplyIOEvent(&io_event_);
+		io_event_.DisAllowAll();
 	}
 }
 void Acceptor::HandleEvent(int event){
 	if(!enable_)return;
 	IPAddr addr;
 	int fd;
-	if( Socket::Accept(fd_,&fd,&addr,NULL) ){
+	if( Socket::Accept(io_event_.Fd(),&fd,&addr,NULL) ){
 		addr.family = this->addr_.family;
 		Socket::SetCloseExec(fd,true,NULL);
 		this->lis_->L_Acceptor_OnConnection(this,fd,addr);
