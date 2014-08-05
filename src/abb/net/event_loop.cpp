@@ -31,11 +31,7 @@ void EventLoop::RunApply(void*arg){
 void EventLoop::ApplyIOEvent(IOEvent* event){
 	event->loop_ = this;
 	if(event->flag_ == event->wait_flag_) return;
-	if(this->IsInEventLoop()){
-		poller_->Apply(event);
-	}else{
-		this->QueueInLoop(RunApply,event);
-	}
+	poller_->Apply(event);
 }
 void EventLoop::Loop(){
 	tid_ = pthread_self();
