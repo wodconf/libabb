@@ -63,7 +63,7 @@ void sleep(int ms){
 }
 int main(){
 	abb::net::IPAddr addr;
-	if( ! addr.SetV4("www.baidu.com",80) ){
+	if( ! addr.SetV4("localhost",9922) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
