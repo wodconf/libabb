@@ -41,6 +41,7 @@ public:
 		ref->Send(&index,sizeof(int));
 	}
 	virtual void L_TcpServer_OnClose(ConnectionRef*,int error){
+		LOG(DEBUG) << "L_TcpServer_OnClose";
 
 	}
 	int num_pkt;

@@ -19,25 +19,10 @@ public:
 		conn = ref;
 		LOG(DEBUG) << "L_TcpClient_OnConnection";
 		
-		http::Request req(http::method::GET,"HTTP/1.1");
-		req.SetUrl("http://www.baidu.com");
-		req.GetHeader().Set(http::header::USER_AGENT," Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:30.0) Gecko/20100101 Firefox/30.0");
-		req.GetHeader().Set(http::header::CONTENT_LENGTH,"0");
-		req.GetHeader().Set(http::header::ACCEPT,"*/*");
-		req.GetHeader().Set(http::header::CONNECTION,"Keep-Alive");
-		req.GetHeader().Set(http::header::ACCEPT_LANGUAGE,"zh-cn");
-		req.GetHeader().Set(http::header::ACCEPT_ENCODING,"gzip, deflate");
-		abb::base::Buffer* buf;
-		if( this->conn->LockWrite(&buf)){
-			req.Encode(*buf);
-			LOG(DEBUG) << std::string((char *)buf->Data(),buf->Size());
-			this->conn->UnLockWrite();
-		}
-		LOG(DEBUG) << "end";
+		Send();
 	}
 	virtual void L_TcpClient_OnMessage(ConnectionRef* conn,abb::base::Buffer& buf){
-		LOG(DEBUG) << std::string((char *)buf.Data(),buf.Size());
-		LOG(DEBUG) << "L_TcpClient_OnMessage";
+		Send();
 	}
 	virtual void L_TcpClient_OnClose(ConnectionRef* conn,int error){
 		LOG(DEBUG) << "ONCLOSE" << strerror(error);
