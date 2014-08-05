@@ -17,7 +17,7 @@ public:
 	Responce& GetResponce(){return rsp_;}
 	void Flush();
 private:
-	ConnectionRef* conn_ref_;
+	net::ConnectionRef* conn_ref_;
 	Responce rsp_;
 };
 }
