@@ -1,6 +1,6 @@
 
-#ifndef ABB_BASE_COND_HPP_
-#define ABB_BASE_COND_HPP_
+#ifndef __ABB_BASE_COND_HPP_
+#define __ABB_BASE_COND_HPP_
 #include <pthread.h>
 #include "mutex.hpp"
 
@@ -31,7 +31,8 @@ private:
 	pthread_cond_t cond_;
 };
 
-} /* namespace common */
-} /* namespace adcloud */
+} 
+} 
 
 #endif /* COND_HPP_ */
+

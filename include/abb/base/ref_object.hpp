@@ -1,9 +1,7 @@
 
 
-#ifndef ABB_BASE_REF_OBJECT_HPP_
-#define ABB_BASE_REF_OBJECT_HPP_
-
-#include "log.hpp"
+#ifndef __ABB_BASE_REF_OBJECT_HPP__
+#define __ABB_BASE_REF_OBJECT_HPP__
 
 namespace abb {
 namespace base {

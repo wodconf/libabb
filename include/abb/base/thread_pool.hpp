@@ -1,7 +1,7 @@
 
 
-#ifndef ABB_BASE_THREAD_POOL_HPP_
-#define ABB_BASE_THREAD_POOL_HPP_
+#ifndef __ABB_BASE_THREAD_POOL_HPP__
+#define __ABB_BASE_THREAD_POOL_HPP__
 
 #include <pthread.h>
 #include <queue>
@@ -37,7 +37,8 @@ private:
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(ThreadPool);
 };
 
-} /* namespace common */
-} /* namespace adcloud */
+} 
+} 
 
-#endif /* THREAD_POOL_HPP_ */
+#endif
+

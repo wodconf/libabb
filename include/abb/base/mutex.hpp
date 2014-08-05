@@ -1,6 +1,6 @@
 
-#ifndef ABB_BASE_MUTEX_HPP_
-#define ABB_BASE_MUTEX_HPP_
+#ifndef __ABB_BASE_MUTEX_HPP_
+#define __ABB_BASE_MUTEX_HPP_
 #include "define.hpp"
 #include <pthread.h>
 namespace abb{ namespace base{

@@ -1,6 +1,6 @@
 
-#ifndef ABB_BASE_RW_LOCK_HPP_
-#define ABB_BASE_RW_LOCK_HPP_
+#ifndef __ABB_BASE_RW_LOCK_HPP__
+#define __ABB_BASE_RW_LOCK_HPP__
 
 #include <pthread.h>
 #include "define.hpp"
@@ -56,4 +56,5 @@ private:
 }
 }
 
-#endif /* RW_LOCK_HPP_ */
+#endif 
+
