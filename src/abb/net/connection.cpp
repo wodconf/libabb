@@ -173,7 +173,7 @@ void Connection::OnWrite(){
 		io_event_.SetWrite(false);
 		loop_->ApplyIOEvent(&io_event_);
 		if( __sync_bool_compare_and_swap((int*)&shut_down_after_write_,true,true) ){
-			this->ShutDown();
+			this->ShutDown(true,true);
 		}
 
 	}
