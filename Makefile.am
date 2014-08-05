@@ -79,4 +79,4 @@ httpinclude_HEADERS=$(top_srcdir)/include/abb/http/http_client.hpp\
 					$(top_srcdir)/include/abb/http/http_responce.hpp\
 					$(top_srcdir)/include/abb/http/http_request.hpp\
 					$(top_srcdir)/include/abb/http/http_responce_writer.hpp\
-					$(top_srcdir)/include/abb/http/http_server.hpp\
+					$(top_srcdir)/include/abb/http/http_server.hpp
