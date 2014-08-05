@@ -23,6 +23,7 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/http/http_header.cpp\
 			src/abb/http/http_request.cpp\
 			src/abb/http/http_responce.cpp\
+			src/abb/http/http_responce_writer.cpp\
 			src/abb/http/http_decoder.cpp\
 			src/abb/http/http_server.cpp\
 			src/abb/http/http_client.cpp\
@@ -51,24 +52,31 @@ echo_client_SOURCES = examples/echo_client.cpp
 #EXTRA_DIST=./include
 baseincludedir=$(includedir)/abb/base
 baseinclude_HEADERS=$(top_srcdir)/include/abb/base/buffer.hpp\
-						$(top_srcdir)/include/abb/base/callback.hpp\
-						$(top_srcdir)/include/abb/base/cond.hpp\
-						$(top_srcdir)/include/abb/base/define.hpp\
-						$(top_srcdir)/include/abb/base/log.hpp\
-						$(top_srcdir)/include/abb/base/mutex.hpp\
-						$(top_srcdir)/include/abb/base/ref_object.hpp\
-						$(top_srcdir)/include/abb/base/rw_lock.hpp\
-						$(top_srcdir)/include/abb/base/thread_pool.hpp
+					$(top_srcdir)/include/abb/base/callback.hpp\
+					$(top_srcdir)/include/abb/base/cond.hpp\
+					$(top_srcdir)/include/abb/base/define.hpp\
+					$(top_srcdir)/include/abb/base/log.hpp\
+					$(top_srcdir)/include/abb/base/mutex.hpp\
+					$(top_srcdir)/include/abb/base/ref_object.hpp\
+					$(top_srcdir)/include/abb/base/rw_lock.hpp\
+					$(top_srcdir)/include/abb/base/thread_pool.hpp
 
 netincludedir=$(includedir)/abb/net
 netinclude_HEADERS=$(top_srcdir)/include/abb/net/connection_ref.hpp\
-						$(top_srcdir)/include/abb/net/event_loop_group.hpp\
-						$(top_srcdir)/include/abb/net/event_handler.hpp\
-						$(top_srcdir)/include/abb/net/event_loop.hpp\
-						$(top_srcdir)/include/abb/net/io_event.hpp\
-						$(top_srcdir)/include/abb/net/ip_addr.hpp\
-						$(top_srcdir)/include/abb/net/listener.hpp\
-						$(top_srcdir)/include/abb/net/socket.hpp\
-						$(top_srcdir)/include/abb/net/tcp_client.hpp\
-						$(top_srcdir)/include/abb/net/tcp_server.hpp
-						
+					$(top_srcdir)/include/abb/net/event_loop_group.hpp\
+					$(top_srcdir)/include/abb/net/event_handler.hpp\
+					$(top_srcdir)/include/abb/net/event_loop.hpp\
+					$(top_srcdir)/include/abb/net/io_event.hpp\
+					$(top_srcdir)/include/abb/net/ip_addr.hpp\
+					$(top_srcdir)/include/abb/net/listener.hpp\
+					$(top_srcdir)/include/abb/net/socket.hpp\
+					$(top_srcdir)/include/abb/net/tcp_client.hpp\
+					$(top_srcdir)/include/abb/net/tcp_server.hpp
+httpincludedir=$(includedir)/abb/http
+httpinclude_HEADERS=$(top_srcdir)/include/abb/http/http_client.hpp\
+					$(top_srcdir)/include/abb/http/http_const.hpp\
+					$(top_srcdir)/include/abb/http/http_header.hpp\
+					$(top_srcdir)/include/abb/http/http_responce.hpp\
+					$(top_srcdir)/include/abb/http/http_request.hpp\
+					$(top_srcdir)/include/abb/http/http_responce_writer.hpp\
+					$(top_srcdir)/include/abb/http/http_server.hpp\
