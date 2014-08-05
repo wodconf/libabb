@@ -32,6 +32,7 @@ public:
 		}
 	}
 	virtual void L_TcpClient_OnMessage(net::ConnectionRef* conn,base::Buffer& buf){
+		LOG(DEBUG) << "L_TcpClient_OnMessage" << std::string((char*)buf.Data(),buf.Size());
 		ResponceDecoder* d = static_cast<ResponceDecoder*>(conn->Data);
 		if( !d->Decode(buf) ){
 			conn->Close();
