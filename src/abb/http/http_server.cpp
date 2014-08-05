@@ -7,7 +7,7 @@ void Server::L_TcpServer_OnConnection(net::ConnectionRef*req){
 	req->Data = new RequestDecoder();
 }
 void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
-	LOG(DEBUG) << "L_TcpServer_OnMesssage";
+	LOG(DEBUG) << "L_TcpServer_OnMesssage" << std::string((char*)buf.Data(),buf.Size());
 	RequestDecoder* d = static_cast<RequestDecoder*>(ref->Data);
 	if(!d->Decode(buf)){
 		ref->Close();
