@@ -114,9 +114,7 @@ int Connection::Writer(void*buf,int size){
 	return nwd;
 }
 void Connection::ShutDownAfterWrite(){
-	//shutdown(this->fd_,SHUT_RD);
 	__sync_bool_compare_and_swap((int*)&shut_down_after_write_,false,true);
-	LOG(INFO) << "ShutDownAfterWrite" << shut_down_after_write_;
 	io_event_.SetWrite(true);
 	io_event_.SetRead(false);
 	loop_->ApplyIOEvent(&io_event_);
@@ -179,7 +177,6 @@ void Connection::OnWrite(){
 		io_event_.SetWrite(false);
 		loop_->ApplyIOEvent(&io_event_);
 		if( __sync_bool_compare_and_swap((int*)&shut_down_after_write_,true,true) ){
-			LOG(INFO) << "shutdown";
 			this->ShutDown();
 		}
 
