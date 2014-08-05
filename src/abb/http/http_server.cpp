@@ -12,7 +12,6 @@ void Server::L_TcpServer_OnConnection(net::ConnectionRef*ref){
 void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
 	RequestDecoder* d = static_cast<RequestDecoder*>(ref->Data);
 	if(!d->Decode(buf)){
-		LOG(WARN) << "close";
 		ref->Close();
 	}else{
 		Request* req = d->GetRequest();
