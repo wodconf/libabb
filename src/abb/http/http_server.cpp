@@ -10,6 +10,7 @@ void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
 	LOG(DEBUG) << "L_TcpServer_OnMesssage" << std::string((char*)buf.Data(),buf.Size());
 	RequestDecoder* d = static_cast<RequestDecoder*>(ref->Data);
 	if(!d->Decode(buf)){
+		LOG(WARN) << "close";
 		ref->Close();
 	}else{
 		Request* req = d->GetRequest();
@@ -22,6 +23,7 @@ void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,base::Buffer& buf){
 	}
 }
 void Server::L_TcpServer_OnClose(net::ConnectionRef* ref,int error){
+	LOG(DEBUG) << "L_TcpServer_OnClose";
 	RequestDecoder* d = static_cast<RequestDecoder*>(ref->Data);
 	delete d;
 }
