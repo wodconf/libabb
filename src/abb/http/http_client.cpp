@@ -63,7 +63,7 @@ public:
 };
 
 bool Post(net::EventLoop* loop,
-				std::string& url,
+				const std::string& url,
 				const std::string& body_type,
 				void* body,
 				int size,
@@ -76,7 +76,7 @@ bool Post(net::EventLoop* loop,
 		return Do(loop,req,handler);
 	}
 }
-bool Get(net::EventLoop* loop,std::string& url,IRequestHandler* handler){
+bool Get(net::EventLoop* loop,const std::string& url,IRequestHandler* handler){
 	Request* req = new Request(http::method::GET,"HTTP/1.1");
 	if(!req->SetUrl(url)){
 		return false;
