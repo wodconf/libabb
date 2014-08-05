@@ -1,17 +1,18 @@
 #ifndef __ABB_NET_TIMER_SET_HPP__
 #define __ABB_NET_TIMER_SET_HPP__
 
-
+#include <stdint.h>
 #include <map>
+
 namespace abb{
 namespace net{
 class EventLoop;
 class TimerSet{
 public:
+	typedef void(*run_fn)(void* arg);
 	TimerSet(EventLoop* loop);
 	~TimerSet();
-
-	int AddTimer(int id,int ms,bool brepeat,run_fn fn,void*arg);
+	int AddTimer(int ms,bool brepeat,run_fn fn,void*arg);
 	void RemoveTimer(int id);
 	int Process();
 private:
@@ -21,7 +22,7 @@ private:
 		return __sync_add_and_fetch(&id_,1);
 	}
 	struct Timer{
-		typedef void(*run_fn)(void* arg);
+		
 		int id_;
 		void*arg_;
 		run_fn fn_;

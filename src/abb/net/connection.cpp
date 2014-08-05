@@ -10,7 +10,7 @@ namespace abb {
 namespace net {
 
 Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer)
-:io_event_(loop,fd,this)
+:io_event_(loop,fd,this),
  local_addr_(local),
  peer_addr_(peer),
  lis_(NULL),
@@ -23,7 +23,7 @@ Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& 
 	wr_buf_ = &wr_buf_1_;
 	wring_buf_ = NULL;
 	Socket::SetNoBlock(io_event_.Fd(),true);
-	io_event_.AllowAll();
+	io_event_.AllowRead();
 }
 void Connection::SetNoDelay(bool e){
 	Socket::SetNoDelay(io_event_.Fd(),e);
@@ -33,9 +33,7 @@ Connection::~Connection() {
 	Socket::Close(io_event_.Fd());
 }
 void Connection::Destroy(){
-	loop_->QueueInLoop(StaticFree,this);
-}
-void  Connection::SetEnable(bool enable){
+	this->GetEventLoop()->QueueInLoop(StaticFree,this);
 }
 bool Connection::LockWrite(base::Buffer**buf){
 	wr_lock_.Lock();

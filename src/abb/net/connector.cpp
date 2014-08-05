@@ -10,7 +10,7 @@ namespace abb{namespace net{
 
 Connector::Connector(EventLoop* loop)
 :lis_(NULL),
-io_event_(loop,this);
+io_event_(loop,this),
 connected_(0){
 }
 Connector::~Connector(){
@@ -21,7 +21,7 @@ Connector::~Connector(){
 void Connector::Connect(const IPAddr& addr){
 	if(__sync_bool_compare_and_swap(&connected_,0,1) ){
 		addr_ = addr;
-		this->loop_->QueueInLoop(StaticConnect,this);
+		this->GetEventLoop()->QueueInLoop(StaticConnect,this);
 	}
 }
 void Connector::RealConnect(){
@@ -33,27 +33,24 @@ void Connector::RealConnect(){
 	}
 	Socket::SetCloseExec(fd,true,NULL);
 	io_event_.SetFd(fd);
-	io_event_.SetWrite(true);	
-	this->loop_->ApplyIOEvent(&io_event_);
+	io_event_.AllowWrite();
 }
 void Connector::RealReset(){
-	io_event_.SetWrite(false);
-	this->loop_->ApplyIOEvent(&io_event_);
+	io_event_.DisAllowWrite();
 	Socket::Close(io_event_.Fd());
 	io_event_.SetFd(-1);
 }
 void Connector::Destroy(){
-	this->loop_->QueueInLoop(StaticDelete,this);
+	this->GetEventLoop()->QueueInLoop(StaticDelete,this);
 }
 void Connector::Reset(){
 	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
-		this->loop_->QueueInLoop(StaticReset,this);
+		this->GetEventLoop()->QueueInLoop(StaticReset,this);
 	}
 }
 void Connector::HandleEvent(int event){
 	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
-		io_event_.SetWrite(false);
-		this->loop_->ApplyIOEvent(&io_event_);
+		io_event_.DisAllowWrite();
 		int err;
 		int fd = io_event_.Fd();
 		io_event_.SetFd(-1);

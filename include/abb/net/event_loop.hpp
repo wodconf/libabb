@@ -17,7 +17,7 @@ class Poller;
 class Singler;
 class IOEvent;
 class TimerSet;
-typedef int TimeId;
+
 class EventLoop:public IEventHandler {
 public:
 	typedef void(*run_fn)(void* arg);
@@ -25,11 +25,12 @@ public:
 	virtual ~EventLoop();
 	void Loop();
 	void Stop();
-	void ExecuteInLoop(run_fn fn,void*arg);
+	void RunInLoop(run_fn fn,void*arg);
 	void QueueInLoop(run_fn fn,void* arg);
-	TimeId ExecuteAfter(int ms,run_fn fn,void*arg);
-	TimeId ExecuteEvery(int ms,run_fn fn,void* arg);
-	void Cancel(TimeId id);
+
+	int RunAfter(int ms,run_fn fn,void*arg);
+	int RunEvery(int ms,run_fn fn,void* arg);
+	void Cancel(int id);
 
 	bool IsInEventLoop(){
 		return tid_ == pthread_self();
@@ -51,7 +52,7 @@ private:
 	bool stop_;
 	//int efd_;
 	base::Mutex mtx_;
-	pthread_t tid_;
+	pthread_t tid_ ;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(EventLoop);
 };
 }

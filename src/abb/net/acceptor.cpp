@@ -21,7 +21,7 @@ Acceptor::~Acceptor() {
 }
 void Acceptor::Destroy(){
 	SetEnable(false);
-	this->loop_->QueueInLoop(StaticDelete,this);
+	this->GetEventLoop()->QueueInLoop(StaticDelete,this);
 }
 bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
 	int fd;

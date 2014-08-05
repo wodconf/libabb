@@ -40,13 +40,12 @@ void Poller::Apply(IOEvent* event){
 	if(rc !=  0){
 		int error = errno;
 		LOG(WARN)<< "epoll_ctl fail " 
-				<< "flag: "<<event->flag_  
-				<< "wait_flag: "<<event->wait_flag_  
-				<< "fd: "<<event->fd_
+				<< "flag: "<<event->GetEvent()
+				<< "fd: "<<event->Fd()
 				<< "code: " << error 
 				<< "desc: "<< strerror(error);
 		if(errno == EEXIST){
-			epoll_ctl(efd_,EPOLL_CTL_MOD,event->fd_,&ep_ev);
+			epoll_ctl(efd_,EPOLL_CTL_MOD,event->Fd(),&ep_ev);
 		}
 	}
 	return ;
@@ -60,12 +59,14 @@ void Poller::Poll(int timeout){
 	for(int i =0;i<rc;i++){
 		event = (IOEvent*)(revs_[i].data.ptr);
 		if(!event) continue;
+		int revent = 0;
 		if(revs_[i].events &	(EPOLLIN | EPOLLHUP | EPOLLERR)){
-			event->pending_flag_ = IO_EVENT_READ;
+			revent = IO_EVENT_READ;
 		}
 		if(revs_[i].events &	(EPOLLOUT | EPOLLHUP | EPOLLERR)){
-			event->pending_flag_ |= IO_EVENT_WRITE;
+			revent|= IO_EVENT_WRITE;
 		}
+		event->SetRevent(revent);
 		event->Emitter();
 	}
 }

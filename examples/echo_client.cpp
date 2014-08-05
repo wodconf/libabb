@@ -4,6 +4,7 @@
 #include "abb/net/event_loop.hpp"
 #include "abb/http/http_request.hpp"
 #include "abb/http/http_const.hpp"
+#include <sys/time.h>
 using namespace abb::net;
 using namespace abb;
 class ConnectCB:public ITcpClientListener{
@@ -46,6 +47,20 @@ void sleep(int ms){
 	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
 	select(0,0,0,0,&tv);
 }
+static uint64_t MSNow(){
+	struct timeval time;
+	gettimeofday(&time,0);
+	uint64_t tmp =  time.tv_sec;
+	tmp*=1000;
+	tmp+=time.tv_usec/1000;
+	return tmp;
+}
+uint64_t pre;
+static void do_timer(void* arg){
+	uint64_t now = MSNow();
+	LOG(INFO) <<now-pre;
+	pre = now;
+}
 int main(){
 	abb::net::IPAddr addr;
 	if( ! addr.SetV4("localhost",9922) ){
@@ -55,6 +70,7 @@ int main(){
 	EventLoop loop;
 	ConnectCB lis;
 	tcp::Connect(&loop,addr,&lis);
+	loop.RunEvery(50,do_timer,NULL);
 	loop.Loop();
 
 }

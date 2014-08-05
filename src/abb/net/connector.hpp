@@ -22,7 +22,7 @@ public:
 		return addr_;
 	}
 	EventLoop* GetEventLoop(){
-		return io_event_->GetEventLoop();
+		return io_event_.GetEventLoop();
 	}
 private:
 	void RealConnect();
