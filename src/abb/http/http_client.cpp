@@ -43,7 +43,7 @@ public:
 				read_responced_= true;
 				this->handler_->HandleResponce(rsp);
 				rsp->UnRef();
-				conn->Close();
+				//conn->Close();
 			}
 		}
 	}
