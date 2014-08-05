@@ -2,19 +2,17 @@
 #include <abb/base/buffer.hpp>
 #include <abb/http/http_server.hpp>
 #include <abb/http/http_request.hpp>
-#include <abb/http/http_responce.hpp>
+#include <abb/http/http_responce_writer.hpp>
 #include "abb/http/http_const.hpp"
 class HttpHandler:public abb::http::Server::Listener{
 public:
 HttpHandler(){};
 	virtual ~HttpHandler(){};
-	virtual void HandleRequest(abb::http::Request* req,abb::http::Responce* rsp){
-		abb::base::Buffer buf;
-		req->Encode(buf);
-		LOG(DEBUG) << std::string((char *)buf.Data(),buf.Size());
-		rsp->SetStatusCode(abb::http::code::StatusOK);
+	virtual void HandleRequest(abb::http::Request* req,abb::http::ResponceWriter* rspw){
+		rspw->GetResponce().SetStatusCode(abb::http::code::StatusOK);
 		const char* hello = "hello";
-		rsp->Body().Write((void*)hello,strlen(hello));
+		rspw->GetResponce().Body().Write((void*)hello,strlen(hello));
+		rspw->Flush();
 	}
 };
 int main(){

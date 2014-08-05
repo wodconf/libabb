@@ -10,7 +10,7 @@
 namespace abb{
 namespace http{
 
-class Responce{
+class Responce:public base::RefObject{
 public:
 	Responce(const std::string& version);
 	~Responce();

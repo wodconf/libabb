@@ -17,10 +17,11 @@ public:
 	{
 	}
 	virtual ~HttpClient(){
-
+		req_->UnRef();
 	}
 	virtual void L_TcpClient_OnConnectFail(int error){
 		handler_->HandleError(error);
+		delete this;
 	}
 	virtual void L_TcpClient_OnConnection(net::ConnectionRef* conn){
 		abb::base::Buffer* buf;
@@ -36,10 +37,11 @@ public:
 			conn->Close();
 			error_ = 1001;
 		}else{
-			Responce* req = d->GetResponce();
-			if(req){
+			Responce* rsp = d->GetResponce();
+			if(rsp){
 				read_responced_= true;
-				this->handler_->HandleResponce(req);
+				this->handler_->HandleResponce(rsp);
+				rsp->UnRef();
 				conn->Close();
 			}
 		}
@@ -52,6 +54,7 @@ public:
 				this->handler_->HandleError(error);
 			}
 		}
+		delete this;
 	}
 	int error_;
 	bool read_responced_;
