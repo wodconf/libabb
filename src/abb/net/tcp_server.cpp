@@ -49,11 +49,6 @@ void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr)
 	Connection* conn = new Connection(event_group_->Next(),fd,acceptor_->GetIpAddr(),addr);
 	ConnectionRef* ref = new ConnectionRef(conn);
 	conn->SetData(ref);
-	ref->Ref();
-	/*{
-		base::Mutex::Locker lock(mtx_);
-		this->conn_map_[long(conn)] = conn;
-	}*/
 	conn->SetListener(this);
 	conn->SetEnable(true);
 	this->lis_->L_TcpServer_OnConnection(ref);
@@ -64,10 +59,6 @@ void TcpServer::L_Connection_OnMessage(Connection* conn,base::Buffer& buf){
 void TcpServer::L_Connection_OnClose(Connection* conn,int error){
 	ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 	conn->ShutDown();
-	/*{
-		base::Mutex::Locker lock(mtx_);
-		this->conn_map_.erase(long(conn));
-	}*/
 	this->lis_->L_TcpServer_OnClose(ref,error);
 	ref->UnRef();
 }
