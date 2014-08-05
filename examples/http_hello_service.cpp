@@ -10,6 +10,7 @@ HttpHandler(){};
 	virtual ~HttpHandler(){};
 	virtual void HandleRequest(abb::http::Request* req,abb::http::ResponceWriter* rspw){
 		rspw->GetResponce().SetStatusCode(abb::http::code::StatusOK);
+		rspw->GetResponce().GetHeader().Set(abb::http::header::CONTENT_TYPE,"text/plain");
 		const char* hello = "hello";
 		rspw->GetResponce().Body().Write((void*)hello,strlen(hello));
 		rspw->Flush();
