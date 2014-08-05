@@ -32,7 +32,7 @@ void EventLoop::ApplyIOEvent(IOEvent* event){
 		if(this->IsInEventLoop()){
 			poller_->Apply(event);
 		}else{
-			this->QueueInLoop(event);
+			this->QueueInLoop(RunApply,event);
 		}
 	}
 }
