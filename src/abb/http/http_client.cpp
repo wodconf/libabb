@@ -49,6 +49,7 @@ public:
 		}
 	}
 	virtual void L_TcpClient_OnClose(net::ConnectionRef* conn,int error){
+		LOG(DEBUG) << "L_TcpClient_OnClose";
 		if(!read_responced_){
 			if(error_ > 0){
 				this->handler_->HandleError(error_);
