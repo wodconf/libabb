@@ -23,7 +23,7 @@ public:
 int main(){
 	EventLoop loop;
 	RequestHandler h;
-	http::Get(&loop,"http:localhost:8080/",&h);
+	http::Get(&loop,"http://localhost:8080/",&h);
 	loop.Loop();
 
 }
