@@ -32,10 +32,8 @@ public:
 		}
 	}
 	virtual void L_TcpClient_OnMessage(net::ConnectionRef* conn,base::Buffer& buf){
-		LOG(DEBUG) << "L_TcpClient_OnMessage" << std::string((char*)buf.Data(),buf.Size());
 		ResponceDecoder* d = static_cast<ResponceDecoder*>(conn->Data);
 		if( !d->Decode(buf) ){
-			LOG(INFO) << "close";
 			conn->Close();
 			error_ = 1001;
 		}else{
@@ -44,12 +42,11 @@ public:
 				read_responced_= true;
 				this->handler_->HandleResponce(rsp);
 				rsp->UnRef();
-				//conn->Close();
+				conn->Close();
 			}
 		}
 	}
 	virtual void L_TcpClient_OnClose(net::ConnectionRef* conn,int error){
-		LOG(DEBUG) << "L_TcpClient_OnClose";
 		if(!read_responced_){
 			if(error_ > 0){
 				this->handler_->HandleError(error_);
