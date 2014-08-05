@@ -9,7 +9,6 @@ ResponceWriter::ResponceWriter(net::ConnectionRef* ref,const std::string& versio
 	conn_ref_->Ref();
 }
 ResponceWriter::~ResponceWriter(){
-	conn_ref_->Close();
 	conn_ref_->UnRef();
 }
 void ResponceWriter::Flush(){
@@ -17,7 +16,7 @@ void ResponceWriter::Flush(){
 	if( conn_ref_->LockWrite(&buf)){
 		rsp_.Encode(*buf);
 		conn_ref_->UnLockWrite();
-		//conn_ref_->CloseAfterWrite();
+		conn_ref_->CloseAfterWrite();
 	}
 }
 }
