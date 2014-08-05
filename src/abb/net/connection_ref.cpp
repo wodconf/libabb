@@ -24,9 +24,6 @@ bool ConnectionRef::IsClosed(){
 void ConnectionRef::SetNoDelay(bool e){
 	conn_->SetNoDelay(e);
 }
-void ConnectionRef::SetKeepAlive(bool kp,int idle,int interval,int cout){
-	conn_->SetKeepAlive(kp,idle,interval,cout);
-}
 bool  ConnectionRef::LockWrite(base::Buffer**buf){
 	return conn_->LockWrite(buf);
 }

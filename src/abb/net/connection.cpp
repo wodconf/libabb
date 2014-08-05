@@ -29,9 +29,6 @@ Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& 
 	wring_buf_ = NULL;
 	Socket::SetNoBlock(fd_,true);
 }
-bool Connection::SetKeepAlive(bool kp,int idle,int interval,int cout){
-	Socket::SetKeepAlive(fd_,kp,idle,interval,cout);
-}
 void Connection::SetNoDelay(bool e){
 	Socket::SetNoDelay(fd_,e);
 }

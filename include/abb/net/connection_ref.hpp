@@ -20,7 +20,6 @@ public:
 	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite();
 	void SetNoDelay(bool e);
-	void SetKeepAlive(bool kp,int idle,int interval,int cout);
 	const IPAddr& GetLocalAddr(){return local_;}
 	const IPAddr& GetRemoteAddr(){return remote_;}
 	void Close();
