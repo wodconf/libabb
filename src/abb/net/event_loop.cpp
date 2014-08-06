@@ -89,6 +89,5 @@ void EventLoop::QueueInLoop(EventLoop::run_fn fn,void* arg){
 	sigler_->Write();
 }
 void EventLoop::HandleEvent(int event){
-	LOG(DEBUG) << "E";
 	sigler_->Read();
 }

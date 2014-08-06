@@ -35,7 +35,7 @@ private:
 		TimerSet* timer_set_;
 		int id_;
 	};
-	typedef std::map<uint64_t,Timer*> TimerProcessMap;
+	typedef std::multimap<uint64_t,Timer*> TimerProcessMap;
 	typedef std::map<int,Timer*> IDMap;
 	IDMap id_map_;
 	TimerProcessMap timer_map_;

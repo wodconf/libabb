@@ -39,7 +39,7 @@ int TimerSet::AddTimer(int ms,bool repeat,run_fn fn,void*arg){
 void TimerSet::LoopAddTimer(void* timer){
 	Timer* t = static_cast<Timer*>(timer);
 	t->timer_set_->id_map_[t->id_] = t;
-	t->timer_set_->timer_map_[t->pending_time_] = t;
+	t->timer_set_->timer_map_.insert(std::make_pair(t->pending_time_,t));
 }
 void TimerSet::LoopRemoveTimer(void* arg){
 	Arg* a = static_cast<Arg*>(arg);
@@ -47,10 +47,15 @@ void TimerSet::LoopRemoveTimer(void* arg){
 	if(iter != a->timer_set_->id_map_.end()){
 		a->timer_set_->id_map_.erase(iter);
 		iter->second->remove_ = true;
-		TimerProcessMap::iterator iter1 = a->timer_set_->timer_map_.find(iter->second->pending_time_);
-		if( iter1 != a->timer_set_->timer_map_.end()){
-			a->timer_set_->timer_map_.erase(iter1);
-			delete iter->second;
+
+		TimerProcessMap::iterator low = a->timer_set_->timer_map_.lower_bound(iter->second->pending_time_);
+		TimerProcessMap::iterator up = a->timer_set_->timer_map_.upper_bound(iter->second->pending_time_);
+		while (low != up){
+		   if(low->second == iter->second){
+		   		delete iter->second;
+		   		break;
+		   }
+		    ++low;
 		}
 	}
 	delete a;
@@ -74,7 +79,7 @@ int TimerSet::Process(){
 				delete t;
 			}else if(t->repeat_){
 				t->pending_time_ = now + t->timeout_ ;
-				timer_map_[t->pending_time_] = t;
+				timer_map_.insert(std::make_pair(t->pending_time_,t));
 			}else{
 				id_map_.erase(t->id_);
 				delete t;

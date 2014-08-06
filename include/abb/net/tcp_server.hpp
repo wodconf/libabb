@@ -30,6 +30,9 @@ public:
 	void Resume();
 	void Close();
 	const IPAddr& GetAddr();
+	EventLoopGroup* GetEventLoopGroup(){
+		return event_group_;
+	}
 private:
 	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr);
 	virtual void L_Connection_OnMessage(Connection* self,base::Buffer& buf);
