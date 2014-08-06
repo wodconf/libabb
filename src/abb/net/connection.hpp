@@ -21,7 +21,7 @@ public:
 	Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer);
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
 	void SetNoDelay(bool e);
-
+	void Start();
 	bool LockWrite(base::Buffer**buf);
 	void UnLockWrite(bool bflush);
 	void Write(void*buf,unsigned int size);

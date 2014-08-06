@@ -50,6 +50,7 @@ void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr)
 	ConnectionRef* ref = new ConnectionRef(conn);
 	conn->SetData(ref);
 	conn->SetListener(this);
+	conn->Start();
 	this->lis_->L_TcpServer_OnConnection(ref);
 }
 void TcpServer::L_Connection_OnMessage(Connection* conn,base::Buffer& buf){

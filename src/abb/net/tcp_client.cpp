@@ -49,6 +49,7 @@ public:
 		ConnectionRef* conn_ref_ = new ConnectionRef(conn);
 		conn->SetData(conn_ref_);
 		conn->SetListener(this);
+		conn->Start();
 		lis_->L_TcpClient_OnConnection(conn_ref_);
 	}
 	void L_Connector_OnClose(Connector* cotr,int error){
