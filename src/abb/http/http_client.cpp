@@ -27,7 +27,7 @@ public:
 		abb::base::Buffer* buf;
 		if( conn->LockWrite(&buf)){
 			req_->Encode(*buf);
-			conn->UnLockWrite();
+			conn->UnLockWrite(true);
 			conn->Data = new ResponceDecoder();
 		}
 	}

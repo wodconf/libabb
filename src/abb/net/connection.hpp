@@ -20,26 +20,31 @@ class Connection :public IEventHandler{
 public:
 	Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer);
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
+	void SetNoDelay(bool e);
+
 	bool LockWrite(base::Buffer**buf);
-	void UnLockWrite();
-	void SendData(void*buf,unsigned int size);
+	void UnLockWrite(bool bflush);
+	void Write(void*buf,unsigned int size);
+	void WriteAndFlush(void*buf,unsigned int size);
+	void Flush();
 	void ShutDown(bool read,bool write);
 	void ShutDownAfterWrite();
-	bool IsConnected(){return this->state_ == STATE_OPEN && !shut_down_after_write_;}
 	void Destroy();
-	void SetData(void*data){data_ = data;}
-	void* GetData(){return data_;}
-	void SetNoDelay(bool e);
+
+	bool IsConnected(){return this->state_ == STATE_OPEN && !shut_down_after_write_;}
 	const IPAddr& GetLocalAddr(){return local_addr_;}
 	const IPAddr& GetRemoteAddr(){return peer_addr_;}
 	EventLoop* GetEventLoop(){
 		return io_event_.GetEventLoop();
 	}
+	void SetData(void*data){data_ = data;}
+	void* GetData(){return data_;}
 private:
+	void InternalFlush();
 	virtual void HandleEvent(int event);
 	void OnRead();
 	void OnWrite();
-	void Flush();
+	
 	static int StaticReader(void*arg,const struct iovec *iov, int iovcnt){
 		Connection* con = (Connection*)arg;
 		return con->Reader(iov,iovcnt);

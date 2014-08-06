@@ -50,29 +50,38 @@ bool Connection::LockWrite(base::Buffer**buf){
 	}
 }
 
-void Connection::UnLockWrite(){
+void Connection::UnLockWrite(bool bflush){
 	if(!block_write_) return;
-	if(this->IsConnected()){
-		Flush();
-	}else{
+	if(!this->IsConnected()){
 		wr_buf_->Clear();
+	}else if(bflush){
+		InternalFlush();
 	}
 	wr_lock_.UnLock();
 }
-
-void Connection::Flush(){
+void Connection::InternalFlush(){
 	if(this->wr_buf_->Size() > 0 && this->IsConnected()){
 		io_event_.AllowWrite();
 	}
 }
-
-void Connection::SendData(void*buf,unsigned int size){
+void Connection::Flush(){
+	base::Mutex::Locker lock(wr_lock_);
+	InternalFlush();
+}
+void Connection::WriteAndFlush(void*buf,unsigned int size){
 	if(!this->IsConnected()){
 		return;
 	}
 	base::Mutex::Locker lock(wr_lock_);
 	wr_buf_->Write(buf,size);
-	Flush();
+	InternalFlush();
+}
+void Connection::Write(void*buf,unsigned int size){
+	if(!this->IsConnected()){
+		return;
+	}
+	base::Mutex::Locker lock(wr_lock_);
+	wr_buf_->Write(buf,size);
 }
 int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;

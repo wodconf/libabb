@@ -12,12 +12,15 @@ public:
 	ConnectCB():conn(NULL),index(0){
 
 	}
-	virtual ~ConnectCB(){}
+	virtual ~ConnectCB(){
+		conn->UnRef();
+	}
 	virtual void L_TcpClient_OnConnectFail(int error){
 		LOG(DEBUG) << "L_TcpClient_OnConnectFail";
 	}
 	virtual void L_TcpClient_OnConnection(ConnectionRef* ref){
 		conn = ref;
+		conn->Ref();
 		LOG(DEBUG) << "L_TcpClient_OnConnection";
 		
 		Send();
@@ -34,9 +37,12 @@ public:
 			abb::base::Buffer* buf;
 			if( this->conn->LockWrite(&buf)){
 				*buf << index;
-				this->conn->UnLockWrite();
+				this->conn->UnLockWrite(false);
 			}
 		}
+	}
+	void Flush(){
+		conn->Flush();
 	}
 	int index ;
 	ConnectionRef* conn;
@@ -58,11 +64,13 @@ static uint64_t MSNow(){
 uint64_t pre;
 int timeid;
 EventLoop loop;
+ConnectCB lis;
 static void do_timer(void* arg){
 	uint64_t now = MSNow();
 	LOG(INFO) <<now-pre;
 	pre = now;
-	loop.Cancel(timeid);
+	//loop.Cancel(timeid);
+	lis.Flush();
 }
 int main(){
 	abb::net::IPAddr addr;
@@ -70,7 +78,7 @@ int main(){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
-	ConnectCB lis;
+	
 	tcp::Connect(&loop,addr,&lis);
 	timeid = loop.RunEvery(50,do_timer,NULL);
 	loop.Loop();

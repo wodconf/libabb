@@ -16,9 +16,11 @@ public:
 	explicit ConnectionRef(Connection* conn);
 	virtual ~ConnectionRef();
 	bool IsClosed();
-	bool Send(void*data,int len);
+	void Write(void*data,int len);
+	void Flush();
+	void WriteAndFlush(void*data,int len);
 	bool LockWrite(base::Buffer**buf);
-	void UnLockWrite();
+	void UnLockWrite(bool bflush);
 	void SetNoDelay(bool e);
 	const IPAddr& GetLocalAddr(){return local_;}
 	const IPAddr& GetRemoteAddr(){return remote_;}

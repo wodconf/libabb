@@ -11,12 +11,14 @@ Data(NULL)
 	local_ = conn_->GetLocalAddr();
 	remote_ = conn_->GetRemoteAddr();
 }
-bool ConnectionRef::Send(void*data,int len){
-	if(conn_->IsConnected()){
-		conn_->SendData(data,len);
-		return true;
-	}
-	return false;
+void ConnectionRef::Write(void*data,int len){
+	conn_->Write(data,len);
+}
+void ConnectionRef::Flush(){
+	conn_->Flush();
+}
+void WriteAndFlush(void*data,int len){
+	conn_->WriteAndFlush(data,len);
 }
 bool ConnectionRef::IsClosed(){
 	return !conn_->IsConnected();
@@ -27,8 +29,8 @@ void ConnectionRef::SetNoDelay(bool e){
 bool  ConnectionRef::LockWrite(base::Buffer**buf){
 	return conn_->LockWrite(buf);
 }
-void  ConnectionRef::UnLockWrite(){
-	conn_->UnLockWrite();
+void  ConnectionRef::UnLockWrite(bool bflush){
+	conn_->UnLockWrite(bflush);
 }
 void ConnectionRef::Close(){
 	conn_->ShutDown(true,true);
