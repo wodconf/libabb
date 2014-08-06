@@ -56,10 +56,13 @@ static uint64_t MSNow(){
 	return tmp;
 }
 uint64_t pre;
+int timeid;
+EventLoop loop;
 static void do_timer(void* arg){
 	uint64_t now = MSNow();
 	LOG(INFO) <<now-pre;
 	pre = now;
+	loop.Cancel(timeid);
 }
 int main(){
 	abb::net::IPAddr addr;
@@ -67,10 +70,9 @@ int main(){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}
-	EventLoop loop;
 	ConnectCB lis;
 	tcp::Connect(&loop,addr,&lis);
-	loop.RunEvery(50,do_timer,NULL);
+	timeid = loop.RunEvery(50,do_timer,NULL);
 	loop.Loop();
 
 }
