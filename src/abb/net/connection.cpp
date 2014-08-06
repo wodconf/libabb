@@ -125,11 +125,11 @@ void Connection::OnRead(){
 	if(state_ == STATE_CLOSE) return;
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(size > 0){
-		this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
+		if(lis_)this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
 	}
 	if(state_ == STATE_CLOSE){
 		io_event_.DisAllowAll();
-		this->lis_->L_Connection_OnClose(this,this->err_);
+		if(lis_)this->lis_->L_Connection_OnClose(this,this->err_);
 	}
 }
 void Connection::OnWrite(){
