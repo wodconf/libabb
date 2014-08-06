@@ -37,7 +37,7 @@ public:
 			abb::base::Buffer* buf;
 			if( this->conn->LockWrite(&buf)){
 				*buf << index;
-				this->conn->UnLockWrite(false);
+				this->conn->UnLockWrite(true);
 			}
 		}
 	}
@@ -69,8 +69,7 @@ static void do_timer(void* arg){
 	uint64_t now = MSNow();
 	LOG(INFO) <<now-pre;
 	pre = now;
-	//loop.Cancel(timeid);
-	lis.Flush();
+	loop.Cancel(timeid);
 }
 int main(){
 	abb::net::IPAddr addr;
