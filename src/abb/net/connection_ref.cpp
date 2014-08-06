@@ -17,7 +17,7 @@ void ConnectionRef::Write(void*data,int len){
 void ConnectionRef::Flush(){
 	conn_->Flush();
 }
-void WriteAndFlush(void*data,int len){
+void ConnectionRef::WriteAndFlush(void*data,int len){
 	conn_->WriteAndFlush(data,len);
 }
 bool ConnectionRef::IsClosed(){
