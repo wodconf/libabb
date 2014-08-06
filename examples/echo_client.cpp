@@ -79,6 +79,7 @@ int main(){
 	}
 	
 	tcp::Connect(&loop,addr,&lis);
+	pre = MSNow();
 	timeid = loop.RunEvery(50,do_timer,NULL);
 	loop.Loop();
 
