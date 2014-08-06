@@ -25,7 +25,7 @@ public:
 	void SendData(void*buf,unsigned int size);
 	void ShutDown(bool read,bool write);
 	void ShutDownAfterWrite();
-	bool IsConnected(){return this->state_ >= STATE_OPEN && this->state_ <= STATE_WRITING;}
+	bool IsConnected(){return this->state_ == STATE_OPEN && !shut_down_after_write_;}
 	void Destroy();
 	void SetData(void*data){data_ = data;}
 	void* GetData(){return data_;}
