@@ -69,7 +69,7 @@ static void do_timer(void* arg){
 	uint64_t now = MSNow();
 	LOG(INFO) <<now-pre;
 	pre = now;
-	loop.Cancel(timeid);
+	//loop.Cancel(timeid);
 }
 int main(){
 	abb::net::IPAddr addr;
@@ -80,7 +80,7 @@ int main(){
 	
 	tcp::Connect(&loop,addr,&lis);
 	pre = MSNow();
-	timeid = loop.RunEvery(50,do_timer,NULL);
+	timeid = loop.RunEvery(2,do_timer,NULL);
 	loop.Loop();
 
 }
