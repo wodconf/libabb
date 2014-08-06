@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <map>
-
+#include "abb/base/ref_object.hpp"
 namespace abb{
 namespace net{
 class EventLoop;
@@ -21,8 +21,7 @@ private:
 	int NextId(){
 		return __sync_add_and_fetch(&id_,1);
 	}
-	struct Timer{
-		
+	struct Timer:public base::RefObject{
 		int id_;
 		void*arg_;
 		run_fn fn_;
@@ -30,6 +29,7 @@ private:
 		int timeout_;
 		bool repeat_;
 		TimerSet* timer_set_;
+		bool remove_;
 	};
 	struct Arg{
 		TimerSet* timer_set_;

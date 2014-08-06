@@ -35,6 +35,9 @@ Connection::~Connection() {
 void Connection::Destroy(){
 	this->GetEventLoop()->QueueInLoop(StaticFree,this);
 }
+void Connection::ShutDown(bool read,bool write){
+	Socket::ShutDown(this->io_event_.Fd(),read,write,NULL);
+}
 bool Connection::LockWrite(base::Buffer**buf){
 	wr_lock_.Lock();
 	if(this->IsConnected()){
@@ -46,9 +49,7 @@ bool Connection::LockWrite(base::Buffer**buf){
 		return false;
 	}
 }
-void Connection::ShutDown(bool read,bool write){
-	Socket::ShutDown(this->io_event_.Fd(),read,write,NULL);
-}
+
 void Connection::UnLockWrite(){
 	if(!block_write_) return;
 	if(this->IsConnected()){
@@ -84,17 +85,23 @@ int Connection::Reader(const struct iovec *iov, int iovcnt){
 		}
 	}else{
 		this->err_ = err;
-		state_ = STATE_ERROR;
+		state_ = STATE_CLOSE;
 	}
 	return nrd;
 }
 int Connection::Writer(void*buf,int size){
 	int nwd;
-	Socket::Write(this->io_event_.Fd(),buf,size,&nwd,NULL);
+	int err = 0;
+	if(! Socket::Write(this->io_event_.Fd(),buf,size,&nwd,&err) ){
+		this->err_ = err;
+		state_ = STATE_CLOSE;
+	}
 	return nwd;
 }
 void Connection::ShutDownAfterWrite(){
-	__sync_bool_compare_and_swap((int*)&shut_down_after_write_,false,true);
+	base::Mutex::Locker lock(wr_lock_);
+	if(shut_down_after_write_) return;
+	shut_down_after_write_ = true;
 	io_event_.AllowWrite();
 }
 void Connection::HandleEvent(int event){
@@ -106,19 +113,18 @@ void Connection::HandleEvent(int event){
 	}
 }
 void Connection::OnRead(){
+	if(state_ == STATE_CLOSE) return;
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(size > 0){
 		this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
 	}
-	if(state_ != STATE_OPEN){
+	if(state_ == STATE_CLOSE){
 		io_event_.DisAllowAll();
 		this->lis_->L_Connection_OnClose(this,this->err_);
 	}
 }
 void Connection::OnWrite(){
-	if(state_ != STATE_OPEN){
-		return;
-	}
+	if(state_ == STATE_CLOSE) return;
 	if(wring_buf_){
 		wring_buf_->ReadToWriter(StaticWriter,this);
 		if(wring_buf_->Size() == 0){
@@ -146,11 +152,14 @@ void Connection::OnWrite(){
 			return;
 		}
 	}else{
+		base::Mutex::Locker lock(wr_lock_);
 		io_event_.DisAllowWrite();
-		if( __sync_bool_compare_and_swap((int*)&shut_down_after_write_,true,true) ){
+		if(shut_down_after_write_){
 			this->ShutDown(true,true);
 		}
 
 	}
 }
+
+
 }}
