@@ -49,7 +49,7 @@ void  EventLoop::Cancel(int id){
 }
 void EventLoop::Loop(){
 	tid_ = pthread_self();
-	int min = 1;
+	int min = 5;
 	while(!stop_){
 		poller_->Poll(min);
 		Task task;
