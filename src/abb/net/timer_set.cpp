@@ -49,7 +49,7 @@ void TimerSet::LoopRemoveTimer(void* arg){
 		iter->second->remove_ = true;
 		TimerProcessMap::iterator iter1 = a->timer_set_->timer_map_.find(iter->second->pending_time_);
 		if( iter1 != a->timer_set_->timer_map_.end()){
-			a->timer_set_->timer_map_.earse(iter1);
+			a->timer_set_->timer_map_.erase(iter1);
 			delete iter->second;
 		}
 	}
