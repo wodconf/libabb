@@ -60,12 +60,19 @@ void Poller::Poll(int timeout){
 		event = (IOEvent*)(revs_[i].data.ptr);
 		if(!event) continue;
 		int revent = 0;
-		if(revs_[i].events &	(EPOLLIN | EPOLLHUP | EPOLLERR)){
-			revent = IO_EVENT_READ;
-		}
-		if(revs_[i].events &	(EPOLLOUT | EPOLLHUP | EPOLLERR)){
-			revent|= IO_EVENT_WRITE;
-		}
+		switch (revs_[i].events & (EPOLLIN|EPOLLOUT|EPOLLERR|EPOLLHUP)) {
+	        case EPOLLIN:
+	          revent = IO_EVENT_READ;
+	          break;
+	        case EPOLLOUT:
+	          revent = IO_EVENT_WRITE;
+	          break;
+	        case EPOLLIN|EPOLLOUT:
+	          revent = IO_EVENT_READ|IO_EVENT_WRITE;
+	          break;
+	        default:
+	          revent = IO_EVENT_ERROR;
+	    }
 		event->SetRevent(revent);
 		event->Emitter();
 	}

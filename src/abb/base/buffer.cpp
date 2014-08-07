@@ -125,7 +125,7 @@ Buffer& Buffer::operator <<(const std::string& str){
 	this->Write(&s,1);
 	return *this;
 }
-void Buffer::Write(void*buf,uint32_t sz){
+void Buffer::Write(const void*buf,uint32_t sz){
 	if(sz ==0){
 		return ;
 	}

@@ -65,7 +65,7 @@ public:
 bool Post(net::EventLoop* loop,
 				const std::string& url,
 				const std::string& body_type,
-				void* body,
+				const void* body,
 				int size,
 				IRequestHandler* handler){
 	Request* req = new Request(http::method::POST,"HTTP/1.1");

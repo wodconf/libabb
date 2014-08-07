@@ -91,4 +91,7 @@ void EventLoop::QueueInLoop(EventLoop::run_fn fn,void* arg){
 }
 void EventLoop::HandleEvent(int event){
 	sigler_->Read();
+	if(event&IO_EVENT_ERROR){
+		LOG(WARN) << "event.loop.sigler.error";
+	}
 }

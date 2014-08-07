@@ -116,15 +116,19 @@ void Connection::ShutDownAfterWrite(){
 	io_event_.AllowWrite();
 }
 void Connection::HandleEvent(int event){
-	if(event&IO_EVENT_READ){
+	if(state_ == STATE_CLOSE){
+		io_event_.DisAllowAll();
+		return;
+	}
+	if(event&IO_EVENT_READ || event&IO_EVENT_ERROR){
 		OnRead();
 	}
+	if(state_ == STATE_CLOSE) return;
 	if(event&IO_EVENT_WRITE){
 		OnWrite();
 	}
 }
 void Connection::OnRead(){
-	if(state_ == STATE_CLOSE) return;
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(size > 0){
 		this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
@@ -135,7 +139,6 @@ void Connection::OnRead(){
 	}
 }
 void Connection::OnWrite(){
-	if(state_ == STATE_CLOSE) return;
 	if(wring_buf_){
 		wring_buf_->ReadToWriter(StaticWriter,this);
 		if(wring_buf_->Size() == 0){

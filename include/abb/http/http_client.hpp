@@ -22,7 +22,7 @@ public:
 extern bool Post(net::EventLoop* loop,
 				const std::string& url,
 				const std::string& body_type,
-				void* body,
+				const void* body,
 				int size,
 				IRequestHandler* handler);
 extern bool Get(net::EventLoop* loop,const std::string& url,IRequestHandler* handler);

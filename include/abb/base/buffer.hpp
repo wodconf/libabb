@@ -46,7 +46,7 @@ public:
 	void NET_WriteUint32(uint32_t);
 	void NET_WriteUint64(uint64_t);
 
-	void Write(void*buf,uint32_t sz);
+	void Write(const void*buf,uint32_t sz);
 	uint32_t Read(void *buf,uint32_t sz);
 	void GaveWr(uint32_t sz){
 		wr_+=sz;

@@ -21,7 +21,7 @@ public:
 	void DisAllowWrite(){if(event_&IO_EVENT_WRITE){event_ &= ~IO_EVENT_WRITE;Apply();}}
 	void DisAllowAll(){if(event_!=0){event_ = 0;Apply();}}
 	void AllowAll(){event_ = IO_EVENT_READ| IO_EVENT_WRITE;Apply();}
-	void Emitter(){handler_->HandleEvent(event_&revent_);}
+	void Emitter(){handler_->HandleEvent(revent_);}
 	EventLoop* GetEventLoop(){return loop_;}
 private:
 	void Apply();
