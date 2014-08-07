@@ -53,6 +53,7 @@ void TimerSet::LoopRemoveTimer(void* arg){
 		while (low != up){
 		   if(low->second == iter->second){
 		   		delete iter->second;
+		   		a->timer_set_->timer_map_.erase(low);
 		   		break;
 		   }
 		    ++low;
