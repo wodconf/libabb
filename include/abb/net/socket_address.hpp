@@ -12,8 +12,9 @@ public:
 	SocketAddress();
 	~SocketAddress();
 	SocketAddress(const SocketAddress& other);
-	struct sockaddr* GetAddr(){return addr_;}
+	struct sockaddr* GetAddr(){return (struct sockaddr*)addr_;}
 	unsigned int GetLength();
+	int GetFramily(){return family_;}
 	bool SetV4(const char *addr, uint16_t port);
 	bool SetV6(const char *addr, uint16_t port);
 	bool SetUnix(const char *path,unsigned int pathlen);
@@ -23,7 +24,7 @@ public:
 	bool SetByStringIgnoreIP(const std::string& str);
 private:
 	int family_;
-	struct sockaddr* addr_;
+	unsigned char addr_[16];
 };
 
 }
