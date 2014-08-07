@@ -37,7 +37,7 @@ void EventLoop::ApplyIOEvent(IOEvent* event){
 	}
 }
 int  EventLoop::RunAfter(int ms,EventLoop::run_fn fn,void*arg){
-	if(ms <= 0){ return -1;}
+	if(ms <= 0 || !fn ){ return -1;}
 	return timer_set_->AddTimer(ms,false,fn,arg);
 }
 int  EventLoop::RunEvery(int ms,EventLoop::run_fn fn,void* arg){
@@ -45,6 +45,7 @@ int  EventLoop::RunEvery(int ms,EventLoop::run_fn fn,void* arg){
 	return timer_set_->AddTimer(ms,true,fn,arg);
 }
 void  EventLoop::Cancel(int id){
+	if(id < 0) return ;
 	timer_set_->RemoveTimer(id);
 }
 void EventLoop::Loop(){

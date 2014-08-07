@@ -21,7 +21,7 @@ private:
 	int NextId(){
 		return __sync_add_and_fetch(&id_,1);
 	}
-	struct Timer:public base::RefObject{
+	struct Timer{
 		int id_;
 		void*arg_;
 		run_fn fn_;

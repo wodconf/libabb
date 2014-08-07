@@ -11,7 +11,7 @@ namespace http{
 	class Request:public base::RefObject{
 	public:
 		Request(const std::string& Method,const std::string& version);
-		~Request();
+		virtual ~Request();
 		bool SetUrl(const std::string& url);
 		const std::string& Method(){return method_;}
 		const std::string& Protocol(){return proto_;}

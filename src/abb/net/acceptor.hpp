@@ -38,6 +38,7 @@ private:
 	IAcceptorListener* lis_;
 	bool enable_;
 	IPAddr addr_;
+	bool bclose_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Acceptor);
 };
 

@@ -13,7 +13,7 @@ namespace http{
 class Responce:public base::RefObject{
 public:
 	Responce(const std::string& version);
-	~Responce();
+	virtual ~Responce();
 	void SetStatusCode(const int code){
 		code_ = code;
 	}

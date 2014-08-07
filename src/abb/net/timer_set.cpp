@@ -47,13 +47,12 @@ void TimerSet::LoopRemoveTimer(void* arg){
 	if(iter != a->timer_set_->id_map_.end()){
 		a->timer_set_->id_map_.erase(iter);
 		iter->second->remove_ = true;
-
 		TimerProcessMap::iterator low = a->timer_set_->timer_map_.lower_bound(iter->second->pending_time_);
 		TimerProcessMap::iterator up = a->timer_set_->timer_map_.upper_bound(iter->second->pending_time_);
 		while (low != up){
 		   if(low->second == iter->second){
-		   		delete iter->second;
 		   		a->timer_set_->timer_map_.erase(low);
+		   		delete low->second;
 		   		break;
 		   }
 		    ++low;

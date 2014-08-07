@@ -15,11 +15,10 @@ Acceptor::Acceptor(EventLoop* loop)
 	
 }
 Acceptor::~Acceptor() {
-	if(io_event_.Fd() != -1){
-		Socket::Close(io_event_.Fd());
-	}
+	Close();
 }
 void Acceptor::Destroy(){
+	
 	this->GetEventLoop()->QueueInLoop(StaticDelete,this);
 }
 bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
@@ -33,10 +32,10 @@ bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
 	return false;
 }
 void Acceptor::Close(){
-	if(io_event_.Fd() != -1){
+	if(!bclose_){
 		SetEnable(false);
+		bclose_=true;
 		Socket::Close(io_event_.Fd());
-		io_event_.SetFd(-1);
 	}
 }
 void Acceptor::SetEnable(bool benable){
