@@ -65,7 +65,12 @@ void EventLoop::Loop(){
 			task.fn(task.arg);
 		}
 		min = timer_set_->Process();
-		if(min = -1) min = 1;
+		if(min < 0){
+			if(min != -1){
+				LOG(WARN) << "unknow min "<< min;
+			}
+			min = 10;
+		}
 	}
 }
 void EventLoop::Stop(){

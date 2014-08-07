@@ -19,7 +19,7 @@ private:
 	static void LoopAddTimer(void* timer);
 	static void LoopRemoveTimer(void* arg);
 	int NextId(){
-		return __sync_add_and_fetch(&id_,1);
+		return __sync_add_and_fetch(&statrt_id_,1);
 	}
 	struct Timer{
 		int id_;
@@ -40,7 +40,7 @@ private:
 	IDMap id_map_;
 	TimerProcessMap timer_map_;
 	EventLoop* loop_;
-	int id_;
+	int statrt_id_;
 };
 }
 }

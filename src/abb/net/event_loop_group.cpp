@@ -1,6 +1,8 @@
 #include "abb/net/event_loop_group.hpp"
 #include "abb/net/event_loop.hpp"
 #include <stdlib.h>
+#include <signal.h>
+
 namespace abb{namespace net{
 	EventLoopGroup::EventLoopGroup(int threads)
 	:num_thread_(threads),cur_(0){
@@ -28,6 +30,10 @@ namespace abb{namespace net{
 	}
 	void* EventLoopGroup::ThreadMain(void* arg){
 		EventLoop* loop = static_cast<EventLoop*>(arg);
+		sigset_t sigset;
+   		sigfillset(&sigset);
+		sigset_t *old_sigset;
+		pthread_sigmask(SIG_BLOCK, &sigset, old_sigset);
 		loop->Loop();
 		return NULL;
 	}

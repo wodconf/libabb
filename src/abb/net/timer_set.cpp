@@ -12,7 +12,7 @@ static uint64_t MSNow(){
 	tmp+=time.tv_usec/1000;
 	return tmp;
 }
-TimerSet::TimerSet(EventLoop* loop):loop_(loop),id_(1){
+TimerSet::TimerSet(EventLoop* loop):loop_(loop),statrt_id_(1){
 
 }
 TimerSet::~TimerSet(){

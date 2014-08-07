@@ -25,6 +25,7 @@ bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
 	int fd;
 	if( Socket::Listen(&fd,addr,save_err) ){
 		Socket::SetCloseExec(fd,true,NULL);
+		Socket::SetNoBlock(fd,true);
 		addr_ = addr;
 		io_event_.SetFd(fd);
 		return true;
@@ -35,7 +36,7 @@ void Acceptor::Close(){
 	if(!bclose_){
 		SetEnable(false);
 		bclose_=true;
-		Socket::Close(io_event_.Fd());
+		this->GetEventLoop()->RunInLoop((EventLoop::run_fn)Socket::Close,(void*)(io_event_.Fd()));
 	}
 }
 void Acceptor::SetEnable(bool benable){

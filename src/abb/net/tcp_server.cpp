@@ -19,7 +19,8 @@ void TcpServer::Init(int num_thread,bool run_curent_thread){
 		loop_ = new EventLoop();
 		acceptor_ = new Acceptor(loop_);
 	}else{
-		acceptor_ = new Acceptor(event_group_->Next());
+		accept_group_ = new EventLoopGroup(1);
+		acceptor_ = new Acceptor(accept_group_->Next());
 	}
 }
 bool TcpServer::Bind(const IPAddr& addr,int* save_error){
@@ -34,6 +35,8 @@ void TcpServer::Start(){
 	event_group_->Start();
 	if(loop_){
 		loop_->Loop();
+	}else if(accept_group_){
+		accept_group_->Start();
 	}
 }
 void TcpServer::Close(){
