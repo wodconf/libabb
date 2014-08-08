@@ -11,7 +11,7 @@ namespace abb {
 namespace net {
 class Connection;
 class EventLoop;
-class ConnectionRef :public base::RefObject{
+class ConnectionRef :public RefObject{
 public:
 	explicit ConnectionRef(Connection* conn);
 	virtual ~ConnectionRef();
@@ -19,7 +19,7 @@ public:
 	void Write(void*data,int len);
 	void Flush();
 	void WriteAndFlush(void*data,int len);
-	bool LockWrite(base::Buffer**buf);
+	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
 	void SetNoDelay(bool e);
 	const IPAddr& GetLocalAddr(){return local_;}

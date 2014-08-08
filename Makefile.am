@@ -7,6 +7,8 @@ lib_LTLIBRARIES=libabb.la
 
 libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/base/log.cpp\
+			src/abb/base/signal.cpp\
+			src/abb/base/thread.cpp\
 			src/abb/base/thread_pool.cpp\
 			src/abb/net/socket.cpp\
 			src/abb/net/acceptor.cpp\
@@ -32,7 +34,7 @@ libabb_la_SOURCES=src/abb/base/buffer.cpp\
 			src/abb/url/url.cpp
 
 export INCLUDES
-libabb_la_LIBADD=-lpthread
+libabb_la_LIBADD=-lpthread -lrt
 
 bin_PROGRAMS = echo_server
 echo_server_LDADD = -labb
@@ -55,13 +57,13 @@ echo_client_SOURCES = examples/echo_client.cpp
 baseincludedir=$(includedir)/abb/base
 baseinclude_HEADERS=$(top_srcdir)/include/abb/base/buffer.hpp\
 					$(top_srcdir)/include/abb/base/callback.hpp\
-					$(top_srcdir)/include/abb/base/cond.hpp\
 					$(top_srcdir)/include/abb/base/define.hpp\
 					$(top_srcdir)/include/abb/base/log.hpp\
-					$(top_srcdir)/include/abb/base/mutex.hpp\
 					$(top_srcdir)/include/abb/base/ref_object.hpp\
-					$(top_srcdir)/include/abb/base/rw_lock.hpp\
-					$(top_srcdir)/include/abb/base/thread_pool.hpp
+					$(top_srcdir)/include/abb/base/thread_pool.hpp\
+					$(top_srcdir)/include/abb/base/signal.hpp\
+					$(top_srcdir)/include/abb/base/thread.hpp\
+					$(top_srcdir)/include/abb/base/block_queue.hpp
 
 netincludedir=$(includedir)/abb/net
 netinclude_HEADERS=$(top_srcdir)/include/abb/net/connection_ref.hpp\
@@ -82,3 +84,6 @@ httpinclude_HEADERS=$(top_srcdir)/include/abb/http/http_client.hpp\
 					$(top_srcdir)/include/abb/http/http_request.hpp\
 					$(top_srcdir)/include/abb/http/http_responce_writer.hpp\
 					$(top_srcdir)/include/abb/http/http_server.hpp
+
+urlincludedir=$(includedir)/abb/url
+urlinclude_HEADERS=$(top_srcdir)/include/abb/url/url.hpp

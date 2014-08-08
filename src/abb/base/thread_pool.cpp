@@ -4,7 +4,6 @@
 
 #include "abb/base/log.hpp"
 namespace abb {
-namespace base {
 
 ThreadPool::ThreadPool():bwait_(false),bstop_(false),num_thread_(1),threads(NULL) {
 	pthread_mutex_init(&mtx_,NULL);
@@ -85,6 +84,5 @@ void* ThreadPool::ThreadMain(void* arg){
 	ThreadPool* pool = static_cast<ThreadPool*>(arg);
 	pool->Worker();
 	return NULL;
-}
 } /* namespace common */
 } /* namespace adcloud */

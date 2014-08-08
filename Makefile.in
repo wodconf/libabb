@@ -41,8 +41,9 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(baseinclude_HEADERS) \
 	$(httpinclude_HEADERS) $(netinclude_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	config.guess config.sub depcomp install-sh ltmain.sh missing
+	$(top_srcdir)/configure $(urlinclude_HEADERS) AUTHORS COPYING \
+	ChangeLog INSTALL NEWS config.guess config.sub depcomp \
+	install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -59,17 +60,17 @@ am__vpath_adj = case $$p in \
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(baseincludedir)" "$(DESTDIR)$(httpincludedir)" \
-	"$(DESTDIR)$(netincludedir)"
+	"$(DESTDIR)$(netincludedir)" "$(DESTDIR)$(urlincludedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libabb_la_DEPENDENCIES =
-am_libabb_la_OBJECTS = buffer.lo log.lo thread_pool.lo socket.lo \
-	acceptor.lo connector.lo connection.lo event_loop_group.lo \
-	event_loop.lo poller.lo timer_set.lo event_io.lo ip_addr.lo \
-	singler.lo tcp_server.lo connection_ref.lo tcp_client.lo \
-	http_header.lo http_request.lo http_responce.lo \
-	http_responce_writer.lo http_decoder.lo http_server.lo \
-	http_client.lo url.lo
+am_libabb_la_OBJECTS = buffer.lo log.lo signal.lo thread.lo \
+	thread_pool.lo socket.lo acceptor.lo connector.lo \
+	connection.lo event_loop_group.lo event_loop.lo poller.lo \
+	timer_set.lo event_io.lo ip_addr.lo singler.lo tcp_server.lo \
+	connection_ref.lo tcp_client.lo http_header.lo http_request.lo \
+	http_responce.lo http_responce_writer.lo http_decoder.lo \
+	http_server.lo http_client.lo url.lo
 libabb_la_OBJECTS = $(am_libabb_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -106,8 +107,9 @@ DIST_SOURCES = $(libabb_la_SOURCES) $(echo_client_SOURCES) \
 baseincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 httpincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 netincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+urlincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(baseinclude_HEADERS) $(httpinclude_HEADERS) \
-	$(netinclude_HEADERS)
+	$(netinclude_HEADERS) $(urlinclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -246,6 +248,8 @@ AM_CPPFLAGS = -fPIC
 lib_LTLIBRARIES = libabb.la
 libabb_la_SOURCES = src/abb/base/buffer.cpp\
 			src/abb/base/log.cpp\
+			src/abb/base/signal.cpp\
+			src/abb/base/thread.cpp\
 			src/abb/base/thread_pool.cpp\
 			src/abb/net/socket.cpp\
 			src/abb/net/acceptor.cpp\
@@ -270,7 +274,7 @@ libabb_la_SOURCES = src/abb/base/buffer.cpp\
 			src/abb/http/http_client.cpp\
 			src/abb/url/url.cpp
 
-libabb_la_LIBADD = -lpthread
+libabb_la_LIBADD = -lpthread -lrt
 echo_server_LDADD = -labb
 echo_server_SOURCES = examples/echo_server.cpp
 http_hello_service_LDADD = -labb
@@ -284,13 +288,13 @@ echo_client_SOURCES = examples/echo_client.cpp
 baseincludedir = $(includedir)/abb/base
 baseinclude_HEADERS = $(top_srcdir)/include/abb/base/buffer.hpp\
 					$(top_srcdir)/include/abb/base/callback.hpp\
-					$(top_srcdir)/include/abb/base/cond.hpp\
 					$(top_srcdir)/include/abb/base/define.hpp\
 					$(top_srcdir)/include/abb/base/log.hpp\
-					$(top_srcdir)/include/abb/base/mutex.hpp\
 					$(top_srcdir)/include/abb/base/ref_object.hpp\
-					$(top_srcdir)/include/abb/base/rw_lock.hpp\
-					$(top_srcdir)/include/abb/base/thread_pool.hpp
+					$(top_srcdir)/include/abb/base/thread_pool.hpp\
+					$(top_srcdir)/include/abb/base/signal.hpp\
+					$(top_srcdir)/include/abb/base/thread.hpp\
+					$(top_srcdir)/include/abb/base/block_queue.hpp
 
 netincludedir = $(includedir)/abb/net
 netinclude_HEADERS = $(top_srcdir)/include/abb/net/connection_ref.hpp\
@@ -313,6 +317,8 @@ httpinclude_HEADERS = $(top_srcdir)/include/abb/http/http_client.hpp\
 					$(top_srcdir)/include/abb/http/http_responce_writer.hpp\
 					$(top_srcdir)/include/abb/http/http_server.hpp
 
+urlincludedir = $(includedir)/abb/url
+urlinclude_HEADERS = $(top_srcdir)/include/abb/url/url.hpp
 all: all-am
 
 .SUFFIXES:
@@ -448,10 +454,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_addr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poller.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/signal.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/singler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/socket.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tcp_client.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tcp_server.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread_pool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timer_set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/url.Plo@am__quote@
@@ -490,6 +498,20 @@ log.lo: src/abb/base/log.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/base/log.cpp' object='log.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o log.lo `test -f 'src/abb/base/log.cpp' || echo '$(srcdir)/'`src/abb/base/log.cpp
+
+signal.lo: src/abb/base/signal.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT signal.lo -MD -MP -MF $(DEPDIR)/signal.Tpo -c -o signal.lo `test -f 'src/abb/base/signal.cpp' || echo '$(srcdir)/'`src/abb/base/signal.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/signal.Tpo $(DEPDIR)/signal.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/base/signal.cpp' object='signal.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o signal.lo `test -f 'src/abb/base/signal.cpp' || echo '$(srcdir)/'`src/abb/base/signal.cpp
+
+thread.lo: src/abb/base/thread.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT thread.lo -MD -MP -MF $(DEPDIR)/thread.Tpo -c -o thread.lo `test -f 'src/abb/base/thread.cpp' || echo '$(srcdir)/'`src/abb/base/thread.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/thread.Tpo $(DEPDIR)/thread.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/abb/base/thread.cpp' object='thread.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o thread.lo `test -f 'src/abb/base/thread.cpp' || echo '$(srcdir)/'`src/abb/base/thread.cpp
 
 thread_pool.lo: src/abb/base/thread_pool.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT thread_pool.lo -MD -MP -MF $(DEPDIR)/thread_pool.Tpo -c -o thread_pool.lo `test -f 'src/abb/base/thread_pool.cpp' || echo '$(srcdir)/'`src/abb/base/thread_pool.cpp
@@ -767,6 +789,23 @@ uninstall-netincludeHEADERS:
 	  echo " rm -f '$(DESTDIR)$(netincludedir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(netincludedir)/$$f"; \
 	done
+install-urlincludeHEADERS: $(urlinclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(urlincludedir)" || $(MKDIR_P) "$(DESTDIR)$(urlincludedir)"
+	@list='$(urlinclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(urlincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(urlincludedir)/$$f'"; \
+	  $(urlincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(urlincludedir)/$$f"; \
+	done
+
+uninstall-urlincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(urlinclude_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(urlincludedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(urlincludedir)/$$f"; \
+	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -953,7 +992,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(baseincludedir)" "$(DESTDIR)$(httpincludedir)" "$(DESTDIR)$(netincludedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(baseincludedir)" "$(DESTDIR)$(httpincludedir)" "$(DESTDIR)$(netincludedir)" "$(DESTDIR)$(urlincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1005,7 +1044,7 @@ info: info-am
 info-am:
 
 install-data-am: install-baseincludeHEADERS install-httpincludeHEADERS \
-	install-netincludeHEADERS
+	install-netincludeHEADERS install-urlincludeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -1055,7 +1094,7 @@ ps-am:
 
 uninstall-am: uninstall-baseincludeHEADERS uninstall-binPROGRAMS \
 	uninstall-httpincludeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-netincludeHEADERS
+	uninstall-netincludeHEADERS uninstall-urlincludeHEADERS
 
 .MAKE: install-am install-strip
 
@@ -1072,13 +1111,14 @@ uninstall-am: uninstall-baseincludeHEADERS uninstall-binPROGRAMS \
 	install-httpincludeHEADERS install-info install-info-am \
 	install-libLTLIBRARIES install-man install-netincludeHEADERS \
 	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-baseincludeHEADERS uninstall-binPROGRAMS \
-	uninstall-httpincludeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-netincludeHEADERS
+	install-strip install-urlincludeHEADERS installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-baseincludeHEADERS \
+	uninstall-binPROGRAMS uninstall-httpincludeHEADERS \
+	uninstall-libLTLIBRARIES uninstall-netincludeHEADERS \
+	uninstall-urlincludeHEADERS
 
 
 export INCLUDES

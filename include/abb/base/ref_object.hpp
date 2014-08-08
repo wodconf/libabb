@@ -4,7 +4,6 @@
 #define __ABB_BASE_REF_OBJECT_HPP__
 
 namespace abb {
-namespace base {
 
 class RefObject {
 public:
@@ -22,7 +21,6 @@ private:
 	int ref_;
 };
 
-}
 }
 
 #endif

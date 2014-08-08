@@ -9,7 +9,7 @@
 #include <asm/byteorder.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-using namespace abb::base;
+using namespace abb;
 
 static unsigned long long ntohll(unsigned long long val)
 {

@@ -29,7 +29,7 @@ public:
 	virtual ~TcpClient(){
 		ctor_->Destroy();
 	};
-	void L_Connection_OnMessage(Connection* conn,base::Buffer& buf){
+	void L_Connection_OnMessage(Connection* conn,Buffer& buf){
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 		if(ref->IsClosed()){
 			buf.Clear();

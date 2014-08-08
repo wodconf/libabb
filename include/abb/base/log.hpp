@@ -6,7 +6,7 @@
 #include <string>
 
 
-namespace abb { namespace base{
+namespace abb {
 
 enum LogLevel {
 	LOGLEVEL_TRACE,
@@ -57,10 +57,10 @@ typedef void LogHandler(LogLevel level,const char* filename, int line, const std
 LogHandler * SetLogHandler(LogHandler * new_handler);
 
 
-}}
+}
 
 
-#define LOG(lvl) ::abb::base::internal::LogEnd() = ::abb::base::internal::LogRecord(::abb::base::LOGLEVEL_##lvl,__FILE__,__LINE__)
+#define LOG(lvl) ::abb::internal::LogEnd() = ::abb::internal::LogRecord(::abb::LOGLEVEL_##lvl,__FILE__,__LINE__)
 
 #define LOG_IF(lvl,condition) !(condition)?void(0) : LOG(lvl)
 

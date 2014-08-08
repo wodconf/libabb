@@ -10,7 +10,7 @@
 namespace abb{
 namespace http{
 
-class Responce:public base::RefObject{
+class Responce:public RefObject{
 public:
 	Responce(const std::string& version);
 	virtual ~Responce();
@@ -20,13 +20,13 @@ public:
 	int GetStatusCode(){return code_;}
 	const std::string& Protocol(){return proto_;}
 	Header& GetHeader(){return header_;}
-	bool Encode(base::Buffer& buf);
-	base::Buffer& Body(){return body_;}
+	bool Encode(Buffer& buf);
+	Buffer& Body(){return body_;}
 private:
 	std::string proto_;
 	Header header_;
 	int code_;
-	base::Buffer body_;
+	Buffer body_;
 };
 
 }

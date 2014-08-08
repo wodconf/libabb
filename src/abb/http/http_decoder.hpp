@@ -10,7 +10,7 @@ namespace http{
 	public:
 		RequestDecoder();
 		~RequestDecoder();
-		bool Decode(base::Buffer& buf);
+		bool Decode(Buffer& buf);
 		Request* GetRequest(){
 			if(state_ == STATE_COMPLETE){
 				return req_;
@@ -32,7 +32,7 @@ namespace http{
 	public:
 		ResponceDecoder();
 		~ResponceDecoder();
-		bool Decode(base::Buffer& buf);
+		bool Decode(Buffer& buf);
 		Responce* GetResponce(){
 			if(state_ == STATE_COMPLETE){
 				return rsp_;

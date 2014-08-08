@@ -33,7 +33,7 @@ public:
 		LOG(DEBUG) << "OnConnection";
 
 	}
-	virtual void L_TcpServer_OnMesssage(ConnectionRef* ref,base::Buffer& buf){
+	virtual void L_TcpServer_OnMesssage(ConnectionRef* ref,Buffer& buf){
 		num_pkt++;
 		buf.Clear();
 		int index = 1;

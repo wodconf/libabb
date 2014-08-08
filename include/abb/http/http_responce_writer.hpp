@@ -10,7 +10,7 @@ namespace net{
 }
 namespace http{
 
-class ResponceWriter:public base::RefObject{
+class ResponceWriter:public RefObject{
 public:
 	ResponceWriter(net::ConnectionRef* ref,const std::string& version);
 	~ResponceWriter();

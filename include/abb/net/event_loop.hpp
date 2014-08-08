@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <map>
 
-#include "abb/base/mutex.hpp"
+#include "abb/base/thread.hpp"
 #include "abb/base/define.hpp"
 #include "abb/net/event_handler.hpp"
 
@@ -51,7 +51,7 @@ private:
 	TimerSet* timer_set_;
 	bool stop_;
 	//int efd_;
-	base::Mutex mtx_;
+	Mutex mtx_;
 	pthread_t tid_ ;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(EventLoop);
 };

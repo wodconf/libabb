@@ -19,7 +19,7 @@ namespace http{
 		}
 		return false;
 	}
-	bool Request::Encode(abb::base::Buffer& buf){
+	bool Request::Encode(Buffer& buf){
 		std::ostringstream out;
 		out << this->method_ << " " << this->url_.RequestURI() << " " << proto_ << "\r\n";
 		out << "Host: " << this->url_.Host<< "\r\n";

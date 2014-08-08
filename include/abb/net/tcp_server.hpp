@@ -17,7 +17,7 @@ public:
 	public:
 		virtual ~Listener(){}
 		virtual void L_TcpServer_OnConnection(ConnectionRef*) = 0;
-		virtual void L_TcpServer_OnMesssage(ConnectionRef*,base::Buffer& buf)= 0;
+		virtual void L_TcpServer_OnMesssage(ConnectionRef*,Buffer& buf)= 0;
 		virtual void L_TcpServer_OnClose(ConnectionRef*,int error)= 0;
 	};
 	TcpServer();
@@ -35,7 +35,7 @@ public:
 	}
 private:
 	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr);
-	virtual void L_Connection_OnMessage(Connection* self,base::Buffer& buf);
+	virtual void L_Connection_OnMessage(Connection* self,Buffer& buf);
 	virtual void L_Connection_OnClose(Connection* self,int error);
 private:
 	Listener* lis_;

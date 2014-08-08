@@ -12,7 +12,7 @@ ResponceWriter::~ResponceWriter(){
 	conn_ref_->UnRef();
 }
 void ResponceWriter::Flush(){
-	abb::base::Buffer* buf;
+	abb::Buffer* buf;
 	if( conn_ref_->LockWrite(&buf)){
 		rsp_.Encode(*buf);
 		conn_ref_->UnLockWrite(true);

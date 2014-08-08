@@ -8,7 +8,6 @@
 #include "callback.hpp"
 #include "define.hpp"
 namespace abb {
-namespace base {
 
 class ThreadPool {
 public:
@@ -37,7 +36,6 @@ private:
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(ThreadPool);
 };
 
-} 
 } 
 
 #endif

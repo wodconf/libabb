@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <ctime>
 #define SW_LOG_DATE_STRLEN 64
-namespace abb{ namespace base{
+namespace abb{
 
 LogLevel g_min_log_level = LOGLEVEL_TRACE;
 static FILE * file = NULL;
@@ -102,4 +102,4 @@ LogHandler* SetLogHandler( LogHandler * new_handler){
 	return old_handler;
 }
 
-}}
+}

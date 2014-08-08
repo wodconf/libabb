@@ -8,7 +8,7 @@
 #include "abb/base/ref_object.hpp"
 namespace abb{
 namespace http{
-	class Request:public base::RefObject{
+	class Request:public RefObject{
 	public:
 		Request(const std::string& Method,const std::string& version);
 		virtual ~Request();
@@ -17,13 +17,13 @@ namespace http{
 		const std::string& Protocol(){return proto_;}
 		Header& GetHeader(){return header_;}
 		url::URL& GetURL(){return url_;}
-		bool Encode(base::Buffer& buf);
-		base::Buffer& Body(){return body_;}
+		bool Encode(Buffer& buf);
+		Buffer& Body(){return body_;}
 	private:
 		std::string method_;
 		std::string proto_; // "HTTP/1.0"
 		Header header_;
-		base::Buffer body_;
+		Buffer body_;
 		url::URL url_;
 		ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Request);
 	};

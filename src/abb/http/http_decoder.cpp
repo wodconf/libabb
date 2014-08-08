@@ -29,7 +29,7 @@ static void Split(const std::string&str,const std::string& sep,std::vector<std::
 		}
 	}
 }
-static bool GetLine(base::Buffer& buf,std::string& str){
+static bool GetLine(Buffer& buf,std::string& str){
 	int sz = FindCRLF((char*)buf.Data(),buf.Size());
 	if(sz < 0){
 		return false;
@@ -44,7 +44,7 @@ RequestDecoder::RequestDecoder():req_(NULL),state_(FIRST_HEAD),len_(0){
 RequestDecoder::~RequestDecoder(){
 
 }
-bool RequestDecoder::Decode(base::Buffer& buf){
+bool RequestDecoder::Decode(Buffer& buf){
 	std::string line;
 	if(state_ == FIRST_HEAD){
 		if(! GetLine(buf,line) ){
@@ -105,7 +105,7 @@ ResponceDecoder::ResponceDecoder():rsp_(NULL),state_(FIRST_HEAD),len_(0){
 ResponceDecoder::~ResponceDecoder(){
 
 }
-bool ResponceDecoder::Decode(base::Buffer& buf){
+bool ResponceDecoder::Decode(Buffer& buf){
 	std::string line;
 	if(state_ == FIRST_HEAD){
 		if(! GetLine(buf,line) ){

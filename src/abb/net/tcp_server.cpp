@@ -56,7 +56,7 @@ void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr)
 	conn->Start();
 	this->lis_->L_TcpServer_OnConnection(ref);
 }
-void TcpServer::L_Connection_OnMessage(Connection* conn,base::Buffer& buf){
+void TcpServer::L_Connection_OnMessage(Connection* conn,Buffer& buf){
 	this->lis_->L_TcpServer_OnMesssage((ConnectionRef*)conn->GetData(),buf);
 }
 void TcpServer::L_Connection_OnClose(Connection* conn,int error){

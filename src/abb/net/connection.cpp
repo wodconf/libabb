@@ -40,7 +40,7 @@ void Connection::Destroy(){
 void Connection::ShutDown(bool read,bool write){
 	Socket::ShutDown(this->io_event_.Fd(),read,write,NULL);
 }
-bool Connection::LockWrite(base::Buffer**buf){
+bool Connection::LockWrite(Buffer**buf){
 	wr_lock_.Lock();
 	if(this->IsConnected()){
 		block_write_ = true;
@@ -67,14 +67,14 @@ void Connection::InternalFlush(){
 	}
 }
 void Connection::Flush(){
-	base::Mutex::Locker lock(wr_lock_);
+	Mutex::Locker lock(wr_lock_);
 	InternalFlush();
 }
 void Connection::WriteAndFlush(void*buf,unsigned int size){
 	if(!this->IsConnected()){
 		return;
 	}
-	base::Mutex::Locker lock(wr_lock_);
+	Mutex::Locker lock(wr_lock_);
 	wr_buf_->Write(buf,size);
 	InternalFlush();
 }
@@ -82,7 +82,7 @@ void Connection::Write(void*buf,unsigned int size){
 	if(!this->IsConnected()){
 		return;
 	}
-	base::Mutex::Locker lock(wr_lock_);
+	Mutex::Locker lock(wr_lock_);
 	wr_buf_->Write(buf,size);
 }
 int Connection::Reader(const struct iovec *iov, int iovcnt){
@@ -110,7 +110,7 @@ int Connection::Writer(void*buf,int size){
 	return nwd;
 }
 void Connection::ShutDownAfterWrite(){
-	base::Mutex::Locker lock(wr_lock_);
+	Mutex::Locker lock(wr_lock_);
 	if(shut_down_after_write_) return;
 	shut_down_after_write_ = true;
 	io_event_.AllowWrite();
@@ -148,7 +148,7 @@ void Connection::OnWrite(){
 		}
 	}
 	{
-		base::Mutex::Locker lock(wr_lock_);
+		Mutex::Locker lock(wr_lock_);
 		if(wr_buf_->Size() > 0){
 			wring_buf_ = wr_buf_;
 			if(wr_buf_ == &wr_buf_1_){
@@ -166,7 +166,7 @@ void Connection::OnWrite(){
 			return;
 		}
 	}else{
-		base::Mutex::Locker lock(wr_lock_);
+		Mutex::Locker lock(wr_lock_);
 		io_event_.DisAllowWrite();
 		if(shut_down_after_write_){
 			this->ShutDown(true,true);

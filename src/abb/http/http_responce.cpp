@@ -13,7 +13,7 @@ code_(code::StatusOK)
 Responce::~Responce(){
 
 }
-bool Responce::Encode(base::Buffer& buf){
+bool Responce::Encode(Buffer& buf){
 	std::ostringstream out;
 	out << proto_ << " " << code_ << "\r\n";
 	const Header::KV& kv = this->header_.GetKV();

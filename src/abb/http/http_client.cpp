@@ -24,14 +24,14 @@ public:
 		delete this;
 	}
 	virtual void L_TcpClient_OnConnection(net::ConnectionRef* conn){
-		abb::base::Buffer* buf;
+		abb::Buffer* buf;
 		if( conn->LockWrite(&buf)){
 			req_->Encode(*buf);
 			conn->UnLockWrite(true);
 			conn->Data = new ResponceDecoder();
 		}
 	}
-	virtual void L_TcpClient_OnMessage(net::ConnectionRef* conn,base::Buffer& buf){
+	virtual void L_TcpClient_OnMessage(net::ConnectionRef* conn,Buffer& buf){
 		ResponceDecoder* d = static_cast<ResponceDecoder*>(conn->Data);
 		if( !d->Decode(buf) ){
 			conn->Close();

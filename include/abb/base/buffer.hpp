@@ -9,7 +9,6 @@
 struct iovec;
 
 namespace abb {
-namespace base {
 
 class Buffer{
 public:
@@ -99,7 +98,6 @@ private:
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Buffer);
 };
 
-} /* namespace base */
 } /* namespace abb */
 
 #endif /* BUFFER_HPP_ */

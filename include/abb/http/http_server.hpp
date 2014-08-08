@@ -40,7 +40,7 @@ public:
 	}
 private:
 	virtual void L_TcpServer_OnConnection(net::ConnectionRef*);
-	virtual void L_TcpServer_OnMesssage(net::ConnectionRef*,base::Buffer& buf);
+	virtual void L_TcpServer_OnMesssage(net::ConnectionRef*,Buffer& buf);
 	virtual void L_TcpServer_OnClose(net::ConnectionRef*,int error);
 private:
 	net::TcpServer tcp_svr_;

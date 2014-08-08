@@ -55,7 +55,7 @@ void EventLoop::Loop(){
 		poller_->Poll(min);
 		Task task;
 		{
-			base::Mutex::Locker lock(mtx_);
+			Mutex::Locker lock(mtx_);
 			if(!queue_.empty()){
 				task = queue_.front();
 				queue_.pop();
@@ -86,7 +86,7 @@ void EventLoop::RunInLoop(EventLoop::run_fn fn,void*arg){
 }
 void EventLoop::QueueInLoop(EventLoop::run_fn fn,void* arg){
 	{
-		base::Mutex::Locker lock(mtx_);
+		Mutex::Locker lock(mtx_);
 		Task task;
 		task.fn = fn;
 		task.arg = arg;

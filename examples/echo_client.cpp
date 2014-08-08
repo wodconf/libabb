@@ -25,7 +25,7 @@ public:
 		
 		Send();
 	}
-	virtual void L_TcpClient_OnMessage(ConnectionRef* conn,abb::base::Buffer& buf){
+	virtual void L_TcpClient_OnMessage(ConnectionRef* conn,abb::Buffer& buf){
 		Send();
 	}
 	virtual void L_TcpClient_OnClose(ConnectionRef* conn,int error){
@@ -34,7 +34,7 @@ public:
 	void Send(){
 		index++;
 		if(conn){
-			abb::base::Buffer* buf;
+			abb::Buffer* buf;
 			if( this->conn->LockWrite(&buf)){
 				*buf << index;
 				this->conn->UnLockWrite(true);
@@ -62,14 +62,16 @@ static uint64_t MSNow(){
 	return tmp;
 }
 uint64_t pre;
-int timeid;
+int timeid,timeid1,timeid2;
 EventLoop loop;
 ConnectCB lis;
 static void do_timer(void* arg){
 	uint64_t now = MSNow();
-	LOG(INFO) <<now-pre;
+	//LOG(INFO) <<now-pre;
 	pre = now;
-	//loop.Cancel(timeid);
+	loop.Cancel(timeid);
+	loop.Cancel(timeid1);
+	loop.Cancel(timeid2);
 }
 int main(){
 	abb::net::IPAddr addr;
@@ -81,6 +83,8 @@ int main(){
 	tcp::Connect(&loop,addr,&lis);
 	pre = MSNow();
 	timeid = loop.RunEvery(2,do_timer,NULL);
+	timeid1 = loop.RunEvery(2,do_timer,NULL);
+	timeid2 = loop.RunEvery(2,do_timer,NULL);
 	loop.Loop();
 
 }

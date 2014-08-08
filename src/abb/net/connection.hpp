@@ -4,7 +4,7 @@
 #define __ABB_NET_CONNECTION_H__
 
 #include "abb/base/callback.hpp"
-#include "abb/base/mutex.hpp"
+#include "abb/base/thread.hpp"
 #include "abb/base/buffer.hpp"
 #include "abb/base/define.hpp"
 #include "abb/net/ip_addr.hpp"
@@ -22,7 +22,7 @@ public:
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
 	void SetNoDelay(bool e);
 	void Start();
-	bool LockWrite(base::Buffer**buf);
+	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
 	void Write(void*buf,unsigned int size);
 	void WriteAndFlush(void*buf,unsigned int size);
@@ -69,12 +69,12 @@ private:
 	int err_;
 	IPAddr local_addr_;
 	IPAddr peer_addr_;
-	base::Buffer rd_buf_;
-	base::Mutex wr_lock_;
-	base::Buffer* wr_buf_;
-	base::Buffer* wring_buf_;
-	base::Buffer wr_buf_1_;
-	base::Buffer wr_buf_2_;
+	Buffer rd_buf_;
+	Mutex wr_lock_;
+	Buffer* wr_buf_;
+	Buffer* wring_buf_;
+	Buffer wr_buf_1_;
+	Buffer wr_buf_2_;
 	IOEvent io_event_;
 	bool block_write_;
 	IConnectionListener* lis_;

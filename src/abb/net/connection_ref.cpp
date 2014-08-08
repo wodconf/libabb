@@ -26,7 +26,7 @@ bool ConnectionRef::IsClosed(){
 void ConnectionRef::SetNoDelay(bool e){
 	conn_->SetNoDelay(e);
 }
-bool  ConnectionRef::LockWrite(base::Buffer**buf){
+bool  ConnectionRef::LockWrite(Buffer**buf){
 	return conn_->LockWrite(buf);
 }
 void  ConnectionRef::UnLockWrite(bool bflush){
