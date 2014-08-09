@@ -4,24 +4,32 @@
 #include "abb/http/http_responce.hpp"
 #include "abb/http/http_const.hpp"
 #include "abb/http/http_decoder.hpp"
+#include "abb/base/thread.hpp"
 namespace abb{
 namespace http{
 
-class HttpClient:public net::ITcpClientListener{
+class HttpClient:public net::ITcpClientListener,public RefObject{
 public:
-	HttpClient(Request* req,IRequestHandler* handler)
+	HttpClient(Request* req,IRequestHandler* handler,bool del)
 	:req_(req),
+	:self_delete_(del),
 	handler_(handler),
 	read_responced_(false),
 	error_(-1)
 	{
+		this->Ref();
 	}
 	virtual ~HttpClient(){
 		req_->UnRef();
+		rsp_->UnRef();
+	}
+	void Wait(){
+		notify_.Wait();
 	}
 	virtual void L_TcpClient_OnConnectFail(int error){
 		handler_->HandleError(error);
-		delete this;
+		notify_.Notify();
+		this->UnRef();
 	}
 	virtual void L_TcpClient_OnConnection(net::ConnectionRef* conn){
 		abb::Buffer* buf;
@@ -37,11 +45,11 @@ public:
 			conn->Close();
 			error_ = 1001;
 		}else{
-			Responce* rsp = d->GetResponce();
-			if(rsp){
+			rsp_ = d->GetResponce();
+			if(rsp_){
 				read_responced_= true;
-				this->handler_->HandleResponce(rsp);
-				rsp->UnRef();
+				notify_.Notify();
+				if(this->handler_)this->handler_->HandleResponce(rsp);
 				conn->Close();
 			}
 		}
@@ -49,17 +57,29 @@ public:
 	virtual void L_TcpClient_OnClose(net::ConnectionRef* conn,int error){
 		if(!read_responced_){
 			if(error_ > 0){
-				this->handler_->HandleError(error_);
+				if(this->handler_)this->handler_->HandleError(error_);
 			}else{
-				this->handler_->HandleError(error);
+				if(this->handler_)this->handler_->HandleError(error);
 			}
+			notify_.Notify();
 		}
-		delete this;
+		this->UnRef();
 	}
+	int GetError(){
+		return error_;
+	}
+	Responce* GetResponce(){
+		if(rsp_) rsp_->Ref();
+		return rsp_;
+	} 
+private:
 	int error_;
 	bool read_responced_;
 	IRequestHandler* handler_;
 	Request* req_;
+	Responce* rsp_;
+	bool self_delete_;
+	Notification notify_;
 };
 
 bool Post(net::EventLoop* loop,
@@ -97,8 +117,28 @@ bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler){
 	}
 	HttpClient* htc = new HttpClient(req,handler);
 	net::tcp::Connect(loop,addr,htc);
+	htc->UnRef();
 	return true;
 }
 
+extern Responce* SyncDo(net::EventLoop* loop,Request* req,int* error){
+	net::IPAddr addr;
+	if( req->GetURL().Host.find(":") == std::string::npos){
+		if(!addr.SetByString(req->GetURL().Host + ":80")){
+			return NULL;
+		}
+	}else{
+		if( !addr.SetByString(req->GetURL().Host) ){
+			return NULL;
+		}
+	}
+	HttpClient* htc = new HttpClient(req,handler);
+	net::tcp::Connect(loop,addr,htc);
+	htc->Wait();
+	Responce* rsp = htc->GetResponce();
+	if(!rsp && error) *error = htc->GetError();
+	htc->UnRef();
+	return rsp;
+}
 
 }}

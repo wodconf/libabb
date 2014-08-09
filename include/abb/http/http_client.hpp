@@ -28,5 +28,7 @@ extern bool Post(net::EventLoop* loop,
 extern bool Get(net::EventLoop* loop,const std::string& url,IRequestHandler* handler);
 extern bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler);
 
+extern Responce* SyncDo(net::EventLoop* loop,Request* req,int* error);
+
 }}
 #endif
