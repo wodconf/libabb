@@ -48,7 +48,7 @@ public:
 			if(rsp_){
 				read_responced_= true;
 				notify_.Notify();
-				if(this->handler_)this->handler_->HandleResponce(rsp);
+				if(this->handler_)this->handler_->HandleResponce(rsp_);
 				conn->Close();
 			}
 		}
