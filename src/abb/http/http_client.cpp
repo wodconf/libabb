@@ -10,9 +10,8 @@ namespace http{
 
 class HttpClient:public net::ITcpClientListener,public RefObject{
 public:
-	HttpClient(Request* req,IRequestHandler* handler,bool del)
+	HttpClient(Request* req,IRequestHandler* handler)
 	:req_(req),
-	:self_delete_(del),
 	handler_(handler),
 	read_responced_(false),
 	error_(-1)
@@ -78,7 +77,6 @@ private:
 	IRequestHandler* handler_;
 	Request* req_;
 	Responce* rsp_;
-	bool self_delete_;
 	Notification notify_;
 };
 
@@ -132,7 +130,7 @@ extern Responce* SyncDo(net::EventLoop* loop,Request* req,int* error){
 			return NULL;
 		}
 	}
-	HttpClient* htc = new HttpClient(req,handler);
+	HttpClient* htc = new HttpClient(req,NULL);
 	net::tcp::Connect(loop,addr,htc);
 	htc->Wait();
 	Responce* rsp = htc->GetResponce();
