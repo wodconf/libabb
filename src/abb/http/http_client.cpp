@@ -120,6 +120,9 @@ bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler){
 }
 
 extern Responce* SyncDo(net::EventLoop* loop,Request* req,int* error){
+	if(loop->IsInEventLoop()){
+		return NULL;
+	}
 	net::IPAddr addr;
 	if( req->GetURL().Host.find(":") == std::string::npos){
 		if(!addr.SetByString(req->GetURL().Host + ":80")){
