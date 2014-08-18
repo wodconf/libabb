@@ -1,0 +1,38 @@
+PROJECT(abb)
+
+
+INCLUDE_DIRECTORIES(
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/src
+  /usr/local/include
+  /usr/include
+)
+
+
+LINK_DIRECTORIES(
+  ${PROJECT_BINARY_DIR}/lib
+
+  /usr/local/lib
+  /usr/lib
+)
+
+OPTION(USE_32BIT "This is a option for address" OFF)
+
+if(${USE_32BIT} STREQUAL "ON")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -march=i686 -O2 -fPIC -DPIC")
+else()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O2 -fPIC -DPIC")
+endif()
+
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+SET(CMAKE_SHARED_LINKER_FLAGS "-fPIC")
+SET(CMAKE_MODULE_LINKER_FLAGS "-fPIC")
+
+
+ADD_SUBDIRECTORY( src )
+
+ADD_SUBDIRECTORY( include )
+
+
+ADD_SUBDIRECTORY( examples )
