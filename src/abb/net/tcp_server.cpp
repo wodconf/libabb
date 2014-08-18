@@ -6,7 +6,7 @@
 #include "abb/net/event_loop.hpp"
 namespace abb{
 namespace net{
-TcpServer::TcpServer():lis_(NULL),acceptor_(NULL),event_group_(NULL),loop_(NULL){
+TcpServer::TcpServer():lis_(NULL),event_group_(NULL),accept_group_(NULL),acceptor_(NULL),loop_(NULL){
 
 }
 TcpServer::~TcpServer(){
@@ -53,15 +53,15 @@ void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr)
 	ConnectionRef* ref = new ConnectionRef(conn);
 	conn->SetData(ref);
 	conn->SetListener(this);
+	//conn->GetEventLoop()->RunInLoop();
+	this->lis_->L_TcpServer_OnConnection(ref);//make sure dispath connection event before message and close event
 	conn->Start();
-	this->lis_->L_TcpServer_OnConnection(ref);
 }
 void TcpServer::L_Connection_OnMessage(Connection* conn,Buffer& buf){
 	this->lis_->L_TcpServer_OnMesssage((ConnectionRef*)conn->GetData(),buf);
 }
 void TcpServer::L_Connection_OnClose(Connection* conn,int error){
 	ConnectionRef* ref = (ConnectionRef*)conn->GetData();
-	conn->ShutDown(true,true);
 	this->lis_->L_TcpServer_OnClose(ref,error);
 	ref->UnRef();
 }

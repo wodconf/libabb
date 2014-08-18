@@ -34,7 +34,7 @@ bool Socket::Listen(int* fd,const IPAddr& addr,int *save_err){
 	*fd = fd_;
 	return true;
 }
-bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err){
+bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err,int ms){
 	int fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
 		if(save_err) *save_err = errno;
@@ -42,6 +42,9 @@ bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err){
 	}
 	if(!block)
 		Socket::SetNoBlock(fd_,true);
+	else{
+		Socket::SetSendTimeout(fd_,ms);
+	}
 	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
 		if((err == EINPROGRESS) || (err == EAGAIN)){
@@ -75,9 +78,7 @@ bool Socket::Write(int fd,void*inbuf,int size,int* nwr,int* save_err){
 		ret = write(fd,buf,size);
 		if(ret < 0){
 			int err = errno;
-			if( err == EAGAIN){
-				break;
-			}else if(err == EINTR){
+			if(err == EINTR){
 				continue;
 			}else{
 				if(save_err){
@@ -106,11 +107,7 @@ bool Socket::ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_
 				if(save_err){
 					*save_err = err;
 				}
-				if( err == EAGAIN){
-					return true;
-				}else{
-					return false;
-				}
+				return false;
 			}
 		}
 		*nrd = ret;
@@ -132,11 +129,7 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 				if(save_err){
 					*save_err = err;
 				}
-				if( err == EAGAIN){
-					return true;
-				}else{
-					return false;
-				}
+				return false;
 			}
 		}
 		*nrd+=ret;
@@ -164,7 +157,7 @@ void Socket::SetNoBlock(int fd,bool b){
 
 	if( fcntl(fd, F_SETFL, oflag) < 0){
 		//
-		LOG(INFO) <<errno << strerror(errno);
+		LOG(INFO) <<errno << strerror(errno) << " fd:" << fd;
 	}
 }
 void Socket::SetNoDelay(int fd,bool b){
@@ -197,6 +190,7 @@ bool Socket::SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,i
 	if(setsockopt(fd,SOL_TCP,TCP_KEEPCNT,(void *)&keep_cout,sizeof(keep_cout)) == -1){
 		LOG(WARN) << "TCP_KEEPCNT" << keep_cout << " fail " << strerror(errno);
 	}
+	return true;
 }
 
 bool Socket::ShutDown(int fd,bool read,bool write,int* error){
@@ -230,6 +224,25 @@ bool Socket::SetCloseExec(int fd,bool bset,int* error){
 		}
 	}
 	return true;
+}
+void Socket::SetRecvTimeout(int fd,int ms){
+	struct timeval tv = {0, 0};
+	socklen_t len = sizeof(tv);
+	tv.tv_sec = ms/1000;
+	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
+ 	if( 0 != setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, len) ){
+ 		LOG(WARN) << "SetSendTimeout" << ms << " fail " << strerror(errno);
+ 	}
+}
+void Socket::SetSendTimeout(int fd,int ms){
+	struct timeval tv = {0, 0};
+	socklen_t len = sizeof(tv);
+	tv.tv_sec = ms/1000;
+	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
+ 	if( 0 != setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, len) ){
+ 		LOG(WARN) << "SetSendTimeout" << ms << " fail " << strerror(errno);
+ 	}
+ 	
 }
 } /* namespace translate */
 } /* namespace adcloud */

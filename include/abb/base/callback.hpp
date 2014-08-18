@@ -1,5 +1,5 @@
-#ifndef ABB_BASE_CALL_BACK_HPP_
-#define ABB_BASE_CALL_BACK_HPP_
+#ifndef __ABB_BASE_CALL_BACK_HPP__
+#define __ABB_BASE_CALL_BACK_HPP__
 
 namespace abb{
 		class CallBack{

@@ -5,8 +5,8 @@ namespace abb {
 namespace net {
 
 ConnectionRef::ConnectionRef(Connection* conn)
-:conn_(conn),
-Data(NULL)
+:Data(NULL),
+conn_(conn)
 {
 	local_ = conn_->GetLocalAddr();
 	remote_ = conn_->GetRemoteAddr();

@@ -13,7 +13,7 @@ namespace net {
 class Socket {
 public:
 	static bool Listen(int* fd,const IPAddr& addr,int *save_err);
-	static bool Connect(int* fd,bool block,const IPAddr& addr,int *save_err);
+	static bool Connect(int* fd,bool block,const IPAddr& addr,int *save_err,int ms = 5000);
 	static bool Accept(int fd,int* outfd,IPAddr*addr,int* save_err);
 	static bool Write(int fd,void*buf,int size,int* nwr,int* save_err);
 	static bool Read(int fd,void*buf,int size,int* nrd,int*save_err);
@@ -29,6 +29,8 @@ public:
 	static bool SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,int keep_cout);
 	static bool ShutDown(int fd,bool read,bool write,int* error);
 	static bool SetCloseExec(int fd,bool bset,int*error);
+	static void SetRecvTimeout(int fd,int ms);
+	static void SetSendTimeout(int fd,int ms);
 };
 
 } /* namespace net */

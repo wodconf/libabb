@@ -5,10 +5,12 @@
 #include "abb/http/http_const.hpp"
 #include "abb/http/http_decoder.hpp"
 #include "abb/base/thread.hpp"
+#include "abb/base/log.hpp"
+#include "abb/net/socket.hpp"
 namespace abb{
 namespace http{
 
-class HttpClient:public net::ITcpClientListener,public RefObject{
+class HttpClient:public net::ITcpClientListener{
 public:
 	HttpClient(Request* req,IRequestHandler* handler)
 	:req_(req),
@@ -16,19 +18,13 @@ public:
 	read_responced_(false),
 	error_(-1)
 	{
-		this->Ref();
 	}
 	virtual ~HttpClient(){
 		req_->UnRef();
-		rsp_->UnRef();
-	}
-	void Wait(){
-		notify_.Wait();
 	}
 	virtual void L_TcpClient_OnConnectFail(int error){
 		handler_->HandleError(error);
-		notify_.Notify();
-		this->UnRef();
+		delete this;
 	}
 	virtual void L_TcpClient_OnConnection(net::ConnectionRef* conn){
 		abb::Buffer* buf;
@@ -44,11 +40,11 @@ public:
 			conn->Close();
 			error_ = 1001;
 		}else{
-			rsp_ = d->GetResponce();
-			if(rsp_){
+			Responce* rsp = d->GetResponce();
+			if(rsp){
 				read_responced_= true;
-				notify_.Notify();
-				if(this->handler_)this->handler_->HandleResponce(rsp_);
+				if(this->handler_)this->handler_->HandleResponce(rsp);
+				rsp->UnRef();
 				conn->Close();
 			}
 		}
@@ -60,24 +56,14 @@ public:
 			}else{
 				if(this->handler_)this->handler_->HandleError(error);
 			}
-			notify_.Notify();
 		}
-		this->UnRef();
+		delete this;
 	}
-	int GetError(){
-		return error_;
-	}
-	Responce* GetResponce(){
-		if(rsp_) rsp_->Ref();
-		return rsp_;
-	} 
 private:
-	int error_;
-	bool read_responced_;
-	IRequestHandler* handler_;
 	Request* req_;
-	Responce* rsp_;
-	Notification notify_;
+	IRequestHandler* handler_;
+	bool read_responced_;
+	int error_;
 };
 
 bool Post(net::EventLoop* loop,
@@ -88,8 +74,10 @@ bool Post(net::EventLoop* loop,
 				IRequestHandler* handler){
 	Request* req = new Request(http::method::POST,"HTTP/1.1");
 	if(!req->SetUrl(url)){
+		req->UnRef();
 		return false;
 	}else{
+		req->GetHeader().Set(abb::http::header::CONTENT_TYPE,body_type);
 		req->Body().Write(body,size);
 		return Do(loop,req,handler);
 	}
@@ -115,31 +103,87 @@ bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler){
 	}
 	HttpClient* htc = new HttpClient(req,handler);
 	net::tcp::Connect(loop,addr,htc);
-	htc->UnRef();
 	return true;
 }
 
-extern Responce* SyncDo(net::EventLoop* loop,Request* req,int* error){
-	if(loop->IsInEventLoop()){
-		return NULL;
-	}
+Responce* SyncDo(Request& req,int* error,int ms_timeout){
 	net::IPAddr addr;
-	if( req->GetURL().Host.find(":") == std::string::npos){
-		if(!addr.SetByString(req->GetURL().Host + ":80")){
+	if( req.GetURL().Host.find(":") == std::string::npos){
+		if(!addr.SetByString(req.GetURL().Host + ":80")){
 			return NULL;
 		}
 	}else{
-		if( !addr.SetByString(req->GetURL().Host) ){
+		if( !addr.SetByString(req.GetURL().Host) ){
 			return NULL;
 		}
 	}
-	HttpClient* htc = new HttpClient(req,NULL);
-	net::tcp::Connect(loop,addr,htc);
-	htc->Wait();
-	Responce* rsp = htc->GetResponce();
-	if(!rsp && error) *error = htc->GetError();
-	htc->UnRef();
+	int fd;
+	int timeout = ms_timeout;
+	if(timeout <= 0){
+		timeout = 10000;
+	}
+	if( ! abb::net::Socket::Connect(&fd,true,addr,error,ms_timeout) ){
+		return NULL;
+	}
+
+	abb::Buffer buf;
+	req.Encode(buf);
+	int nw;
+	if( !abb::net::Socket::Write(fd,buf.ReadPtr(),buf.ReadSize(),&nw,error) ){
+		abb::net::Socket::Close(fd);
+		return NULL;
+	}
+	abb::Buffer recvbuf;
+	Responce* rsp;
+	ResponceDecoder coder;
+	int num_read = 0; ;
+	if(ms_timeout > 0)
+		abb::net::Socket::SetRecvTimeout(fd,ms_timeout);
+	for(int i=0;i<10;i++){
+		int nr;
+		recvbuf.EnoughSize(4096);
+		if( !abb::net::Socket::Read( fd,  (char*)recvbuf.WritePtr(),recvbuf.WriteSize(),&nr,error) || nr == 0 ){
+			if(!rsp){
+				LOG(WARN) << "decode not complete when close num_read:" << num_read << "  state:" << coder.State() << "left.size" << recvbuf.ReadSize() << "  " << *error;
+			}
+			break;
+		}
+		recvbuf.GaveWrite(nr);
+		num_read += nr;
+
+		if( !coder.Decode(recvbuf) ){
+			break;
+		}else{
+			rsp = coder.GetResponce();
+			if(rsp){
+				break;
+			}
+		}
+	}
+	abb::net::Socket::Close(fd);
 	return rsp;
+}
+
+Responce* SyncPost(const std::string& url,
+						const std::string& body_type,
+						const void* body,
+						int size,int* error,int ms_timeout){
+	Request req(http::method::POST,"HTTP/1.1");
+	if(!req.SetUrl(url)){
+		return NULL;
+	}else{
+		req.GetHeader().Set(abb::http::header::CONTENT_TYPE,body_type);
+		req.Body().Write(body,size);
+		return SyncDo(req,error,ms_timeout);
+	}
+}
+Responce* SyncGet(const std::string& url,int* error,int ms_timeout){
+	Request req(http::method::POST,"HTTP/1.1");
+	if(!req.SetUrl(url)){
+		return NULL;
+	}else{
+		return SyncDo(req,error,ms_timeout);
+	}
 }
 
 }}

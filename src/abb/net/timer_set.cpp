@@ -46,17 +46,18 @@ void TimerSet::LoopRemoveTimer(void* arg){
 	Arg* a = static_cast<Arg*>(arg);
 	IDMap::iterator iter = a->timer_set_->id_map_.find(a->id_);
 	if(iter != a->timer_set_->id_map_.end()){
+		Timer* t = iter->second;
 		a->timer_set_->id_map_.erase(iter);
-		iter->second->remove_ = true;
-		TimerProcessMap::iterator low = a->timer_set_->timer_map_.lower_bound(iter->second->pending_time_);
-		TimerProcessMap::iterator up = a->timer_set_->timer_map_.upper_bound(iter->second->pending_time_);
-		while (low != up){
-		   if(low->second == iter->second){
-		   		a->timer_set_->timer_map_.erase(low);
-		   		delete low->second;
-		   		break;
-		   }
-		    ++low;
+		t->remove_ = true;
+		typedef TimerProcessMap::iterator CIT;
+		typedef std::pair<CIT, CIT> Range;
+		Range range=a->timer_set_->timer_map_.equal_range(t->pending_time_);
+		 for(CIT i=range.first; i!=range.second; ++i){
+			if(i->second == t){
+				a->timer_set_->timer_map_.erase(i);
+				delete t;
+				break;
+			}
 		}
 	}
 	delete a;
@@ -73,8 +74,8 @@ int TimerSet::Process(){
 		TimerProcessMap::iterator iter = timer_map_.begin();
 		uint64_t now = MSNow();
 		if(iter->first <= now){
-			timer_map_.erase(iter);
 			Timer* t = iter->second;
+			timer_map_.erase(iter);
 			t->fn_(t->arg_);
 			if(t->remove_){
 				delete t;

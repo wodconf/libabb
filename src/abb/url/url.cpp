@@ -3,7 +3,7 @@
 namespace abb{
 namespace url{
 static void split(const std::string& s, const std::string& c,bool cutc,std::string& left,std::string& rigth ) {
-	int pos = s.find(c);
+	std::string::size_type pos = s.find(c);
 	if(pos == std::string::npos){
 		left = s;
 		rigth = "";
@@ -60,7 +60,7 @@ static bool parse(const std::string& url,URL* outurl,bool viaRequest){
 	return true;
 }
 static bool getscheme(const std::string& rawurl ,std::string& scheme,std::string& path) {
-	for(int i=0;i<rawurl.size();i++) {
+	for(unsigned i=0;i<rawurl.size();i++) {
 		char c = rawurl[i];
 		if( ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') ){
 			;

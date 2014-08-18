@@ -12,7 +12,7 @@ namespace abb{namespace net{
 		}
 	}
 	EventLoopGroup::~EventLoopGroup(){
-		for(int i=0;i<loops_.size();i++){
+		for(unsigned i=0;i<loops_.size();i++){
 			delete loops_[i];
 		}
 	}
@@ -30,20 +30,16 @@ namespace abb{namespace net{
 	}
 	void* EventLoopGroup::ThreadMain(void* arg){
 		EventLoop* loop = static_cast<EventLoop*>(arg);
-		sigset_t sigset;
-   		sigfillset(&sigset);
-		sigset_t *old_sigset;
-		pthread_sigmask(SIG_BLOCK, &sigset, old_sigset);
 		loop->Loop();
 		return NULL;
 	}
 	void EventLoopGroup::Stop(){
-		for(int i=0;i<loops_.size();i++){
+		for(unsigned i=0;i<loops_.size();i++){
 			loops_[i]->Stop();
 		}
 	}
 	void EventLoopGroup::Wait(){
-		for(int i=0;i<threads_.size();i++){
+		for(unsigned i=0;i<threads_.size();i++){
 			pthread_join(threads_[i],NULL);
 		}
 	}

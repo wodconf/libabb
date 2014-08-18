@@ -31,7 +31,10 @@ public:
 	void ShutDownAfterWrite();
 	void Destroy();
 
-	bool IsConnected(){return this->state_ == STATE_OPEN && !shut_down_after_write_;}
+	bool IsConnected(){
+		return ( __sync_bool_compare_and_swap(&this->close_,0,0)
+				&& __sync_bool_compare_and_swap(&this->shut_down_after_write_,0,0) );
+	}
 	const IPAddr& GetLocalAddr(){return local_addr_;}
 	const IPAddr& GetRemoteAddr(){return peer_addr_;}
 	EventLoop* GetEventLoop(){
@@ -61,25 +64,23 @@ private:
 	int Writer(void*buf,int size);
 private:
 	virtual ~Connection();
-	enum{
-		STATE_OPEN,
-		STATE_CLOSE,
-	}state_;
-	int fd_;
-	int err_;
+	
+	IOEvent io_event_;
 	IPAddr local_addr_;
 	IPAddr peer_addr_;
+	IConnectionListener* lis_;
+	int err_;
+	int close_;
+	void* data_;
+	int shut_down_after_write_;
+	bool block_write_;
+
 	Buffer rd_buf_;
 	Mutex wr_lock_;
 	Buffer* wr_buf_;
 	Buffer* wring_buf_;
 	Buffer wr_buf_1_;
 	Buffer wr_buf_2_;
-	IOEvent io_event_;
-	bool block_write_;
-	IConnectionListener* lis_;
-	void* data_;
-	bool shut_down_after_write_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 

@@ -8,9 +8,10 @@ namespace abb {
 namespace net {
 
 Acceptor::Acceptor(EventLoop* loop)
-:lis_(NULL),
+:io_event_(loop,this),
+ lis_(NULL),
  enable_(false),
- io_event_(loop,this)
+ bclose_(false)
 {
 	
 }

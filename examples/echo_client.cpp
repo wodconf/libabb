@@ -67,11 +67,9 @@ EventLoop loop;
 ConnectCB lis;
 static void do_timer(void* arg){
 	uint64_t now = MSNow();
-	//LOG(INFO) <<now-pre;
+	LOG(INFO) <<now-pre;
 	pre = now;
-	loop.Cancel(timeid);
-	loop.Cancel(timeid1);
-	loop.Cancel(timeid2);
+	lis.conn->Close();
 }
 int main(){
 	abb::net::IPAddr addr;
@@ -82,9 +80,7 @@ int main(){
 	
 	tcp::Connect(&loop,addr,&lis);
 	pre = MSNow();
-	timeid = loop.RunEvery(2,do_timer,NULL);
-	timeid1 = loop.RunEvery(2,do_timer,NULL);
-	timeid2 = loop.RunEvery(2,do_timer,NULL);
+	timeid = loop.RunAfter(1000,do_timer,NULL);
 	loop.Loop();
 
 }

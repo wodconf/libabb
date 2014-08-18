@@ -42,10 +42,10 @@ static unsigned long long htonll(unsigned long long val)
 Buffer::Buffer(){
 	this->size_ = 1024;
 	this->rd_ = this->wr_ = 0;
-	this->buf_ = (char*)malloc(this->size_);
+	this->buf_ = new char[this->size_];
 }
 Buffer::~Buffer(){
-	free(this->buf_);
+	delete [] this->buf_;
 }
 
 #define DECLARE_OPERATOR_IN_STREAM(TYPE)		\
@@ -62,6 +62,7 @@ Buffer::~Buffer(){
 		Buffer& Buffer::operator>> ( TYPE& val){	\
 	unsigned  int sz = sizeof(TYPE);				\
 	if(sz >  (wr_ - rd_) ){					\
+		throw new Exception("read out of range ");\
 		return *this;					\
 	}									\
 	memcpy(&val,buf_+rd_,sz);\
@@ -171,7 +172,7 @@ uint32_t Buffer::WriteFromeReader(BufferReader reader,void*arg){
 	io[1].iov_base = buf;
 	io[1].iov_len = sizeof(buf);
 	int ret = reader(arg,io,2);
-	if(ret <= size){
+	if(ret <= size && ret > 0){
 		this->wr_+= ret;
 	}else if(ret > size){
 		this->wr_+= size;
@@ -187,7 +188,10 @@ void Buffer::Grow(int needsize){
 		while(neddadd > add_size){
 			add_size+=256;
 		}
-		buf_ = (char*)realloc(buf_,this->size_+add_size);
+		char* nbuf = new char[this->size_+add_size];
+		memcpy(nbuf, buf_, size_);
+		delete []  buf_;
+		buf_ = nbuf;
 		this->size_+=add_size;
 	}
 	memmove(this->buf_,this->buf_+rd_,wr_-rd_);

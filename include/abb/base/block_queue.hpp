@@ -6,6 +6,7 @@
 #include "define.hpp"
 #include <errno.h>
 #include "thread.hpp"
+#include "log.hpp"
 namespace abb {
 template <typename T>
 class BlockQueue {
@@ -40,9 +41,18 @@ public:
 		}
 		return 0;
 	}
+	bool IsFull(){
+		Mutex::Locker l(mtx_);
+		return ( this->start_ == this->end_ && this->has_data_);
+	}
+	bool IsEmpty(){
+		Mutex::Locker l(mtx_);
+		return ( this->start_ == this->end_ && !this->has_data_);
+	}
 	void Push(T t){
 		Mutex::Locker l(mtx_);
 		while(this->start_ == this->end_ && this->has_data_){//full
+			LOG(INFO) << "queue.is.full";
 			cond_.Wait(mtx_);
 		}
 		this->que_[this->end_] = t;

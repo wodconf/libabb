@@ -1,6 +1,5 @@
 #include "abb/http/http_responce_writer.hpp"
 #include "abb/net/connection_ref.hpp"
-
 namespace abb{
 namespace http{
 

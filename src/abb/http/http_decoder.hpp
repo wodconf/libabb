@@ -4,6 +4,7 @@
 #include "abb/http/http_request.hpp"
 #include "abb/http/http_responce.hpp"
 #include "abb/base/buffer.hpp"
+#include "abb/base/log.hpp"
 namespace abb{
 namespace http{	
 	class RequestDecoder{
@@ -17,6 +18,7 @@ namespace http{
 			}
 			return NULL;
 		}
+		int State(){return state_;}
 	private:
 		enum{
 			FIRST_HEAD,
@@ -24,8 +26,8 @@ namespace http{
 			STATE_BODY,
 			STATE_COMPLETE,
 		};
-		int state_;
 		Request* req_;
+		int state_;
 		int len_;
 	};
 	class ResponceDecoder{
@@ -39,6 +41,7 @@ namespace http{
 			}
 			return NULL;
 		}
+		int State(){return state_;}
 	private:
 		enum{
 			FIRST_HEAD,
@@ -46,8 +49,8 @@ namespace http{
 			STATE_BODY,
 			STATE_COMPLETE,
 		};
-		int state_;
 		Responce* rsp_;
+		int state_;
 		int len_;
 	};
 }

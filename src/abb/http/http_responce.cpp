@@ -21,12 +21,12 @@ bool Responce::Encode(Buffer& buf){
 	for(;iter != kv.end();iter++){
 		out << iter->first << ": " << iter->second << "\r\n";
 	}
-	if(body_.Size() > 0){
-		out << header::CONTENT_LENGTH << ": "<< body_.Size() << "\r\n";
+	if(body_.ReadSize() > 0){
+		out << header::CONTENT_LENGTH << ": "<< body_.ReadSize() << "\r\n";
 	}
 	out<<"\r\n";
 	buf.Write((void*)out.str().c_str(),out.str().size());
-	buf.Write(body_.Data(),body_.Size());
+	buf.Write(body_.ReadPtr(),body_.ReadSize());
 	return true;
 }
 }

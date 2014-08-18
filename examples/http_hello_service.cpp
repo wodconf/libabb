@@ -9,7 +9,9 @@ public:
 HttpHandler(){};
 	virtual ~HttpHandler(){};
 	virtual void HandleRequest(abb::http::Request* req,abb::http::ResponceWriter* rspw){
-		LOG(DEBUG) << "request body ->  " <<std::string((char *)req->Body().Data(),req->Body().Size());
+		if(req->Body().ReadSize() > 0){
+			LOG(DEBUG) << "request body ->  " <<std::string((char *)req->Body().ReadPtr(),req->Body().ReadSize());
+		}
 		rspw->GetResponce().SetStatusCode(abb::http::code::StatusOK);
 		rspw->GetResponce().GetHeader().Set(abb::http::header::CONTENT_TYPE,"text/plain");
 		const char* hello = "hello";

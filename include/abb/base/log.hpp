@@ -18,13 +18,19 @@ enum LogLevel {
 };
 extern LogLevel g_min_log_level;
 
+class Loger{
+public:
+	Loger(){}
+	virtual ~Loger(){}
+	virtual void LogHandler(LogLevel level,const char* filename, int line, const std::string& message) = 0;
+};
 namespace internal{
 	class LogEnd;
-
+	
 	class LogRecord
 	{
 	public:
-		LogRecord(LogLevel level, const char* filename, int line);
+		LogRecord(LogLevel level, const char* filename, int line,Loger* loger);
 		~LogRecord();
 		LogRecord& operator<< (const std::string& val);
 		LogRecord& operator<< (const char* val);
@@ -44,6 +50,7 @@ namespace internal{
 		const char * filename_;
 		int line_;
 		std::string message_;
+		Loger* loger_;
 
 	};
 	class LogEnd{
@@ -53,14 +60,13 @@ namespace internal{
 }
 
 
-typedef void LogHandler(LogLevel level,const char* filename, int line, const std::string& message);
-LogHandler * SetLogHandler(LogHandler * new_handler);
-
+Loger* SetLoger(Loger* loger);
 
 }
 
+#define LOG_OF(lvl,loger) ::abb::internal::LogEnd() = ::abb::internal::LogRecord(::abb::LOGLEVEL_##lvl,__FILE__,__LINE__,loger)
 
-#define LOG(lvl) ::abb::internal::LogEnd() = ::abb::internal::LogRecord(::abb::LOGLEVEL_##lvl,__FILE__,__LINE__)
+#define LOG(lvl) ::abb::internal::LogEnd() = ::abb::internal::LogRecord(::abb::LOGLEVEL_##lvl,__FILE__,__LINE__,NULL)
 
 #define LOG_IF(lvl,condition) !(condition)?void(0) : LOG(lvl)
 

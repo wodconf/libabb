@@ -27,12 +27,15 @@ void Poller::Apply(IOEvent* event){
 	ep_ev.data.ptr = event;
 	ep_ev.events = 0;
 	if(event->GetEvent() & IO_EVENT_READ){
-		ep_ev.events |=  EPOLLIN | EPOLLERR  | EPOLLHUP ;
+		ep_ev.events |=  EPOLLIN | EPOLLERR  | EPOLLHUP;
 	}
 	if(event->GetEvent() & IO_EVENT_WRITE){
-		ep_ev.events |= EPOLLOUT | EPOLLERR | EPOLLHUP ;
+		ep_ev.events |= EPOLLOUT | EPOLLERR | EPOLLHUP;
 	}
-	if(event->GetEvent() == 0){
+	if(event->GetEvent() == 0 ){
+		if(!event->badd_){
+			return ;
+		}
 		mod = EPOLL_CTL_DEL;
 		event->badd_ = false;
 	}

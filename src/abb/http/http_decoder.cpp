@@ -16,9 +16,9 @@ static int FindCRLF(char* buf,int size){
 	return -1;
 }
 static void Split(const std::string&str,const std::string& sep,std::vector<std::string>& s_arr){
-	int pre_pos = 0;
+	std::string::size_type pre_pos = 0;
 	while(true){
-		int pos = str.find(sep,pre_pos);
+		std::string::size_type pos = str.find(sep,pre_pos);
 		if( pos != std::string::npos ){
 
 			s_arr.push_back(str.substr(pre_pos,pos-pre_pos));
@@ -30,12 +30,13 @@ static void Split(const std::string&str,const std::string& sep,std::vector<std::
 	}
 }
 static bool GetLine(Buffer& buf,std::string& str){
-	int sz = FindCRLF((char*)buf.Data(),buf.Size());
+	int sz = FindCRLF((char*)buf.ReadPtr(),buf.ReadSize());
 	if(sz < 0){
 		return false;
 	}
-	str = std::string((char*)buf.Data(),sz);
-	buf.GaveRd(sz+2);
+	if(sz == 0) str = "";
+	else str = std::string((char*)buf.ReadPtr(),sz);
+	buf.GaveRead(sz+2);
 	return true;
 }
 RequestDecoder::RequestDecoder():req_(NULL),state_(FIRST_HEAD),len_(0){
@@ -66,8 +67,8 @@ bool RequestDecoder::Decode(Buffer& buf){
 		}
 	}
 	if(state_ == STATE_HEAD){
-		while(GetLine(buf,line)){
-			if(line == ""){
+		while(GetLine(buf,line)){ 
+			if(line.empty()){
 				std::string val;
 				req_->GetHeader().Get(header::HOST,req_->GetURL().Host);
 				if(req_->GetHeader().Get(header::CONTENT_LENGTH,val)){
@@ -80,8 +81,9 @@ bool RequestDecoder::Decode(Buffer& buf){
 				}else{
 					this->state_ = STATE_COMPLETE;
 				}
+				break;
 			}
-			int pos = line.find(":");
+			std::string::size_type pos = line.find(":");
 			if(pos == std::string::npos){
 				continue;
 			}
@@ -90,9 +92,9 @@ bool RequestDecoder::Decode(Buffer& buf){
 
 	}
 	if(state_ == STATE_BODY){
-		if(buf.Size() >= len_){
-			req_->Body().Write(buf.Data(),buf.Size());
-			buf.GaveRd(len_);
+		if((int)buf.ReadSize() >= len_){
+			req_->Body().Write(buf.ReadPtr(),buf.ReadSize());
+			buf.GaveRead(len_);
 			this->state_ = STATE_COMPLETE;
 		}
 	}
@@ -140,8 +142,9 @@ bool ResponceDecoder::Decode(Buffer& buf){
 				}else{
 					this->state_ = STATE_COMPLETE;
 				}
+				break;
 			}
-			int pos = line.find(":");
+			std::string::size_type pos = line.find(":");
 			if(pos == std::string::npos){
 				continue;
 			}
@@ -150,9 +153,9 @@ bool ResponceDecoder::Decode(Buffer& buf){
 
 	}
 	if(state_ == STATE_BODY){
-		if(buf.Size() >= len_){
-			rsp_->Body().Write(buf.Data(),buf.Size());
-			buf.GaveRd(len_);
+		if((int)buf.ReadSize() >= len_){
+			rsp_->Body().Write(buf.ReadPtr(),buf.ReadSize());
+			buf.GaveRead(len_);
 			this->state_ = STATE_COMPLETE;
 		}
 	}

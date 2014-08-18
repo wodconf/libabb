@@ -1,7 +1,7 @@
 
 
-#ifndef __ADCLOUD_COMMON_SIGNAL_HPP__
-#define __ADCLOUD_COMMON_SIGNAL_HPP__
+#ifndef __ABB_BASE_SIGNAL_HPP__
+#define __ABB_BASE_SIGNAL_HPP__
 
 #include <signal.h>
 #include <string>

@@ -1,17 +1,28 @@
 
 
-#ifndef ABB_BASE_BUFFER_HPP_
-#define ABB_BASE_BUFFER_HPP_
+#ifndef __ABB_BASE_BUFFER_HPP__
+#define __ABB_BASE_BUFFER_HPP__
 
 #include <string>
 #include "define.hpp"
 #include <stdint.h>
+#include <exception>
 struct iovec;
 
 namespace abb {
 
 class Buffer{
 public:
+	class Exception:public std::exception{
+	public:
+		Exception()throw (){}
+		Exception(const std::string& str)throw ():str_(str){}
+		virtual ~Exception() throw (){}
+		virtual const char* what() const throw (){
+			return str_.c_str();
+		}
+		std::string str_;
+	};
 	typedef int (*BufferWriter)(void*arg,void*buf,int size);
 	typedef int (*BufferReader)(void*arg,const struct iovec *iov, int iovcnt);
 	Buffer();
@@ -47,35 +58,42 @@ public:
 
 	void Write(const void*buf,uint32_t sz);
 	uint32_t Read(void *buf,uint32_t sz);
-	void GaveWr(uint32_t sz){
-		wr_+=sz;
-		if(wr_ > size_){
-			wr_ = size_;
-		}
+	void* ReadPtr(){
+		return this->buf_+this->rd_;
 	}
-	void GaveRd(uint32_t sz){
+	uint32_t ReadSize(){
+		return wr_ - rd_;
+	}
+	void GaveRead(uint32_t sz){
 		rd_+=sz;
 		if(rd_ > wr_){
 			rd_ = wr_;
 		}
 	}
-	uint32_t Size(){
-		return wr_ - rd_;
-	}
-	void Back(uint32_t sz){
+	void BackRead(uint32_t sz){
 		if(sz > rd_){
 			rd_ = 0;
 		}
 		rd_-=sz;
 	}
-	void* Data(){
-		return this->buf_+this->rd_;
-	}
-	void* WrData(){
+	
+	void* WritePtr(){
 		return this->buf_+this->wr_;
 	}
-	uint32_t WrSize(){
+	uint32_t WriteSize(){
 		return this->size_ - this->wr_;
+	}
+	void GaveWrite(uint32_t sz){
+		wr_+=sz;
+		if(wr_ > size_){
+			wr_ = size_;
+		}
+	}
+	void BackWrite(uint32_t sz){
+		if( sz > (wr_ -rd_) ){
+			wr_ = rd_;
+		}
+		wr_-=sz;
 	}
 	void Clear(){
 		rd_ = wr_ = 0;
