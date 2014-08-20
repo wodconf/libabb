@@ -163,7 +163,7 @@ void Socket::SetNoBlock(int fd,bool b){
 void Socket::SetNoDelay(int fd,bool b){
 	int mode = b?1:0;
 	if ( 0 != setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, (const char*)&mode, sizeof(int)) ){
-		LOG(WARN) << "SetNoDelay" << b << " fail " << strerror(errno);
+		LOG(WARN) << "SetNoDelay " << b << " fail " << strerror(errno) << " fd: " << fd;
 	}
 }
 void Socket::SetRcvBufSize(int fd,int size){

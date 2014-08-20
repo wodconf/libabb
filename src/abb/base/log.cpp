@@ -1,14 +1,65 @@
 
 
 #include "abb/base/log.hpp"
-
+#include "abb/base/date.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctime>
-#define SW_LOG_DATE_STRLEN 64
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sstream>
+
+#define LOG_DATE_STRLEN 64
 namespace abb{
 
+static int SafeWrite(int fd,const void* buf,unsigned int size){
+	while (size > 0) {
+		ssize_t r = write(fd, buf, size);
+		if (r < 0) {
+			if (errno == EINTR)
+				continue;
+			return -errno;
+		}
+		size -= r;
+		buf = (char *)buf + r;
+	}
+	return 0;
+}
+
 LogLevel g_min_log_level = LOGLEVEL_TRACE;
+
+FileLoger::~FileLoger(){
+	if(fd_ > 0){
+		close(fd_);
+	}
+}
+bool FileLoger::Open(const std::string& logfile){
+	int mod = O_WRONLY | O_CREAT | O_TRUNC;
+	int fd = open(logfile.c_str(),mod,0600);
+	if(fd < 0){
+		LOG(ERROR) << "log.init.fail." << logfile << strerror(errno);
+		return false;
+	}else{
+		if(fd_ > 0){
+			close(fd_);
+		}else{
+			fd_ = fd;
+		}
+	}
+	return true;
+}
+void FileLoger::LogHandler(abb::LogLevel level,const char* filename, int line, const std::string& message){
+	if(fd_ < 0) return;
+	static const char* level_names[] = {"TRACE", "DEBUG", "WARN", "ERROR","FATAL","INFO"};
+	if (level >= level_) {
+		Date d = Date::Now();
+		std::ostringstream s;
+		s << "[" << d.FormatString() << " "<< level_names[level]<< " " << filename << ":" << line << "] " << message << "\r\n";
+		SafeWrite(fd_,(const void*)s.str().c_str(),s.str().size());
+	}
+}
+
 namespace internal{
 
 	class DefaultLoger:public Loger{
@@ -18,13 +69,8 @@ namespace internal{
 		virtual void LogHandler(LogLevel level,const char* filename, int line, const std::string& message){
 			static const char* level_names[] = {"TRACE", "DEBUG", "WARN", "ERROR","FATAL","INFO"};
 			if (level >= g_min_log_level) {
-				char date_str[SW_LOG_DATE_STRLEN];
-				time_t t;
-				struct tm p;
-				t = time(NULL);
-				localtime_r(&t, &p);
-				snprintf(date_str,SW_LOG_DATE_STRLEN, "%d-%02d-%02d %02d:%02d:%02d", p.tm_year + 1900, p.tm_mon+1, p.tm_mday , p.tm_hour, p.tm_min, p.tm_sec);
-				fprintf(stdout, "[%s %s %s:%d] %s\r\n",date_str, level_names[level], filename, line, message.c_str());
+				Date d = Date::Now();
+				fprintf(stdout, "[%s %s %s:%d] %s\r\n",d.FormatString().c_str(), level_names[level], filename, line, message.c_str());
 				fflush(stdout);  // Needed on MSVC.
 			}
 		}

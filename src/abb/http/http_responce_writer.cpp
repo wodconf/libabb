@@ -18,5 +18,8 @@ void ResponceWriter::Flush(){
 		conn_ref_->CloseAfterWrite();
 	}
 }
+const net::IPAddr& ResponceWriter::PeerAddr() const{
+	return conn_ref_->GetRemoteAddr();
+}
 }
 }

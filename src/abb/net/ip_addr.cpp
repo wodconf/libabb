@@ -165,6 +165,14 @@ char *strptr,
 size_t len//INET_ADDRSTRLEN(16) INET6_ADDRSTRLEN(46)
 );
  */
+int IPAddr::Port()const{
+	if(this->family == AF_INET6){
+		return ntohs( sa.v6.sin6_port);
+	}else if(this->family == AF_INET){
+		return ntohs( sa.v4.sin_port);
+	}
+	return -1;
+}
 std::string IPAddr::ToString() const{
 	if(this->family == AF_INET6){
 		char ip[46];
@@ -178,6 +186,18 @@ std::string IPAddr::ToString() const{
 		std::ostringstream s;
 		s << ip << ":" << ntohs( sa.v4.sin_port);
 		return s.str();
+	}
+	return "";
+}
+std::string IPAddr::ToIpString() const{
+	if(this->family == AF_INET6){
+		char ip[46];
+		inet_ntop(this->family, (void *)&sa.v6.sin6_addr, ip, 46);
+		return ip;
+	}else if(this->family == AF_INET){
+		char ip[16];
+		inet_ntop(this->family, (void *)&sa.v4.sin_addr, ip, 16);
+		return ip;
 	}
 	return "";
 }

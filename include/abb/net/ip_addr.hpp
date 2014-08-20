@@ -38,6 +38,8 @@ public:
 	bool SetByString(const std::string& str);
 	bool SetByStringIgnoreIP(const std::string& str);
 	std::string ToString() const;
+	std::string ToIpString() const;
+	int Port() const;
 public:
 	sa_family_t family;
 	union {

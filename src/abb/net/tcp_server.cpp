@@ -53,9 +53,10 @@ void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr)
 	ConnectionRef* ref = new ConnectionRef(conn);
 	conn->SetData(ref);
 	conn->SetListener(this);
-	//conn->GetEventLoop()->RunInLoop();
-	this->lis_->L_TcpServer_OnConnection(ref);//make sure dispath connection event before message and close event
-	conn->Start();
+	conn->Established();
+}
+void TcpServer::L_Connection_OnOpen(Connection* conn){
+	this->lis_->L_TcpServer_OnConnection((ConnectionRef*)conn->GetData());
 }
 void TcpServer::L_Connection_OnMessage(Connection* conn,Buffer& buf){
 	this->lis_->L_TcpServer_OnMesssage((ConnectionRef*)conn->GetData(),buf);

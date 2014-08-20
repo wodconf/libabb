@@ -80,7 +80,7 @@ int main(){
 	
 	tcp::Connect(&loop,addr,&lis);
 	pre = MSNow();
-	timeid = loop.RunAfter(1000,do_timer,NULL);
+	//timeid = loop.RunAfter(60000,do_timer,NULL);
 	loop.Loop();
 
 }

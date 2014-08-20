@@ -8,7 +8,7 @@ Responce::Responce(const std::string& version)
 :proto_(version),
 code_(code::StatusOK)
 {
-
+	this->header_.Set("X-Powered-By","abb");
 }
 Responce::~Responce(){
 

@@ -24,6 +24,21 @@ public:
 	virtual ~Loger(){}
 	virtual void LogHandler(LogLevel level,const char* filename, int line, const std::string& message) = 0;
 };
+
+class FileLoger:public Loger{
+public:
+	FileLoger(LogLevel level):fd_(-1),level_(level){}
+	FileLoger():fd_(-1),level_(g_min_log_level){}
+	void SetLogLevel(LogLevel level){level_ = level;};
+	LogLevel GetLogLevel() const {return level_;}
+	virtual ~FileLoger();
+	bool Open(const std::string& filename);
+	virtual void LogHandler(abb::LogLevel level,const char* filename, int line, const std::string& message);
+private:
+	int fd_;
+	LogLevel level_;
+};
+
 namespace internal{
 	class LogEnd;
 	

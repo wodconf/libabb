@@ -21,14 +21,13 @@ public:
 	Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer);
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
 	void SetNoDelay(bool e);
-	void Start();
+	void Established();
 	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
 	void Write(void*buf,unsigned int size);
 	void WriteAndFlush(void*buf,unsigned int size);
 	void Flush();
-	void ShutDown(bool read,bool write);
-	void ShutDownAfterWrite();
+	void CloseAfterWrite();
 	void Destroy();
 
 	bool IsConnected(){
@@ -43,11 +42,17 @@ public:
 	void SetData(void*data){data_ = data;}
 	void* GetData(){return data_;}
 private:
+	void ShutDown(bool read,bool write);
 	void InternalFlush();
 	virtual void HandleEvent(int event);
+	void LoopedEstablished();
 	void OnRead();
 	void OnWrite();
-	
+	void LoopedAllowWrite();
+	static void StaticEstablished(void*arg){
+		Connection* con = (Connection*)arg;
+		con->LoopedEstablished();
+	}
 	static int StaticReader(void*arg,const struct iovec *iov, int iovcnt){
 		Connection* con = (Connection*)arg;
 		return con->Reader(iov,iovcnt);
@@ -60,8 +65,17 @@ private:
 		Connection* con = (Connection*)arg;
 		delete con;
 	}
+	static void StaticAllowWrite(void *arg){
+		Connection* con = (Connection*)arg;
+		con->LoopedAllowWrite();
+	}
+	static void StaticCloseTimeout(void* arg){
+		Connection* con = (Connection*)arg;
+		con->LoopTimeout();
+	}
 	int Reader(const struct iovec *iov, int iovcnt);
 	int Writer(void*buf,int size);
+	void LoopTimeout();
 private:
 	virtual ~Connection();
 	
@@ -81,6 +95,8 @@ private:
 	Buffer* wring_buf_;
 	Buffer wr_buf_1_;
 	Buffer wr_buf_2_;
+
+	int time_out_id_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 

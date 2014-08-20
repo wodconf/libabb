@@ -8,7 +8,7 @@ namespace http{
 	:method_(m),
 	 proto_(version)
 	 {
-		
+		this->header_.Set("User-Agent","abb");
 	}
 	Request::~Request(){
 

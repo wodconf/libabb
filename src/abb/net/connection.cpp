@@ -18,21 +18,32 @@ Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& 
  close_(0),
  data_(NULL),
  shut_down_after_write_(0),
- block_write_(false)
+ block_write_(false),
+ time_out_id_(-1)
 {
 	wr_buf_ = &wr_buf_1_;
 	wring_buf_ = NULL;
 	Socket::SetNoBlock(io_event_.Fd(),true);
 }
-void Connection::Start(){
-	io_event_.AllowRead();
+void Connection::Established(){
+	this->GetEventLoop()->RunInLoop(StaticEstablished,this);
 }
 void Connection::SetNoDelay(bool e){
 	Socket::SetNoDelay(io_event_.Fd(),e);
 }
+void Connection::LoopedAllowWrite(){
+	if( __sync_bool_compare_and_swap(&this->close_,0,0) && !io_event_.IsAllowWrite() ){
+		io_event_.AllowWrite();
+	}
+}
 Connection::~Connection() {
+	this->GetEventLoop()->Cancel( time_out_id_ );
 	if(io_event_.Fd() > 0)
 		Socket::Close(io_event_.Fd());
+}
+void Connection::LoopedEstablished(){
+	io_event_.AllowRead();
+	this->lis_->L_Connection_OnOpen(this);
 }
 void Connection::Destroy(){
 	this->GetEventLoop()->QueueInLoop(StaticFree,this);
@@ -63,7 +74,7 @@ void Connection::UnLockWrite(bool bflush){
 }
 void Connection::InternalFlush(){
 	if(this->wr_buf_->ReadSize() > 0 && this->IsConnected()){
-		io_event_.AllowWrite();
+		this->GetEventLoop()->RunInLoop(StaticAllowWrite,this);
 	}
 }
 void Connection::Flush(){
@@ -111,15 +122,12 @@ int Connection::Writer(void*buf,int size){
 	}
 	return nwd;
 }
-void Connection::ShutDownAfterWrite(){
+void Connection::CloseAfterWrite(){
 	if(__sync_bool_compare_and_swap(&this->close_,0,0)){
 		if( __sync_bool_compare_and_swap(&this->shut_down_after_write_,0,1) ){
-			Mutex::Locker lock(wr_lock_);
-			io_event_.AllowWrite();
+			this->GetEventLoop()->RunInLoop(StaticAllowWrite,this);
 		}
 	}
-	
-	
 }
 void Connection::HandleEvent(int event){
 	if(__sync_bool_compare_and_swap(&this->close_,1,1)){
@@ -134,12 +142,21 @@ void Connection::HandleEvent(int event){
 		OnWrite();
 	}
 }
+void Connection::LoopTimeout(){
+	if(__sync_bool_compare_and_swap(&this->close_,0,1)){
+		io_event_.DisAllowAll();
+		Socket::Close(io_event_.Fd());
+		this->err_ = ETIMEDOUT;
+		this->lis_->L_Connection_OnClose(this,this->err_);
+	}
+}
 void Connection::OnRead(){
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(size > 0){
 		this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
 	}
 	if(__sync_bool_compare_and_swap(&this->close_,1,1)){
+		this->GetEventLoop()->Cancel( time_out_id_ );
 		io_event_.DisAllowAll();
 		Socket::Close(io_event_.Fd());
 		this->lis_->L_Connection_OnClose(this,this->err_);
@@ -173,10 +190,10 @@ void Connection::OnWrite(){
 			return;
 		}
 	}else{
-		Mutex::Locker lock(wr_lock_);
 		io_event_.DisAllowWrite();
 		if(__sync_bool_compare_and_swap(&this->shut_down_after_write_,1,1)){
 			this->ShutDown(false,true);
+			time_out_id_ = this->GetEventLoop()->RunAfter(3000,StaticCloseTimeout,this);
 		}
 
 	}

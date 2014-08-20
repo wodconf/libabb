@@ -125,7 +125,7 @@ Responce* SyncDo(Request& req,int* error,int ms_timeout){
 	if( ! abb::net::Socket::Connect(&fd,true,addr,error,ms_timeout) ){
 		return NULL;
 	}
-
+	abb::net::Socket::SetNoDelay(fd,true);
 	abb::Buffer buf;
 	req.Encode(buf);
 	int nw;

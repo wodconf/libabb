@@ -33,10 +33,10 @@ void  ConnectionRef::UnLockWrite(bool bflush){
 	conn_->UnLockWrite(bflush);
 }
 void ConnectionRef::Close(){
-	conn_->ShutDown(true,true);
+	conn_->CloseAfterWrite();
 }
 void ConnectionRef::CloseAfterWrite(){
-	conn_->ShutDownAfterWrite();
+	conn_->CloseAfterWrite();
 }
 
 ConnectionRef::~ConnectionRef() {

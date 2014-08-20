@@ -26,6 +26,7 @@ SET( ABB_SRC
 	abb/http/http_server.cpp
 	abb/http/http_client.cpp
 	abb/url/url.cpp
+	abb/base/date.cpp
 	)
 
 ADD_LIBRARY(abb SHARED ${ABB_SRC})

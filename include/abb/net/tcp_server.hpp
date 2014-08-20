@@ -35,6 +35,7 @@ public:
 	}
 private:
 	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr);
+	virtual void L_Connection_OnOpen(Connection* self);
 	virtual void L_Connection_OnMessage(Connection* self,Buffer& buf);
 	virtual void L_Connection_OnClose(Connection* self,int error);
 private:

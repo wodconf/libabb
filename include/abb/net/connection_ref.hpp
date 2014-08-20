@@ -22,8 +22,8 @@ public:
 	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
 	void SetNoDelay(bool e);
-	const IPAddr& GetLocalAddr(){return local_;}
-	const IPAddr& GetRemoteAddr(){return remote_;}
+	const IPAddr& GetLocalAddr() const {return local_;}
+	const IPAddr& GetRemoteAddr() const {return remote_;}
 	void Close();
 	void CloseAfterWrite();
 	void* Data;
