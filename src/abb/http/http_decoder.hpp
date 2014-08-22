@@ -24,11 +24,14 @@ namespace http{
 			FIRST_HEAD,
 			STATE_HEAD,
 			STATE_BODY,
+			STATE_CHUNK_SIZE,
+			STATE_CHUNK_BODY,
 			STATE_COMPLETE,
 		};
 		Request* req_;
 		int state_;
 		int len_;
+		int chunk_len_;
 	};
 	class ResponceDecoder{
 	public:
@@ -47,11 +50,14 @@ namespace http{
 			FIRST_HEAD,
 			STATE_HEAD,
 			STATE_BODY,
+			STATE_CHUNK_SIZE,
+			STATE_CHUNK_BODY,
 			STATE_COMPLETE,
 		};
 		Responce* rsp_;
 		int state_;
 		int len_;
+		int chunk_len_;
 	};
 }
 }

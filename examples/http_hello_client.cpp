@@ -17,16 +17,14 @@ void sleep(int ms){
 	select(0,0,0,0,&tv);
 }
 int main(){
-	while(true){
 		int error;
-		http::Responce* rsp = http::SyncGet("http://localhost:8080",&error,5000);
+		http::Responce* rsp = http::SyncGet("http://www.baidu.com/index.php?tn=98012088_5_dg&ch=10",&error,5000);
 		if(rsp){
 			LOG(DEBUG) << std::string((char *)rsp->Body().ReadPtr(),rsp->Body().ReadSize());
 		}else{
 			LOG(DEBUG) << strerror(error);
 		}
-		sleep(50);
-	}
+		sleep(50); 
 
 	//loop.Loop();
 }

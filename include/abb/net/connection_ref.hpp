@@ -15,23 +15,20 @@ class ConnectionRef :public RefObject{
 public:
 	explicit ConnectionRef(Connection* conn);
 	virtual ~ConnectionRef();
-	bool IsClosed();
+	bool Connected() const;
 	void Write(void*data,int len);
 	void Flush();
 	void WriteAndFlush(void*data,int len);
 	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
 	void SetNoDelay(bool e);
-	const IPAddr& GetLocalAddr() const {return local_;}
-	const IPAddr& GetRemoteAddr() const {return remote_;}
+	const IPAddr& GetLocalAddr() const;
+	const IPAddr& GetRemoteAddr() const;
 	void Close();
-	void CloseAfterWrite();
 	void* Data;
-	EventLoop* GetEventLoop();
+	EventLoop* GetEventLoop() const;
 private:
 	Connection* conn_;
-	IPAddr local_;
-	IPAddr remote_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(ConnectionRef);
 };
 

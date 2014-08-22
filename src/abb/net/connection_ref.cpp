@@ -6,10 +6,16 @@ namespace net {
 
 ConnectionRef::ConnectionRef(Connection* conn)
 :Data(NULL),
-conn_(conn)
-{
-	local_ = conn_->GetLocalAddr();
-	remote_ = conn_->GetRemoteAddr();
+conn_(conn){
+}
+ConnectionRef::~ConnectionRef() {
+	conn_->Destroy();
+}
+const IPAddr& ConnectionRef::GetLocalAddr() const{
+	return conn_->GetLocalAddr();
+}
+const IPAddr& ConnectionRef::GetRemoteAddr() const{
+	return conn_->GetRemoteAddr();
 }
 void ConnectionRef::Write(void*data,int len){
 	conn_->Write(data,len);
@@ -20,8 +26,8 @@ void ConnectionRef::Flush(){
 void ConnectionRef::WriteAndFlush(void*data,int len){
 	conn_->WriteAndFlush(data,len);
 }
-bool ConnectionRef::IsClosed(){
-	return !conn_->IsConnected();
+bool ConnectionRef::Connected() const{
+	return const_cast<Connection*>(conn_)->Connected();
 }
 void ConnectionRef::SetNoDelay(bool e){
 	conn_->SetNoDelay(e);
@@ -33,16 +39,11 @@ void  ConnectionRef::UnLockWrite(bool bflush){
 	conn_->UnLockWrite(bflush);
 }
 void ConnectionRef::Close(){
-	conn_->CloseAfterWrite();
-}
-void ConnectionRef::CloseAfterWrite(){
-	conn_->CloseAfterWrite();
+	conn_->Close();
 }
 
-ConnectionRef::~ConnectionRef() {
-	conn_->Destroy();
-}
-EventLoop* ConnectionRef::GetEventLoop(){
+
+EventLoop* ConnectionRef::GetEventLoop() const{
 	return conn_->GetEventLoop();
 }
 

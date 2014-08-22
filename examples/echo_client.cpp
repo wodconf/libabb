@@ -7,12 +7,12 @@
 #include <sys/time.h>
 using namespace abb::net;
 using namespace abb;
-class ConnectCB:public ITcpClientListener{
+class EchoClient:public ITcpClientListener{
 public:
-	ConnectCB():conn(NULL),index(0){
+	EchoClient():conn(NULL),index(0){
 
 	}
-	virtual ~ConnectCB(){
+	virtual ~EchoClient(){
 		conn->UnRef();
 	}
 	virtual void L_TcpClient_OnConnectFail(int error){
@@ -44,8 +44,9 @@ public:
 	void Flush(){
 		conn->Flush();
 	}
-	int index ;
+	
 	ConnectionRef* conn;
+	int index ;
 };
 void sleep(int ms){
 	struct timeval tv;
@@ -64,12 +65,12 @@ static uint64_t MSNow(){
 uint64_t pre;
 int timeid,timeid1,timeid2;
 EventLoop loop;
-ConnectCB lis;
+EchoClient client;
 static void do_timer(void* arg){
 	uint64_t now = MSNow();
 	LOG(INFO) <<now-pre;
 	pre = now;
-	lis.conn->Close();
+	client.conn->Close();
 }
 int main(){
 	abb::net::IPAddr addr;
@@ -78,9 +79,9 @@ int main(){
 		return -1;
 	}
 	
-	tcp::Connect(&loop,addr,&lis);
+	tcp::Connect(&loop,addr,&client);
 	pre = MSNow();
-	//timeid = loop.RunAfter(60000,do_timer,NULL);
+	timeid = loop.RunAfter(600000,do_timer,NULL);
 	loop.Loop();
 
 }

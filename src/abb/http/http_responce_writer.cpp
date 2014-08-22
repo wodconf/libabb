@@ -15,7 +15,7 @@ void ResponceWriter::Flush(){
 	if( conn_ref_->LockWrite(&buf)){
 		rsp_.Encode(*buf);
 		conn_ref_->UnLockWrite(true);
-		conn_ref_->CloseAfterWrite();
+		conn_ref_->Close();
 	}
 }
 const net::IPAddr& ResponceWriter::PeerAddr() const{

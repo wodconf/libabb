@@ -157,7 +157,7 @@ void Socket::SetNoBlock(int fd,bool b){
 
 	if( fcntl(fd, F_SETFL, oflag) < 0){
 		//
-		LOG(INFO) <<errno << strerror(errno) << " fd:" << fd;
+		LOG(INFO) << "SetNoBlock" <<errno << strerror(errno) << " fd:" << fd;
 	}
 }
 void Socket::SetNoDelay(int fd,bool b){

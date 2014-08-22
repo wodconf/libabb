@@ -20,12 +20,8 @@ public:
 	void SetEnable(bool benable);
 	void Close();
 	void Destroy();
-	const IPAddr& GetIpAddr(){
-		return addr_;
-	}
-	EventLoop* GetEventLoop(){
-		return io_event_.GetEventLoop();
-	}
+	const IPAddr& GetIpAddr() const{return addr_;}
+	EventLoop* GetEventLoop() const{return io_event_.GetEventLoop();}
 private:
 	virtual void HandleEvent(int event);
 	static void StaticDelete(void*arg){

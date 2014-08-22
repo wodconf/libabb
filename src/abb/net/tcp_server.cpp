@@ -59,7 +59,13 @@ void TcpServer::L_Connection_OnOpen(Connection* conn){
 	this->lis_->L_TcpServer_OnConnection((ConnectionRef*)conn->GetData());
 }
 void TcpServer::L_Connection_OnMessage(Connection* conn,Buffer& buf){
-	this->lis_->L_TcpServer_OnMesssage((ConnectionRef*)conn->GetData(),buf);
+	ConnectionRef* ref = (ConnectionRef*)conn->GetData();
+	if(ref->Connected()){
+		this->lis_->L_TcpServer_OnMesssage(ref,buf);
+	}else{
+		buf.Clear();
+	}
+	
 }
 void TcpServer::L_Connection_OnClose(Connection* conn,int error){
 	ConnectionRef* ref = (ConnectionRef*)conn->GetData();

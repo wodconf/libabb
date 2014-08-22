@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <sstream>
 namespace abb{
 namespace http{	
 
@@ -78,6 +79,8 @@ bool RequestDecoder::Decode(Buffer& buf){
 					}else{
 						this->state_ = STATE_COMPLETE;
 					}
+				}else if(req_->GetHeader().Get(header::TRANSFER_ENCODING,val)){
+					this->state_ = STATE_CHUNK_SIZE;
 				}else{
 					this->state_ = STATE_COMPLETE;
 				}
@@ -93,9 +96,35 @@ bool RequestDecoder::Decode(Buffer& buf){
 	}
 	if(state_ == STATE_BODY){
 		if((int)buf.ReadSize() >= len_){
-			req_->Body().Write(buf.ReadPtr(),buf.ReadSize());
+			req_->Body().Write(buf.ReadPtr(),len_);
 			buf.GaveRead(len_);
 			this->state_ = STATE_COMPLETE;
+		}
+	}
+	while(state_ == STATE_CHUNK_SIZE || state_ == STATE_CHUNK_BODY){
+		if(state_ == STATE_CHUNK_SIZE){
+			if( GetLine(buf,line) ){
+				if(line.empty()){
+					chunk_len_ = 0;
+				}else{
+					std::istringstream in(line);
+					in >> std::hex >> chunk_len_;
+				}
+				if(chunk_len_ == 0){
+					this->state_ = STATE_COMPLETE;
+					break;
+				}
+				state_ = STATE_CHUNK_BODY;
+			}else{
+				break;
+			}
+		}
+		if(state_ == STATE_CHUNK_BODY){
+			if((int)buf.ReadSize() >= chunk_len_){
+				req_->Body().Write(buf.ReadPtr(),chunk_len_);
+				buf.GaveRead(chunk_len_);
+				state_ = STATE_CHUNK_SIZE;
+			}
 		}
 	}
 	return true;
@@ -139,6 +168,8 @@ bool ResponceDecoder::Decode(Buffer& buf){
 					}else{
 						this->state_ = STATE_COMPLETE;
 					}
+				}else if(rsp_->GetHeader().Get(header::TRANSFER_ENCODING,val)){
+					this->state_ = STATE_CHUNK_SIZE;
 				}else{
 					this->state_ = STATE_COMPLETE;
 				}
@@ -154,11 +185,38 @@ bool ResponceDecoder::Decode(Buffer& buf){
 	}
 	if(state_ == STATE_BODY){
 		if((int)buf.ReadSize() >= len_){
-			rsp_->Body().Write(buf.ReadPtr(),buf.ReadSize());
+			rsp_->Body().Write(buf.ReadPtr(),len_);
 			buf.GaveRead(len_);
 			this->state_ = STATE_COMPLETE;
 		}
 	}
+	while(state_ == STATE_CHUNK_SIZE || state_ == STATE_CHUNK_BODY){
+		if(state_ == STATE_CHUNK_SIZE){
+			if( GetLine(buf,line) ){
+				if(line.empty()){
+					chunk_len_ = 0;
+				}else{
+					std::istringstream in(line);
+					in >> std::hex >> chunk_len_;
+				}
+				if(chunk_len_ == 0){
+					this->state_ = STATE_COMPLETE;
+					break;
+				}
+				state_ = STATE_CHUNK_BODY;
+			}else{
+				break;
+			}
+		}
+		if(state_ == STATE_CHUNK_BODY){
+			if((int)buf.ReadSize() >= chunk_len_){
+				rsp_->Body().Write(buf.ReadPtr(),chunk_len_);
+				buf.GaveRead(chunk_len_);
+				state_ = STATE_CHUNK_SIZE;
+			}
+		}
+	}
+	
 	return true;
 }
 

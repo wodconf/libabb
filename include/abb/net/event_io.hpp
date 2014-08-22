@@ -12,8 +12,8 @@ public:
 	IOEvent(EventLoop* loop,IEventHandler* handler);
 	~IOEvent();
 	void SetFd(int fd){fd_ = fd;}
-	int Fd(){return fd_;}
-	int GetEvent(){return event_;};
+	int Fd()const{return fd_;}
+	int GetEvent() const{return event_;};
 	bool IsAllowWrite(){ return event_&IO_EVENT_WRITE;}
 	bool IsAllowRead(){ return event_&IO_EVENT_READ;}
 	void SetRevent(int event){revent_=event;}
@@ -24,7 +24,7 @@ public:
 	void DisAllowAll(){event_ = 0;Apply();}
 	void AllowAll(){event_ = IO_EVENT_READ| IO_EVENT_WRITE;Apply();}
 	void Emitter(){handler_->HandleEvent(revent_);}
-	EventLoop* GetEventLoop(){return loop_;}
+	EventLoop* GetEventLoop()const{return loop_;}
 private:
 	void Apply();
 	int fd_;

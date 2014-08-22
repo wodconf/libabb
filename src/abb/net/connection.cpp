@@ -1,7 +1,6 @@
 
 
 #include "abb/net/connection.hpp"
-#include "abb/net/socket.hpp"
 #include "abb/base/log.hpp"
 #include "abb/net/event_loop.hpp"
 #include <errno.h>
@@ -38,8 +37,12 @@ void Connection::LoopedAllowWrite(){
 }
 Connection::~Connection() {
 	this->GetEventLoop()->Cancel( time_out_id_ );
-	if(io_event_.Fd() > 0)
-		Socket::Close(io_event_.Fd());
+	if( __sync_bool_compare_and_swap(&this->close_,0,1) ){
+		LOG(WARN) << "delete.before.close";
+		io_event_.DisAllowAll();
+		this->ShutDown(true,true);
+	}
+	Socket::Close(io_event_.Fd());
 }
 void Connection::LoopedEstablished(){
 	io_event_.AllowRead();
@@ -48,12 +51,9 @@ void Connection::LoopedEstablished(){
 void Connection::Destroy(){
 	this->GetEventLoop()->QueueInLoop(StaticFree,this);
 }
-void Connection::ShutDown(bool read,bool write){
-	Socket::ShutDown(this->io_event_.Fd(),read,write,NULL);
-}
 bool Connection::LockWrite(Buffer**buf){
 	wr_lock_.Lock();
-	if(this->IsConnected()){
+	if(this->Connected()){
 		block_write_ = true;
 		*buf = wr_buf_;
 		return true;
@@ -65,7 +65,7 @@ bool Connection::LockWrite(Buffer**buf){
 
 void Connection::UnLockWrite(bool bflush){
 	if(!block_write_) return;
-	if(!this->IsConnected()){
+	if(!this->Connected()){
 		wr_buf_->Clear();
 	}else if(bflush){
 		InternalFlush();
@@ -73,7 +73,7 @@ void Connection::UnLockWrite(bool bflush){
 	wr_lock_.UnLock();
 }
 void Connection::InternalFlush(){
-	if(this->wr_buf_->ReadSize() > 0 && this->IsConnected()){
+	if(this->wr_buf_->ReadSize() > 0 && this->Connected()){
 		this->GetEventLoop()->RunInLoop(StaticAllowWrite,this);
 	}
 }
@@ -82,7 +82,7 @@ void Connection::Flush(){
 	InternalFlush();
 }
 void Connection::WriteAndFlush(void*buf,unsigned int size){
-	if(!this->IsConnected()){
+	if(!this->Connected()){
 		return;
 	}
 	Mutex::Locker lock(wr_lock_);
@@ -90,7 +90,7 @@ void Connection::WriteAndFlush(void*buf,unsigned int size){
 	InternalFlush();
 }
 void Connection::Write(void*buf,unsigned int size){
-	if(!this->IsConnected()){
+	if(!this->Connected()){
 		return;
 	}
 	Mutex::Locker lock(wr_lock_);
@@ -99,6 +99,10 @@ void Connection::Write(void*buf,unsigned int size){
 int Connection::Reader(const struct iovec *iov, int iovcnt){
 	int nrd;
 	int err = 0;
+	if(iov[0].iov_len == 0 ){
+		LOG(WARN) <<"reader buf is empty";
+		return 0;
+	}
 	if( Socket::ReadV(this->io_event_.Fd(),iov,iovcnt,&nrd,&err) ){
 		if(nrd == 0 ){
 			__sync_bool_compare_and_swap(&this->close_,0,1);
@@ -117,12 +121,11 @@ int Connection::Writer(void*buf,int size){
 	if(! Socket::Write(this->io_event_.Fd(),buf,size,&nwd,&err) ){
 		if(err != EAGAIN){
 			this->err_ = err;
-			__sync_bool_compare_and_swap(&this->close_,0,1);
 		}
 	}
 	return nwd;
 }
-void Connection::CloseAfterWrite(){
+void Connection::Close(){
 	if(__sync_bool_compare_and_swap(&this->close_,0,0)){
 		if( __sync_bool_compare_and_swap(&this->shut_down_after_write_,0,1) ){
 			this->GetEventLoop()->RunInLoop(StaticAllowWrite,this);
@@ -145,7 +148,7 @@ void Connection::HandleEvent(int event){
 void Connection::LoopTimeout(){
 	if(__sync_bool_compare_and_swap(&this->close_,0,1)){
 		io_event_.DisAllowAll();
-		Socket::Close(io_event_.Fd());
+		this->ShutDown(true,true);
 		this->err_ = ETIMEDOUT;
 		this->lis_->L_Connection_OnClose(this,this->err_);
 	}
@@ -157,8 +160,9 @@ void Connection::OnRead(){
 	}
 	if(__sync_bool_compare_and_swap(&this->close_,1,1)){
 		this->GetEventLoop()->Cancel( time_out_id_ );
+		time_out_id_ = -1;
 		io_event_.DisAllowAll();
-		Socket::Close(io_event_.Fd());
+		this->ShutDown(true,true);
 		this->lis_->L_Connection_OnClose(this,this->err_);
 	}
 }

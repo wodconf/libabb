@@ -11,6 +11,7 @@
 #include "abb/net/listener.hpp"
 #include "abb/net/event_handler.hpp"
 #include "abb/net/event_io.hpp"
+#include "abb/net/socket.hpp"
 
 namespace abb {
 namespace net {
@@ -27,22 +28,16 @@ public:
 	void Write(void*buf,unsigned int size);
 	void WriteAndFlush(void*buf,unsigned int size);
 	void Flush();
-	void CloseAfterWrite();
+	void Close();
 	void Destroy();
-
-	bool IsConnected(){
-		return ( __sync_bool_compare_and_swap(&this->close_,0,0)
-				&& __sync_bool_compare_and_swap(&this->shut_down_after_write_,0,0) );
-	}
-	const IPAddr& GetLocalAddr(){return local_addr_;}
-	const IPAddr& GetRemoteAddr(){return peer_addr_;}
-	EventLoop* GetEventLoop(){
-		return io_event_.GetEventLoop();
-	}
+	bool Connected(){return ( __sync_bool_compare_and_swap(&this->close_,0,0)&& __sync_bool_compare_and_swap(&this->shut_down_after_write_,0,0) );}
+	const IPAddr& GetLocalAddr() const{return local_addr_;}
+	const IPAddr& GetRemoteAddr() const{return peer_addr_;}
+	EventLoop* GetEventLoop()const{return io_event_.GetEventLoop();}
 	void SetData(void*data){data_ = data;}
-	void* GetData(){return data_;}
+	void* GetData() const{return data_;}
 private:
-	void ShutDown(bool read,bool write);
+	void ShutDown(bool read,bool write){Socket::ShutDown(this->io_event_.Fd(),read,write,NULL);}
 	void InternalFlush();
 	virtual void HandleEvent(int event);
 	void LoopedEstablished();

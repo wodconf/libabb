@@ -31,10 +31,10 @@ public:
 	};
 	void L_Connection_OnMessage(Connection* conn,Buffer& buf){
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
-		if(ref->IsClosed()){
-			buf.Clear();
-		}else{
+		if(ref->Connected()){
 			this->lis_->L_TcpClient_OnMessage(ref,buf);
+		}else{
+			buf.Clear();
 		}
 	}
 	void L_Connection_OnClose(Connection* conn,int error){

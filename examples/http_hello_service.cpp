@@ -14,6 +14,8 @@ HttpHandler(){};
 		}
 		rspw->GetResponce().SetStatusCode(abb::http::code::StatusOK);
 		rspw->GetResponce().GetHeader().Set(abb::http::header::CONTENT_TYPE,"text/plain");
+		rspw->GetResponce().GetHeader().Set("Access-Control-Allow-Origin","*");
+		
 		const char* hello = "hello";
 		rspw->GetResponce().Body().Write((void*)hello,strlen(hello));
 		rspw->Flush();
