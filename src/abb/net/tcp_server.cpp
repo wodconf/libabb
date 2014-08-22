@@ -26,7 +26,7 @@ void TcpServer::Init(int num_thread,bool run_curent_thread){
 bool TcpServer::Bind(const IPAddr& addr,int* save_error){
 	return acceptor_->Bind(addr,save_error);
 }
-const IPAddr& TcpServer::GetAddr(){
+const IPAddr& TcpServer::GetAddr() const{
 	return acceptor_->GetIpAddr();
 }
 void TcpServer::Start(){

@@ -29,8 +29,8 @@ public:
 	void Pause();
 	void Resume();
 	void Close();
-	const IPAddr& GetAddr();
-	EventLoopGroup* GetEventLoopGroup(){
+	const IPAddr& GetAddr() const;
+	EventLoopGroup* GetEventLoopGroup() const{
 		return event_group_;
 	}
 private:

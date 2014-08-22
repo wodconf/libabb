@@ -14,8 +14,8 @@ public:
 	void SetFd(int fd){fd_ = fd;}
 	int Fd()const{return fd_;}
 	int GetEvent() const{return event_;};
-	bool IsAllowWrite(){ return event_&IO_EVENT_WRITE;}
-	bool IsAllowRead(){ return event_&IO_EVENT_READ;}
+	bool IsAllowWrite() const{ return event_&IO_EVENT_WRITE;}
+	bool IsAllowRead() const{ return event_&IO_EVENT_READ;}
 	void SetRevent(int event){revent_=event;}
 	void AllowRead(){event_|= IO_EVENT_READ;Apply();}
 	void AllowWrite(){event_|= IO_EVENT_WRITE;Apply();}
