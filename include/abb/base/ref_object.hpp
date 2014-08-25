@@ -15,9 +15,12 @@ public:
 	}
 	void UnRef() {
 		if (__sync_sub_and_fetch(&ref_,1) == 0)
-			delete this;
+			CustomRelease();
 	}
 private:
+	virtual void CustomRelease(){
+		delete this;
+	}
 	int ref_;
 };
 

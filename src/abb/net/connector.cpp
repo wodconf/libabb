@@ -11,15 +11,15 @@ namespace abb{namespace net{
 Connector::Connector(EventLoop* loop)
 :lis_(NULL),
 io_event_(loop,this),
-connected_(0){
+connecting_(0){
 }
 Connector::~Connector(){
-	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
+	if(__sync_bool_compare_and_swap(&connecting_,1,0) ){
 		Socket::Close(io_event_.Fd());
 	}
 }
 void Connector::Connect(const IPAddr& addr){
-	if(__sync_bool_compare_and_swap(&connected_,0,1) ){
+	if(__sync_bool_compare_and_swap(&connecting_,0,1) ){
 		addr_ = addr;
 		this->GetEventLoop()->QueueInLoop(StaticConnect,this);
 	}
@@ -44,12 +44,12 @@ void Connector::Destroy(){
 	this->GetEventLoop()->QueueInLoop(StaticDelete,this);
 }
 void Connector::Reset(){
-	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
+	if(__sync_bool_compare_and_swap(&connecting_,1,0) ){
 		this->GetEventLoop()->QueueInLoop(StaticReset,this);
 	}
 }
 void Connector::HandleEvent(int event){
-	if(__sync_bool_compare_and_swap(&connected_,1,0) ){
+	if(__sync_bool_compare_and_swap(&connecting_,1,0) ){
 		io_event_.DisAllowWrite();
 		int err;
 		int fd = io_event_.Fd();

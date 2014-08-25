@@ -3,6 +3,7 @@
 #include "abb/net/connection.hpp"
 #include "abb/base/log.hpp"
 #include "abb/net/event_loop.hpp"
+#include "abb/net/socket.hpp"
 #include <errno.h>
 
 namespace abb {
@@ -40,7 +41,7 @@ Connection::~Connection() {
 	if( __sync_bool_compare_and_swap(&this->close_,0,1) ){
 		LOG(WARN) << "delete.before.close";
 		io_event_.DisAllowAll();
-		this->ShutDown(true,true);
+		Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
 	}
 	Socket::Close(io_event_.Fd());
 }
@@ -148,7 +149,7 @@ void Connection::HandleEvent(int event){
 void Connection::LoopTimeout(){
 	if(__sync_bool_compare_and_swap(&this->close_,0,1)){
 		io_event_.DisAllowAll();
-		this->ShutDown(true,true);
+		Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
 		this->err_ = ETIMEDOUT;
 		this->lis_->L_Connection_OnClose(this,this->err_);
 	}
@@ -162,7 +163,7 @@ void Connection::OnRead(){
 		this->GetEventLoop()->Cancel( time_out_id_ );
 		time_out_id_ = -1;
 		io_event_.DisAllowAll();
-		this->ShutDown(true,true);
+		Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
 		this->lis_->L_Connection_OnClose(this,this->err_);
 	}
 }
@@ -196,7 +197,7 @@ void Connection::OnWrite(){
 	}else{
 		io_event_.DisAllowWrite();
 		if(__sync_bool_compare_and_swap(&this->shut_down_after_write_,1,1)){
-			this->ShutDown(false,true);
+			Socket::ShutDown(this->io_event_.Fd(),false,true,NULL);
 			time_out_id_ = this->GetEventLoop()->RunAfter(3000,StaticCloseTimeout,this);
 		}
 

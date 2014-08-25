@@ -14,7 +14,6 @@ class EventLoop;
 class ConnectionRef :public RefObject{
 public:
 	explicit ConnectionRef(Connection* conn);
-	virtual ~ConnectionRef();
 	bool Connected() const;
 	void Write(void*data,int len);
 	void Flush();
@@ -26,8 +25,9 @@ public:
 	const IPAddr& GetRemoteAddr() const;
 	void Close();
 	void* Data;
-	EventLoop* GetEventLoop() const;
+	EventLoop* GetEventLoop();
 private:
+	virtual ~ConnectionRef();
 	Connection* conn_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(ConnectionRef);
 };

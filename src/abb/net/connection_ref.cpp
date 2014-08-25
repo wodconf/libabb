@@ -43,7 +43,7 @@ void ConnectionRef::Close(){
 }
 
 
-EventLoop* ConnectionRef::GetEventLoop() const{
+EventLoop* ConnectionRef::GetEventLoop(){
 	return conn_->GetEventLoop();
 }
 

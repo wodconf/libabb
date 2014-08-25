@@ -18,12 +18,8 @@ public:
 	void Reset();
 	void SetListener(IConnectorListener* lis){lis_=lis;}
 	void Destroy();
-	const IPAddr& GetIpAddr(){
-		return addr_;
-	}
-	EventLoop* GetEventLoop(){
-		return io_event_.GetEventLoop();
-	}
+	const IPAddr& GetIpAddr() const{return addr_;}
+	EventLoop* GetEventLoop(){return io_event_.GetEventLoop();}
 private:
 	void RealConnect();
 	void RealReset();
@@ -45,7 +41,7 @@ private:
 	IConnectorListener* lis_;
 	IPAddr addr_;
 	IOEvent io_event_;
-	int connected_;
+	int connecting_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connector);
 };
 }
