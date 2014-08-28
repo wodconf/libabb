@@ -18,8 +18,7 @@ Connection::Connection(EventLoop* loop,int fd,const SocketAddress& local,const S
  close_(0),
  data_(NULL),
  shut_down_after_write_(0),
- block_write_(false),
- time_out_id_(-1)
+ block_write_(false)
 {
 	wr_buf_ = &wr_buf_1_;
 	wring_buf_ = NULL;
@@ -37,7 +36,6 @@ void Connection::LoopedAllowWrite(){
 	}
 }
 Connection::~Connection() {
-	this->GetEventLoop()->Cancel( time_out_id_ );
 	if( __sync_bool_compare_and_swap(&this->close_,0,1) ){
 		LOG(WARN) << "delete.before.close";
 		io_event_.DisAllowAll();
@@ -160,8 +158,6 @@ void Connection::OnRead(){
 		this->lis_->L_Connection_OnMessage(this,this->rd_buf_);
 	}
 	if(__sync_bool_compare_and_swap(&this->close_,1,1)){
-		this->GetEventLoop()->Cancel( time_out_id_ );
-		time_out_id_ = -1;
 		io_event_.DisAllowAll();
 		Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
 		this->lis_->L_Connection_OnClose(this,this->err_);
@@ -198,7 +194,6 @@ void Connection::OnWrite(){
 		io_event_.DisAllowWrite();
 		if(__sync_bool_compare_and_swap(&this->shut_down_after_write_,1,1)){
 			Socket::ShutDown(this->io_event_.Fd(),false,true,NULL);
-			time_out_id_ = this->GetEventLoop()->RunAfter(3000,StaticCloseTimeout,this);
 		}
 
 	}

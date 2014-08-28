@@ -89,7 +89,6 @@ private:
 	Buffer wr_buf_1_;
 	Buffer wr_buf_2_;
 
-	int time_out_id_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 
