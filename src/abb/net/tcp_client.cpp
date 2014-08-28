@@ -76,5 +76,5 @@ extern void Connect(EventLoop* loop,const SocketAddress& addr,ITcpClientListener
 	cli->Start();
 }
 }
-} /* namespace monprxoy */
-} /* namespace adcloud */
+}
+}

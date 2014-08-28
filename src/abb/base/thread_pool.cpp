@@ -84,5 +84,5 @@ void* ThreadPool::ThreadMain(void* arg){
 	ThreadPool* pool = static_cast<ThreadPool*>(arg);
 	pool->Worker();
 	return NULL;
-} /* namespace common */
-} /* namespace adcloud */
+} 
+} 

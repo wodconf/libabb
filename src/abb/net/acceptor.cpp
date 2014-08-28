@@ -62,5 +62,5 @@ void Acceptor::HandleEvent(int event){
 		this->lis_->L_Acceptor_OnConnection(this,fd,addr);
 	}
 }
-} /* namespace translate */
-} /* namespace adcloud */
+} 
+} 
