@@ -15,7 +15,7 @@ namespace net {
 
 class TcpClient:public IConnectorListener,IConnectionListener{
 public:
-	TcpClient(EventLoop* loop,ITcpClientListener* lis,const IPAddr& addr)
+	TcpClient(EventLoop* loop,ITcpClientListener* lis,const SocketAddress& addr)
 	:loop_(loop),
 	lis_(lis),
 	addr_(addr)
@@ -60,7 +60,7 @@ public:
 	EventLoop* loop_;
 	ITcpClientListener* lis_;
 	Connector *ctor_;
-	IPAddr addr_;
+	SocketAddress addr_;
 };
 namespace tcp{
 
@@ -71,7 +71,7 @@ namespace{
 	}
 }
 
-extern void Connect(EventLoop* loop,const IPAddr& addr,ITcpClientListener* lis){
+extern void Connect(EventLoop* loop,const SocketAddress& addr,ITcpClientListener* lis){
 	TcpClient* cli = new TcpClient(loop,lis,addr);
 	cli->Start();
 }

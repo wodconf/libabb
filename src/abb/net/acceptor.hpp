@@ -16,11 +16,11 @@ class Acceptor :public IEventHandler{
 public:
 	explicit Acceptor(EventLoop* loop);
 	void SetListener(IAcceptorListener* lis){lis_ = lis;}
-	bool Bind(const IPAddr& addr,int* save_err = NULL);
+	bool Bind(const SocketAddress& addr,int* save_err = NULL);
 	void SetEnable(bool benable);
 	void Close();
 	void Destroy();
-	const IPAddr& GetIpAddr() const{return addr_;}
+	const SocketAddress& GetIpAddr() const{return addr_;}
 	EventLoop* GetEventLoop() const{return io_event_.GetEventLoop();}
 private:
 	virtual void HandleEvent(int event);
@@ -33,7 +33,7 @@ private:
 	IOEvent io_event_;
 	IAcceptorListener* lis_;
 	bool enable_;
-	IPAddr addr_;
+	SocketAddress addr_;
 	bool bclose_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Acceptor);
 };

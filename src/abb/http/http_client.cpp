@@ -91,7 +91,7 @@ bool Get(net::EventLoop* loop,const std::string& url,IRequestHandler* handler){
 	}
 }
 bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler){
-	net::IPAddr addr;
+	net::SocketAddress addr;
 	if( req->GetURL().Host.find(":") == std::string::npos){
 		if(!addr.SetByString(req->GetURL().Host + ":80")){
 			return false;
@@ -107,7 +107,7 @@ bool Do(net::EventLoop* loop,Request* req,IRequestHandler* handler){
 }
 
 Responce* SyncDo(Request& req,int* error,int ms_timeout){
-	net::IPAddr addr;
+	net::SocketAddress addr;
 	if( req.GetURL().Host.find(":") == std::string::npos){
 		if(!addr.SetByString(req.GetURL().Host + ":80")){
 			return NULL;

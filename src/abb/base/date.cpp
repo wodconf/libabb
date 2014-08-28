@@ -1,7 +1,7 @@
 #include "abb/base/date.hpp"
 #include <sys/time.h>
 namespace abb{
-	Date::Date(uint64_t u_second):micro_second_(u_second){
+	Date::Date(int64_t u_second):micro_second_(u_second){
 
 	}
 	Date::Date():micro_second_(0){
@@ -9,7 +9,7 @@ namespace abb{
 	Date Date::Now(){
 		struct timeval time;
 		gettimeofday(&time,NULL);
-		uint64_t tmp =  time.tv_sec;
+		int64_t tmp =  time.tv_sec;
 		tmp*=1000000;
 		tmp+=time.tv_usec;
 		return Date(tmp);

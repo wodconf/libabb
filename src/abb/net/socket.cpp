@@ -14,7 +14,7 @@
 #include <sys/uio.h>
 namespace abb {
 namespace net {
-bool Socket::Listen(int* fd,const IPAddr& addr,int *save_err){
+bool Socket::Listen(int* fd,const SocketAddress& addr,int *save_err){
 	int fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
 		if(save_err) *save_err = errno;
@@ -34,7 +34,7 @@ bool Socket::Listen(int* fd,const IPAddr& addr,int *save_err){
 	*fd = fd_;
 	return true;
 }
-bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err,int ms){
+bool Socket::Connect(int* fd,bool block,const SocketAddress& addr,int *save_err,int ms){
 	int fd_ = socket(addr.family,SOCK_STREAM,0);
 	if(fd_ < 0){
 		if(save_err) *save_err = errno;
@@ -58,8 +58,8 @@ bool Socket::Connect(int* fd,bool block,const IPAddr& addr,int *save_err,int ms)
 	*fd = fd_;
 	return true;
 }
-bool Socket::Accept(int fd,int* outfd,IPAddr*outaddr,int* save_err){
-	IPAddr addr;
+bool Socket::Accept(int fd,int* outfd,SocketAddress*outaddr,int* save_err){
+	SocketAddress addr;
 	socklen_t alen = sizeof(addr.sa);
 	int cfd = accept(fd, &addr.sa.sa, &alen);
 	if(cfd < 0){

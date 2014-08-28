@@ -22,7 +22,7 @@ void Acceptor::Destroy(){
 	
 	this->GetEventLoop()->QueueInLoop(StaticDelete,this);
 }
-bool Acceptor::Bind(const IPAddr& addr,int* save_err ){
+bool Acceptor::Bind(const SocketAddress& addr,int* save_err ){
 	int fd;
 	if( Socket::Listen(&fd,addr,save_err) ){
 		Socket::SetCloseExec(fd,true,NULL);
@@ -54,7 +54,7 @@ void Acceptor::SetEnable(bool benable){
 }
 void Acceptor::HandleEvent(int event){
 	if(!enable_)return;
-	IPAddr addr;
+	SocketAddress addr;
 	int fd;
 	if( Socket::Accept(io_event_.Fd(),&fd,&addr,NULL) ){
 		addr.family = this->addr_.family;

@@ -20,13 +20,13 @@ static bool CheckIp(const std::string& host){
 }
 
 using namespace abb::net;
-IPAddr::IPAddr():family(0){
-	memset(this,0,sizeof(IPAddr));
+SocketAddress::SocketAddress():family(0){
+	memset(this,0,sizeof(SocketAddress));
 }
-IPAddr::~IPAddr(){
+SocketAddress::~SocketAddress(){
 
 }
-bool IPAddr::SetV4(const char *addr, uint16_t port){
+bool SocketAddress::SetV4(const char *addr, uint16_t port){
 	int res = 1;
 
 	if (addr) {
@@ -48,7 +48,7 @@ bool IPAddr::SetV4(const char *addr, uint16_t port){
 	}
 	return false;
 }
-bool IPAddr::SetV6(const char *addr, uint16_t port){
+bool SocketAddress::SetV6(const char *addr, uint16_t port){
 	int res = 1;
 	struct addrinfo *ai, hints;
 	if (!addr) {
@@ -90,7 +90,7 @@ bool IPAddr::SetV6(const char *addr, uint16_t port){
 		return false;
 	}
 }
-bool IPAddr::SetUnix(const char *path,unsigned int pathlen){
+bool SocketAddress::SetUnix(const char *path,unsigned int pathlen){
 	if (!path) {
 		return false;
 	}
@@ -114,7 +114,7 @@ bool IPAddr::SetUnix(const char *path,unsigned int pathlen){
 	memcpy(&this->sa.nix.sun_path, path, pathlen);
 	return true;
 }
-bool IPAddr::SetFromAddrInfo(struct addrinfo* ai, uint16_t port){
+bool SocketAddress::SetFromAddrInfo(struct addrinfo* ai, uint16_t port){
 	this->family = ai->ai_family;
 	switch (this->family) {
 	case AF_INET6:
@@ -141,7 +141,7 @@ static bool ParseAddr(const std::string& addr,std::string *ip,int *port){
 	}
 	return false;
 }
-bool IPAddr::SetByString(const std::string& str){
+bool SocketAddress::SetByString(const std::string& str){
 	std::string ip;
 	int port;
 	if(ParseAddr(str,&ip,&port)){
@@ -149,7 +149,7 @@ bool IPAddr::SetByString(const std::string& str){
 	}
 	return false;
 }
-bool IPAddr::SetByStringIgnoreIP(const std::string& str){
+bool SocketAddress::SetByStringIgnoreIP(const std::string& str){
 	std::string ip;
 	int port;
 	if(ParseAddr(str,&ip,&port)){
@@ -165,7 +165,7 @@ char *strptr,
 size_t len//INET_ADDRSTRLEN(16) INET6_ADDRSTRLEN(46)
 );
  */
-int IPAddr::Port()const{
+int SocketAddress::Port()const{
 	if(this->family == AF_INET6){
 		return ntohs( sa.v6.sin6_port);
 	}else if(this->family == AF_INET){
@@ -173,7 +173,7 @@ int IPAddr::Port()const{
 	}
 	return -1;
 }
-std::string IPAddr::ToString() const{
+std::string SocketAddress::ToString() const{
 	if(this->family == AF_INET6){
 		char ip[46];
 		inet_ntop(this->family, (void *)&sa.v6.sin6_addr, ip, 46);
@@ -189,7 +189,7 @@ std::string IPAddr::ToString() const{
 	}
 	return "";
 }
-std::string IPAddr::ToIpString() const{
+std::string SocketAddress::ToIpString() const{
 	if(this->family == AF_INET6){
 		char ip[46];
 		inet_ntop(this->family, (void *)&sa.v6.sin6_addr, ip, 46);
@@ -201,7 +201,7 @@ std::string IPAddr::ToIpString() const{
 	}
 	return "";
 }
-bool IPAddr::SetFromHostent(struct hostent *ent, uint16_t port)
+bool SocketAddress::SetFromHostent(struct hostent *ent, uint16_t port)
 {
 	this->family = ent->h_addrtype;
 

@@ -11,10 +11,10 @@ conn_(conn){
 ConnectionRef::~ConnectionRef() {
 	conn_->Destroy();
 }
-const IPAddr& ConnectionRef::GetLocalAddr() const{
+const SocketAddress& ConnectionRef::GetLocalAddr() const{
 	return conn_->GetLocalAddr();
 }
-const IPAddr& ConnectionRef::GetRemoteAddr() const{
+const SocketAddress& ConnectionRef::GetRemoteAddr() const{
 	return conn_->GetRemoteAddr();
 }
 void ConnectionRef::Write(void*data,int len){

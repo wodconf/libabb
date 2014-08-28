@@ -18,7 +18,7 @@ Connector::~Connector(){
 		Socket::Close(io_event_.Fd());
 	}
 }
-void Connector::Connect(const IPAddr& addr){
+void Connector::Connect(const SocketAddress& addr){
 	if(__sync_bool_compare_and_swap(&connecting_,0,1) ){
 		addr_ = addr;
 		this->GetEventLoop()->QueueInLoop(StaticConnect,this);

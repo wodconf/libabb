@@ -21,7 +21,7 @@ public:
 		tcp_server.SetListener(this);
 	}
 	virtual ~EchoServer(){};
-	void Start(const abb::net::IPAddr& addr){
+	void Start(const abb::net::SocketAddress& addr){
 		int err;
 		if( ! this->tcp_server.Bind(addr,&err) ){
 			LOG(INFO) << "Bind fail" << strerror(err);
@@ -48,7 +48,7 @@ private:
 	TcpServer tcp_server;
 };
 int main(){
-	abb::net::IPAddr addr;
+	abb::net::SocketAddress addr;
 	if( ! addr.SetV4(NULL,9922) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;

@@ -8,7 +8,7 @@ namespace net{
 class Connection;
 class Connector;
 class Acceptor;
-class IPAddr;
+class SocketAddress;
 class ConnectionRef;
 class IConnectionListener{
 public:
@@ -26,7 +26,7 @@ public:
 class IAcceptorListener{
 public:
 	virtual ~IAcceptorListener(){};
-	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr) = 0;
+	virtual void L_Acceptor_OnConnection(Acceptor* ptr,int fd,const SocketAddress& addr) = 0;
 };
 
 }

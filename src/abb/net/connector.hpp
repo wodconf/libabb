@@ -14,11 +14,11 @@ class PollerEntry;
 class Connector:public IEventHandler{
 public:
 	Connector(EventLoop* loop);
-	void Connect(const IPAddr& addr);
+	void Connect(const SocketAddress& addr);
 	void Reset();
 	void SetListener(IConnectorListener* lis){lis_=lis;}
 	void Destroy();
-	const IPAddr& GetIpAddr() const{return addr_;}
+	const SocketAddress& GetIpAddr() const{return addr_;}
 	EventLoop* GetEventLoop(){return io_event_.GetEventLoop();}
 private:
 	void RealConnect();
@@ -39,7 +39,7 @@ private:
 	}
 private:
 	IConnectorListener* lis_;
-	IPAddr addr_;
+	SocketAddress addr_;
 	IOEvent io_event_;
 	int connecting_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connector);

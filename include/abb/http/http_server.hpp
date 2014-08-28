@@ -20,7 +20,7 @@ public:
 		tcp_svr_.Init(num_thread,run_curent_thread);
 	}
 	void SetListener(Listener* lis){lis_ = lis;}
-	bool Bind(const net::IPAddr& addr,int* save_error){
+	bool Bind(const net::SocketAddress& addr,int* save_error){
 		return tcp_svr_.Bind(addr,save_error);
 	}
 	void Start(){
@@ -35,7 +35,7 @@ public:
 	void Close(){
 		tcp_svr_.Close();
 	}
-	const net::IPAddr& GetAddr(){
+	const net::SocketAddress& GetAddr(){
 		return tcp_svr_.GetAddr();
 	}
 private:

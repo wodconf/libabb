@@ -9,7 +9,7 @@
 namespace abb {
 namespace net {
 
-Connection::Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer)
+Connection::Connection(EventLoop* loop,int fd,const SocketAddress& local,const SocketAddress& peer)
 :io_event_(loop,fd,this),
  local_addr_(local),
  peer_addr_(peer),

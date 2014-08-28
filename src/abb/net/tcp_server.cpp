@@ -23,10 +23,10 @@ void TcpServer::Init(int num_thread,bool run_curent_thread){
 		acceptor_ = new Acceptor(accept_group_->Next());
 	}
 }
-bool TcpServer::Bind(const IPAddr& addr,int* save_error){
+bool TcpServer::Bind(const SocketAddress& addr,int* save_error){
 	return acceptor_->Bind(addr,save_error);
 }
-const IPAddr& TcpServer::GetAddr() const{
+const SocketAddress& TcpServer::GetAddr() const{
 	return acceptor_->GetIpAddr();
 }
 void TcpServer::Start(){
@@ -48,7 +48,7 @@ void TcpServer::Pause(){
 void TcpServer::Resume(){
 	acceptor_->SetEnable(true);
 }
-void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const IPAddr& addr){
+void TcpServer::L_Acceptor_OnConnection(Acceptor* ptr,int fd,const SocketAddress& addr){
 	Connection* conn = new Connection(event_group_->Next(),fd,acceptor_->GetIpAddr(),addr);
 	ConnectionRef* ref = new ConnectionRef(conn);
 	conn->SetData(ref);

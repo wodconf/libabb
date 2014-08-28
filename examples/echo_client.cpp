@@ -73,7 +73,7 @@ static void do_timer(void* arg){
 	client.conn->Close();
 }
 int main(){
-	abb::net::IPAddr addr;
+	abb::net::SocketAddress addr;
 	if( ! addr.SetV4("localhost",9922) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;

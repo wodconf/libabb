@@ -18,7 +18,7 @@ class EventLoop;
 
 class Connection :public IEventHandler{
 public:
-	Connection(EventLoop* loop,int fd,const IPAddr& local,const IPAddr& peer);
+	Connection(EventLoop* loop,int fd,const SocketAddress& local,const SocketAddress& peer);
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
 	void SetNoDelay(bool e);
 	void Established();
@@ -30,8 +30,8 @@ public:
 	void Close();
 	void Destroy();
 	bool Connected(){return ( __sync_bool_compare_and_swap(&this->close_,0,0)&& __sync_bool_compare_and_swap(&this->shut_down_after_write_,0,0) );}
-	const IPAddr& GetLocalAddr() const{return local_addr_;}
-	const IPAddr& GetRemoteAddr() const{return peer_addr_;}
+	const SocketAddress& GetLocalAddr() const{return local_addr_;}
+	const SocketAddress& GetRemoteAddr() const{return peer_addr_;}
 	EventLoop* GetEventLoop(){return io_event_.GetEventLoop();}
 	void SetData(void*data){data_ = data;}
 	void* GetData() const{return data_;}
@@ -73,8 +73,8 @@ private:
 	virtual ~Connection();
 	
 	IOEvent io_event_;
-	IPAddr local_addr_;
-	IPAddr peer_addr_;
+	SocketAddress local_addr_;
+	SocketAddress peer_addr_;
 	IConnectionListener* lis_;
 	int err_;
 	int close_;

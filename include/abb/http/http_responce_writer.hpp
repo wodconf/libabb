@@ -16,7 +16,7 @@ public:
 	~ResponceWriter();
 	Responce& GetResponce(){return rsp_;}
 	void Flush();
-	const net::IPAddr& PeerAddr() const;
+	const net::SocketAddress& PeerAddr() const;
 private:
 	net::ConnectionRef* conn_ref_;
 	Responce rsp_;

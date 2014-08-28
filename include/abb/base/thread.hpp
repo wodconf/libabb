@@ -72,7 +72,34 @@ private:
 	Mutex mtx_;
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Notification);
 };
-
+class WatiGroup{
+public:
+	WatiGroup(){};
+	~WatiGroup(){};
+	void Add(){
+		Mutex::Locker l(mtx_);
+		++num_;
+	}
+	void Remove(){
+		Mutex::Locker l(mtx_);
+		if(num_ >0){
+			if(--num_ == 0){
+				cond_.Broadcast();
+			}
+		}
+	}
+	void Wait(){
+		Mutex::Locker l(mtx_);
+		while(num_ > 0){
+			cond_.Wait(mtx_);
+		}
+		return ;
+	}
+private:
+	int num_;
+	Mutex mtx_;
+	Cond cond_;
+};
 class Thread{
 public:
 	Thread();

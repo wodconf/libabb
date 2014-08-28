@@ -19,7 +19,7 @@ public:
 	virtual void L_TcpClient_OnClose(ConnectionRef* conn,int error) = 0;
 };
 namespace tcp{
-extern void Connect(EventLoop* loop,const IPAddr& addr,ITcpClientListener* lis);
+extern void Connect(EventLoop* loop,const SocketAddress& addr,ITcpClientListener* lis);
 }
 
 } /* namespace monprxoy */

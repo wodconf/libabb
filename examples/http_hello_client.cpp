@@ -18,7 +18,7 @@ void sleep(int ms){
 }
 int main(){
 		int error;
-		http::Responce* rsp = http::SyncGet("http://www.baidu.com/index.php?tn=98012088_5_dg&ch=10",&error,5000);
+		http::Responce* rsp = http::SyncGet("http://adcloud_web.kkyoo.com:5082/",&error,5000);
 		if(rsp){
 			LOG(DEBUG) << std::string((char *)rsp->Body().ReadPtr(),rsp->Body().ReadSize());
 		}else{

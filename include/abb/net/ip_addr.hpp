@@ -13,10 +13,10 @@
 
 namespace abb{
 namespace net{
-class IPAddr {
+class SocketAddress {
 public:
-	IPAddr();
-	~IPAddr();
+	SocketAddress();
+	~SocketAddress();
 	inline unsigned int Length() const{
 		switch (this->family) {
 		case AF_UNIX:
@@ -50,12 +50,12 @@ public:
 	} sa;
 };
 
-inline bool operator==(const IPAddr& a, const IPAddr& b) { return memcmp(&a, &b, sizeof(a)) == 0; }
-inline bool operator!=(const IPAddr& a, const IPAddr& b) { return memcmp(&a, &b, sizeof(a)) != 0; }
-inline bool operator<(const IPAddr& a, const IPAddr& b) { return memcmp(&a, &b, sizeof(a)) < 0; }
-inline bool operator<=(const IPAddr& a, const IPAddr& b) { return memcmp(&a, &b, sizeof(a)) <= 0; }
-inline bool operator>(const IPAddr& a, const IPAddr& b) { return memcmp(&a, &b, sizeof(a)) > 0; }
-inline bool operator>=(const IPAddr& a, const IPAddr& b) { return memcmp(&a, &b, sizeof(a)) >= 0; }
+inline bool operator==(const SocketAddress& a, const SocketAddress& b) { return memcmp(&a, &b, sizeof(a)) == 0; }
+inline bool operator!=(const SocketAddress& a, const SocketAddress& b) { return memcmp(&a, &b, sizeof(a)) != 0; }
+inline bool operator<(const SocketAddress& a, const SocketAddress& b) { return memcmp(&a, &b, sizeof(a)) < 0; }
+inline bool operator<=(const SocketAddress& a, const SocketAddress& b) { return memcmp(&a, &b, sizeof(a)) <= 0; }
+inline bool operator>(const SocketAddress& a, const SocketAddress& b) { return memcmp(&a, &b, sizeof(a)) > 0; }
+inline bool operator>=(const SocketAddress& a, const SocketAddress& b) { return memcmp(&a, &b, sizeof(a)) >= 0; }
 }
 }
 

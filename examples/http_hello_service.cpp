@@ -22,7 +22,7 @@ HttpHandler(){};
 	}
 };
 int main(){
-	abb::net::IPAddr addr;
+	abb::net::SocketAddress addr;
 	if( ! addr.SetV4(NULL,8080) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;

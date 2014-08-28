@@ -9,13 +9,13 @@ class Date{
 public:
 	static Date Now();
 public:
-	Date(uint64_t micro_second);
+	Date(int64_t micro_second);
 	Date();
 	std::string FormatString() const;
-	uint64_t MicroSecond() const { return micro_second_;};
-	uint64_t MilliSecond() const { return micro_second_/1000;};
+	int64_t MicroSecond() const { return micro_second_;};
+	int64_t MilliSecond() const { return micro_second_/1000;};
 private:
-	uint64_t micro_second_;	
+	int64_t micro_second_;	
 };
 }
 
