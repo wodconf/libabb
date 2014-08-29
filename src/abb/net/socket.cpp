@@ -141,9 +141,6 @@ void Socket::SetRuseAddr(int fd,bool b){
 	int opt = b?1:0;
 	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 }
-void Socket::SetKeepAlive(int fd,bool b){
-
-}
 void Socket::Close(int fd){
 	close(fd);
 }
