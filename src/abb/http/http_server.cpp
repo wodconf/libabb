@@ -8,7 +8,7 @@ namespace abb{
 namespace http{
 void Server::L_TcpServer_OnConnection(net::ConnectionRef*ref){
 	ref->Data = new RequestDecoder();
-	ref->SetNoDelay(true);
+	ref->SetNoDelay(true,NULL);
 }
 void Server::L_TcpServer_OnMesssage(net::ConnectionRef* ref,Buffer& buf){
 	RequestDecoder* d = static_cast<RequestDecoder*>(ref->Data);

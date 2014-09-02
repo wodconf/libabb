@@ -31,11 +31,7 @@ public:
 	};
 	void L_Connection_OnMessage(Connection* conn,Buffer& buf){
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
-		if(ref->Connected()){
-			this->lis_->L_TcpClient_OnMessage(ref,buf);
-		}else{
-			buf.Clear();
-		}
+		this->lis_->L_TcpClient_OnMessage(ref,buf);
 	}
 	void L_Connection_OnClose(Connection* conn,int error){
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
@@ -62,19 +58,13 @@ public:
 	Connector *ctor_;
 	SocketAddress addr_;
 };
+
 namespace tcp{
-
-namespace{
-	void RealConnect(void* arg){
-		TcpClient* cli = (TcpClient*)arg;
-		cli->Start();
-	}
-}
-
 extern void Connect(EventLoop* loop,const SocketAddress& addr,ITcpClientListener* lis){
 	TcpClient* cli = new TcpClient(loop,lis,addr);
 	cli->Start();
 }
 }
+
 }
 }

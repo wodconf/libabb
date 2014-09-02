@@ -69,8 +69,9 @@ EchoClient client;
 static void do_timer(void* arg){
 	uint64_t now = MSNow();
 	LOG(INFO) <<now-pre;
+	loop.Cancel(timeid1);
 	pre = now;
-	client.conn->Close();
+	if(client.conn)client.conn->Close();
 }
 int main(){
 	abb::net::SocketAddress addr;
@@ -81,7 +82,8 @@ int main(){
 	
 	tcp::Connect(&loop,addr,&client);
 	pre = MSNow();
-	timeid = loop.RunAfter(600000,do_timer,NULL);
+	timeid = loop.RunAfter(1000,do_timer,NULL);
+	timeid1 = loop.RunAfter(3000,do_timer,NULL);
 	loop.Loop();
 
 }

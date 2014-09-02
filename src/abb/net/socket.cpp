@@ -20,7 +20,7 @@ bool Socket::Listen(int* fd,const SocketAddress& addr,int *save_err){
 		if(save_err) *save_err = errno;
 		return false;
 	}
-	Socket::SetRuseAddr(fd_,true);
+	Socket::SetRuseAddr(fd_,true,NULL);
 	if( bind(fd_,&addr.sa.sa,addr.Length()) != 0){
 		if(save_err) *save_err = errno;
 		close(fd_);
@@ -41,7 +41,7 @@ bool Socket::Connect(int* fd,bool block,const SocketAddress& addr,int *save_err,
 		return false;
 	}
 	if(!block)
-		Socket::SetNoBlock(fd_,true);
+		Socket::SetNoBlock(fd_,true,NULL);
 	else{
 		Socket::SetSendTimeout(fd_,ms);
 	}
@@ -137,14 +137,19 @@ bool Socket::Read(int fd,void*inbuf,int size,int* nrd,int*save_err){
 	}
 	return true;
 }
-void Socket::SetRuseAddr(int fd,bool b){
+bool Socket::SetRuseAddr(int fd,bool b,int *err){
 	int opt = b?1:0;
-	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+	if( setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt)) != 0){
+		int error = errno;
+		if(err) *err = error;
+		return false;
+	}
+	return true;
 }
 void Socket::Close(int fd){
 	close(fd);
 }
-void Socket::SetNoBlock(int fd,bool b){
+bool Socket::SetNoBlock(int fd,bool b,int *err){
 	int oflag = fcntl(fd, F_GETFL, 0);
 	if(b){
 		oflag |= O_NONBLOCK;
@@ -153,15 +158,22 @@ void Socket::SetNoBlock(int fd,bool b){
 	}
 
 	if( fcntl(fd, F_SETFL, oflag) < 0){
-		//
-		LOG(INFO) << "SetNoBlock" <<errno << strerror(errno) << " fd:" << fd;
+		int error = errno;
+		if(err) *err = error;
+		LOG(WARN) << "SetNoBlock" <<error << strerror(error) << " fd:" << fd;
+		return false;
 	}
+	return true;
 }
-void Socket::SetNoDelay(int fd,bool b){
+bool Socket::SetNoDelay(int fd,bool b,int *err){
 	int mode = b?1:0;
 	if ( 0 != setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, (const char*)&mode, sizeof(int)) ){
-		LOG(WARN) << "SetNoDelay " << b << " fail " << strerror(errno) << " fd: " << fd;
+		int error = errno;
+		if(err) *err = error;
+		LOG(WARN) << "SetNoDelay " << b << " fail " << strerror(error) << " fd: " << fd;
+		return false;
 	}
+	return true;
 }
 void Socket::SetRcvBufSize(int fd,int size){
 	setsockopt( fd, SOL_SOCKET, SO_RCVBUF, (const char*)&size, sizeof(int));
@@ -173,19 +185,36 @@ bool Socket::GetSockError(int fd,int*err){
 	unsigned size = sizeof(int);
 	return getsockopt(fd,SOL_SOCKET,SO_ERROR,(void*)err,&size) == 0;
 }
-bool Socket::SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,int keep_cout){
+bool Socket::SetKeepAlive(int fd,bool keppalive,int keep_idle,int* err){
 	int kepp_alive =  keppalive ? 0:1;
 	if(setsockopt(fd,SOL_SOCKET,SO_KEEPALIVE,(void*)&kepp_alive,sizeof(kepp_alive)) == -1){
+		int error = errno;
+		if(err) *err = error;
 		LOG(WARN) << "SO_KEEPALIVE" << kepp_alive << " fail " << strerror(errno);
 	}
 	if(setsockopt(fd,SOL_TCP,TCP_KEEPIDLE,(void *)&keep_idle,sizeof(keep_idle)) == -1){
+		int error = errno;
+		if(err) *err = error;
 		LOG(WARN) << "TCP_KEEPIDLE" << keep_idle << " fail " << strerror(errno);
+		return false;
 	}
+	return true;
+}
+bool Socket::SetKeepAliveInterval(int fd,int keepinterval,int* err){
 	if(setsockopt(fd,SOL_TCP,TCP_KEEPINTVL,(void *)&keepinterval,sizeof(keepinterval)) == -1){
-		LOG(WARN) << "TCP_KEEPINTVL" << keepinterval << " fail " << strerror(errno);
+		int error = errno;
+		if(err) *err = error;
+		LOG(WARN) << "TCP_KEEPINTVL" << keepinterval << " fail " << strerror(error);
+		return false;
 	}
+	return true;
+}
+bool Socket::SetKeepAliveCout(int fd,int keep_cout,int* err){
 	if(setsockopt(fd,SOL_TCP,TCP_KEEPCNT,(void *)&keep_cout,sizeof(keep_cout)) == -1){
-		LOG(WARN) << "TCP_KEEPCNT" << keep_cout << " fail " << strerror(errno);
+		int error = errno;
+		if(err) *err = error;
+		LOG(WARN) << "TCP_KEEPCNT" << keep_cout << " fail " << strerror(error);
+		return false;
 	}
 	return true;
 }

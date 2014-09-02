@@ -20,7 +20,8 @@ public:
 	void WriteAndFlush(void*data,int len);
 	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
-	void SetNoDelay(bool e);
+	bool SetNoDelay(bool e,int* error);
+	bool SetKeepAlive(bool enable,int delay,int* error);
 	const SocketAddress& GetLocalAddr() const;
 	const SocketAddress& GetRemoteAddr() const;
 	void Close();

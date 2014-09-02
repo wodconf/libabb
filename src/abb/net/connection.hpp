@@ -20,7 +20,8 @@ class Connection :public IEventHandler{
 public:
 	Connection(EventLoop* loop,int fd,const SocketAddress& local,const SocketAddress& peer);
 	void SetListener(IConnectionListener* lis){lis_ = lis;}
-	void SetNoDelay(bool e);
+	bool SetNoDelay(bool e,int* error);
+	bool SetKeepAlive(bool enable,int delay,int* error);
 	void Established();
 	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
@@ -61,10 +62,6 @@ private:
 	static void StaticAllowWrite(void *arg){
 		Connection* con = (Connection*)arg;
 		con->LoopedAllowWrite();
-	}
-	static void StaticCloseTimeout(void* arg){
-		Connection* con = (Connection*)arg;
-		con->LoopTimeout();
 	}
 	int Reader(const struct iovec *iov, int iovcnt);
 	int Writer(void*buf,int size);

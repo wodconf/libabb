@@ -22,13 +22,16 @@ Connection::Connection(EventLoop* loop,int fd,const SocketAddress& local,const S
 {
 	wr_buf_ = &wr_buf_1_;
 	wring_buf_ = NULL;
-	Socket::SetNoBlock(io_event_.Fd(),true);
+	Socket::SetNoBlock(io_event_.Fd(),true,NULL);
 }
 void Connection::Established(){
 	this->GetEventLoop()->RunInLoop(StaticEstablished,this);
 }
-void Connection::SetNoDelay(bool e){
-	Socket::SetNoDelay(io_event_.Fd(),e);
+bool Connection::SetNoDelay(bool e,int* error){
+	return Socket::SetNoDelay(io_event_.Fd(),e,error);
+}
+bool Connection::SetKeepAlive(bool enable,int delay,int* error){
+	return Socket::SetKeepAlive(io_event_.Fd(),enable,delay,error);
 }
 void Connection::LoopedAllowWrite(){
 	if( __sync_bool_compare_and_swap(&this->close_,0,0) && !io_event_.IsAllowWrite() ){
@@ -144,14 +147,6 @@ void Connection::HandleEvent(int event){
 		OnWrite();
 	}
 }
-void Connection::LoopTimeout(){
-	if(__sync_bool_compare_and_swap(&this->close_,0,1)){
-		io_event_.DisAllowAll();
-		Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
-		this->err_ = ETIMEDOUT;
-		this->lis_->L_Connection_OnClose(this,this->err_);
-	}
-}
 void Connection::OnRead(){
 	int size = this->rd_buf_.WriteFromeReader(StaticReader,this);
 	if(size > 0){
@@ -191,9 +186,14 @@ void Connection::OnWrite(){
 			return;
 		}
 	}else{
-		io_event_.DisAllowWrite();
 		if(__sync_bool_compare_and_swap(&this->shut_down_after_write_,1,1)){
-			Socket::ShutDown(this->io_event_.Fd(),false,true,NULL);
+			Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
+			if(__sync_bool_compare_and_swap(&this->close_,0,1)){
+				io_event_.DisAllowAll();
+				this->lis_->L_Connection_OnClose(this,0);
+			}
+		}else{
+			io_event_.DisAllowWrite();
 		}
 
 	}

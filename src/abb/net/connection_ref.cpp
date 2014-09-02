@@ -29,8 +29,11 @@ void ConnectionRef::WriteAndFlush(void*data,int len){
 bool ConnectionRef::Connected() const{
 	return const_cast<Connection*>(conn_)->Connected();
 }
-void ConnectionRef::SetNoDelay(bool e){
-	conn_->SetNoDelay(e);
+bool ConnectionRef::SetNoDelay(bool e,int* error){
+	return conn_->SetNoDelay(e,error);
+}
+bool ConnectionRef::SetKeepAlive(bool enable,int delay,int* error){
+	return conn_->SetKeepAlive(enable,delay,error);
 }
 bool  ConnectionRef::LockWrite(Buffer**buf){
 	return conn_->LockWrite(buf);

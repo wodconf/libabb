@@ -18,8 +18,8 @@ Singler::Singler(){
 	}else{
 		rfd_ = sockfd[0];
 		wfd_ = sockfd[1];
-		Socket::SetNoBlock(rfd_,true);
-		Socket::SetNoBlock(wfd_,true);
+		Socket::SetNoBlock(rfd_,true,NULL);
+		Socket::SetNoBlock(wfd_,true,NULL);
 	}
 }
 Singler::~Singler(){

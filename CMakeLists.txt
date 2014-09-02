@@ -19,9 +19,9 @@ LINK_DIRECTORIES(
 OPTION(USE_32BIT "This is a option for address" OFF)
 
 if(${USE_32BIT} STREQUAL "ON")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -march=i686 -O2 -fPIC -DPIC")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -pthread -march=i686 -O2 -fPIC -DPIC")
 else()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O2 -fPIC -DPIC")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -pthread -O2 -fPIC -DPIC")
 endif()
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

@@ -18,15 +18,18 @@ public:
 	static bool Write(int fd,void*buf,int size,int* nwr,int* save_err);
 	static bool Read(int fd,void*buf,int size,int* nrd,int*save_err);
 	static bool ReadV(int fd,const struct iovec *iov, int iovcnt,int* nrd,int*save_err);
-	static void SetNoBlock(int fd,bool b);
-	static void SetNoDelay(int fd,bool b);
+	static bool ShutDown(int fd,bool read,bool write,int* error);
+	static void Close(int fd);
+
+	static bool SetNoBlock(int fd,bool b,int * error);
+	static bool SetNoDelay(int fd,bool b,int * error);
+	static bool SetRuseAddr(int fd,bool b,int* error);
 	static void SetRcvBufSize(int fd,int size);
 	static void SetSndBufSize(int fd,int size);
-	static void SetRuseAddr(int fd,bool b);
 	static bool GetSockError(int fd,int*err);
-	static void Close(int fd);
-	static bool SetKeepAlive(int fd,bool keppalive,int keep_idle,int keepinterval,int keep_cout);
-	static bool ShutDown(int fd,bool read,bool write,int* error);
+	static bool SetKeepAlive(int fd,bool keppalive,int delay,int* err);
+	static bool SetKeepAliveInterval(int fd,int interval,int* err);
+	static bool SetKeepAliveCout(int fd,int interval,int* err);
 	static bool SetCloseExec(int fd,bool bset,int*error);
 	static void SetRecvTimeout(int fd,int ms);
 	static void SetSendTimeout(int fd,int ms);

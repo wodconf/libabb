@@ -26,7 +26,7 @@ bool Acceptor::Bind(const SocketAddress& addr,int* save_err ){
 	int fd;
 	if( Socket::Listen(&fd,addr,save_err) ){
 		Socket::SetCloseExec(fd,true,NULL);
-		Socket::SetNoBlock(fd,true);
+		Socket::SetNoBlock(fd,true,NULL);
 		addr_ = addr;
 		io_event_.SetFd(fd);
 		return true;

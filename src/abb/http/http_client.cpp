@@ -27,6 +27,7 @@ public:
 		delete this;
 	}
 	virtual void L_TcpClient_OnConnection(net::ConnectionRef* conn){
+		conn->SetNoDelay(true,NULL);
 		abb::Buffer* buf;
 		if( conn->LockWrite(&buf)){
 			req_->Encode(*buf);
@@ -125,7 +126,7 @@ Responce* SyncDo(Request& req,int* error,int ms_timeout){
 	if( ! abb::net::Socket::Connect(&fd,true,addr,error,ms_timeout) ){
 		return NULL;
 	}
-	abb::net::Socket::SetNoDelay(fd,true);
+	abb::net::Socket::SetNoDelay(fd,true,NULL);
 	abb::Buffer buf;
 	req.Encode(buf);
 	int nw;
