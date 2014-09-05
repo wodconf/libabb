@@ -41,6 +41,7 @@ bool FileLoger::Open(const std::string& logfile){
 		LOG(ERROR) << "log.init.fail." << logfile << strerror(errno);
 		return false;
 	}else{
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
 		if(fd_ > 0){
 			close(fd_);
 		}else{

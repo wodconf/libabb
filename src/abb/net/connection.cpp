@@ -193,6 +193,7 @@ void Connection::OnWrite(){
 				this->lis_->L_Connection_OnClose(this,0);
 			}
 		}else{
+			this->lis_->L_Connection_WriteComplete(this);
 			io_event_.DisAllowWrite();
 		}
 

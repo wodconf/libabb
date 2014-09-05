@@ -19,6 +19,7 @@ public:
 		virtual void L_TcpServer_OnConnection(ConnectionRef*) = 0;
 		virtual void L_TcpServer_OnMesssage(ConnectionRef*,Buffer& buf)= 0;
 		virtual void L_TcpServer_OnClose(ConnectionRef*,int error)= 0;
+		virtual void L_TcpServer_WriteComplete(ConnectionRef*){}
 	};
 	TcpServer();
 	virtual ~TcpServer();
@@ -38,6 +39,7 @@ private:
 	virtual void L_Connection_OnOpen(Connection* self);
 	virtual void L_Connection_OnMessage(Connection* self,Buffer& buf);
 	virtual void L_Connection_OnClose(Connection* self,int error);
+	virtual void L_Connection_WriteComplete(Connection* self);
 private:
 	Listener* lis_;
 	EventLoopGroup* event_group_;

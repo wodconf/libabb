@@ -33,6 +33,10 @@ public:
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 		this->lis_->L_TcpClient_OnMessage(ref,buf);
 	}
+	void L_Connection_WriteComplete(Connection* conn){
+		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
+		this->lis_->L_TcpClient_WriteComplete(ref);
+	}
 	void L_Connection_OnClose(Connection* conn,int error){
 		ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 		lis_->L_TcpClient_OnClose(ref,error);

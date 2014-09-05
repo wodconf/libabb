@@ -62,6 +62,10 @@ void TcpServer::L_Connection_OnMessage(Connection* conn,Buffer& buf){
 	ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 	this->lis_->L_TcpServer_OnMesssage(ref,buf);
 }
+void TcpServer::L_Connection_WriteComplete(Connection* conn){
+	ConnectionRef* ref = (ConnectionRef*)conn->GetData();
+	this->lis_->L_TcpServer_WriteComplete(ref);
+}
 void TcpServer::L_Connection_OnClose(Connection* conn,int error){
 	ConnectionRef* ref = (ConnectionRef*)conn->GetData();
 	this->lis_->L_TcpServer_OnClose(ref,error);

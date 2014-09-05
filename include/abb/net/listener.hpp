@@ -15,6 +15,7 @@ public:
 	virtual ~IConnectionListener(){};
 	virtual void L_Connection_OnOpen(Connection* self)=0;
 	virtual void L_Connection_OnMessage(Connection* self,Buffer& buf)=0;
+	virtual void L_Connection_WriteComplete(Connection* self)=0;
 	virtual void L_Connection_OnClose(Connection* self,int error)=0;
 };
 class IConnectorListener{

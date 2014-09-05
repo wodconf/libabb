@@ -16,6 +16,7 @@ public:
 	virtual void L_TcpClient_OnConnectFail(int error) = 0;
 	virtual void L_TcpClient_OnConnection(ConnectionRef* conn) = 0;
 	virtual void L_TcpClient_OnMessage(ConnectionRef* conn,Buffer& buf) = 0;
+	virtual void L_TcpClient_WriteComplete(ConnectionRef*){}
 	virtual void L_TcpClient_OnClose(ConnectionRef* conn,int error) = 0;
 };
 namespace tcp{
