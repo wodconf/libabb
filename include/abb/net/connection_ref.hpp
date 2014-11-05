@@ -15,9 +15,9 @@ class ConnectionRef :public RefObject{
 public:
 	explicit ConnectionRef(Connection* conn);
 	bool Connected() const;
-	void Write(void*data,int len);
+	void Write(const void*data,int len);
 	void Flush();
-	void WriteAndFlush(void*data,int len);
+	void WriteAndFlush(const void*data,int len);
 	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
 	bool SetNoDelay(bool e,int* error);

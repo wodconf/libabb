@@ -179,7 +179,7 @@ Responce* SyncPost(const std::string& url,
 	}
 }
 Responce* SyncGet(const std::string& url,int* error,int ms_timeout){
-	Request req(http::method::POST,"HTTP/1.1");
+	Request req(http::method::GET,"HTTP/1.1");
 	if(!req.SetUrl(url)){
 		return NULL;
 	}else{

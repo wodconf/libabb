@@ -47,13 +47,19 @@ bool Socket::Connect(int* fd,bool block,const SocketAddress& addr,int *save_err,
 	}
 	if( connect(fd_,&addr.sa.sa,addr.Length()) != 0){
 		int err = errno;
-		if((err == EINPROGRESS) || (err == EAGAIN)){
+		if(!block){
+			if((err == EINPROGRESS) || (err == EAGAIN)){
 
+			}else{
+				close(fd_);
+				return false;
+			}
 		}else{
-			if(save_err) *save_err = errno;
+			if(save_err) *save_err = err;
 			close(fd_);
 			return false;
 		}
+		
 	}
 	*fd = fd_;
 	return true;
@@ -270,5 +276,5 @@ void Socket::SetSendTimeout(int fd,int ms){
  	}
  	
 }
-} /* namespace translate */
+} /* namespace protocol */
 } /* namespace adcloud */

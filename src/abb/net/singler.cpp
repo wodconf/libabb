@@ -20,6 +20,8 @@ Singler::Singler(){
 		wfd_ = sockfd[1];
 		Socket::SetNoBlock(rfd_,true,NULL);
 		Socket::SetNoBlock(wfd_,true,NULL);
+		Socket::SetCloseExec(wfd_,true,NULL);
+		Socket::SetCloseExec(rfd_,true,NULL);
 	}
 }
 Singler::~Singler(){

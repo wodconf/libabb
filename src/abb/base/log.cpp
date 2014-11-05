@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sstream>
+#include <string.h>
 
 #define LOG_DATE_STRLEN 64
 namespace abb{

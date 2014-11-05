@@ -25,8 +25,8 @@ public:
 	void Established();
 	bool LockWrite(Buffer**buf);
 	void UnLockWrite(bool bflush);
-	void Write(void*buf,unsigned int size);
-	void WriteAndFlush(void*buf,unsigned int size);
+	void Write(const void*data,unsigned int size);
+	void WriteAndFlush(const void*data,unsigned int size);
 	void Flush();
 	void Close();
 	void Destroy();
@@ -89,7 +89,7 @@ private:
 	ABB_BASE_DISALLOW_COPY_AND_ASSIGN(Connection);
 };
 
-} /* namespace translate */
-} /* namespace adcloud */
+} 
+} 
 
 #endif /* CONNECTION_H_ */

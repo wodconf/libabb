@@ -10,12 +10,7 @@
 using namespace abb::net;
 using namespace abb;
 
-void sleep(int ms){
-	struct timeval tv;
-	tv.tv_sec = ms/1000;
-	tv.tv_usec = ( ms- tv.tv_sec*1000)*1000;
-	select(0,0,0,0,&tv);
-}
+
 int main(){
 		int error;
 		http::Responce* rsp = http::SyncGet("http://www.baidu.com",&error,5000);
@@ -24,7 +19,6 @@ int main(){
 		}else{
 			LOG(DEBUG) << strerror(error);
 		}
-		sleep(50); 
 
 	//loop.Loop();
 }

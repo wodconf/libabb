@@ -107,6 +107,8 @@ public:
 	void ResetRd(){
 		this->rd_ = 0;
 	}
+
+	void Cut(int sz);
 private:
 	void Grow(int sz);
 	char * buf_;

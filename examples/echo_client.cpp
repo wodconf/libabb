@@ -36,7 +36,9 @@ public:
 		if(conn){
 			abb::Buffer* buf;
 			if( this->conn->LockWrite(&buf)){
-				*buf << index;
+				for(int i=0;i<1000;i++){
+					*buf << index;
+				}
 				this->conn->UnLockWrite(true);
 			}
 		}
@@ -71,11 +73,10 @@ static void do_timer(void* arg){
 	LOG(INFO) <<now-pre;
 	loop.Cancel(timeid1);
 	pre = now;
-	if(client.conn)client.conn->Close();
 }
 int main(){
 	abb::net::SocketAddress addr;
-	if( ! addr.SetV4("localhost",9922) ){
+	if( ! addr.SetUnix("echo_svr",4) ){
 		LOG(INFO) << "setv4 fail";
 		return -1;
 	}

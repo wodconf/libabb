@@ -21,7 +21,7 @@ static const int num_revs = 64;
 	struct epoll_event revs_[num_revs];
 };
 
-} /* namespace base */
-} /* namespace abb */
+} 
+} 
 
 #endif /* POLLER_H_ */

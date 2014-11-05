@@ -25,8 +25,14 @@ SET( ABB_SRC
 	abb/http/http_decoder.cpp
 	abb/http/http_server.cpp
 	abb/http/http_client.cpp
+	abb/http/websocket.cpp
+	abb/http/ws_connection.cpp
 	abb/url/url.cpp
 	abb/base/date.cpp
+	abb/base/base64.cpp
+	abb/base/md5.cpp
+	abb/base/sha1.cpp
+	abb/base/daemon.cpp
 	)
 
 ADD_LIBRARY(abb SHARED ${ABB_SRC})

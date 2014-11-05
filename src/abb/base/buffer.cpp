@@ -182,23 +182,38 @@ uint32_t Buffer::WriteFromeReader(BufferReader reader,void*arg){
 }
 void Buffer::Grow(int needsize){
 	int fsz = size_ - wr_ + rd_;
+	if( wr_-rd_ > 0){
+		memmove(this->buf_,this->buf_+rd_,wr_-rd_);
+	}
+	this->wr_-= rd_;
+	this->rd_ = 0;
 	if(fsz < needsize){
 		int neddadd = needsize - fsz;
-		int add_size = 256;
-		while(neddadd > add_size){
-			add_size+=256;
-		}
+		int add_size = ( 1 + (neddadd/256) ) * 256;
 		char* nbuf = new char[this->size_+add_size];
-		memcpy(nbuf, buf_, size_);
+		if(wr_ > 0){
+			memcpy(nbuf, buf_, wr_);
+		}
 		delete []  buf_;
 		buf_ = nbuf;
 		this->size_+=add_size;
 	}
-	memmove(this->buf_,this->buf_+rd_,wr_-rd_);
-	this->wr_-= rd_;
-	this->rd_ = 0;
+	
 }
-
+void Buffer::Cut(int sz){
+	if(sz < 0) return;
+	int fsz = size_ - wr_ + rd_;
+	if(fsz > sz){
+		int size = wr_ - rd_ + sz;
+		char* nbuf = new char[size];
+		if(wr_ - rd_){
+			memcpy(nbuf, buf_+rd_, wr_ - rd_);
+		}
+		delete []  buf_;
+		buf_ = nbuf;
+		this->size_ = size;
+	}
+}
 
 uint16_t Buffer::HOST_ReadUint16(){
 	uint16_t val;

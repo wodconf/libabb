@@ -1,5 +1,6 @@
 #include "abb/base/date.hpp"
 #include <sys/time.h>
+#include <stdio.h>
 namespace abb{
 	Date::Date(int64_t u_second):micro_second_(u_second){
 

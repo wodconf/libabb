@@ -17,13 +17,13 @@ const SocketAddress& ConnectionRef::GetLocalAddr() const{
 const SocketAddress& ConnectionRef::GetRemoteAddr() const{
 	return conn_->GetRemoteAddr();
 }
-void ConnectionRef::Write(void*data,int len){
+void ConnectionRef::Write(const void*data,int len){
 	conn_->Write(data,len);
 }
 void ConnectionRef::Flush(){
 	conn_->Flush();
 }
-void ConnectionRef::WriteAndFlush(void*data,int len){
+void ConnectionRef::WriteAndFlush(const void*data,int len){
 	conn_->WriteAndFlush(data,len);
 }
 bool ConnectionRef::Connected() const{

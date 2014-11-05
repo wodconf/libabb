@@ -49,8 +49,8 @@ private:
 };
 int main(){
 	abb::net::SocketAddress addr;
-	if( ! addr.SetV4(NULL,9922) ){
-		LOG(INFO) << "setv4 fail";
+	if( ! addr.SetUnix("echo_svr",4) ){
+		LOG(INFO) << "SetUnix fail";
 		return -1;
 	}
 	EchoServer svr;

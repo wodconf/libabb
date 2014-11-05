@@ -7,12 +7,14 @@ namespace abb{
 namespace http{
 class Request;
 class ResponceWriter;
+class WSConnection;
 class Server:public net::TcpServer::Listener{
 public:
 	class Listener{
 	public:
 		virtual ~Listener(){};
 		virtual void HandleRequest(Request* req,ResponceWriter* rspw) = 0;
+		virtual void HandleWebSocket(WSConnection* conn){};
 	};
 	Server();
 	virtual ~Server();

@@ -83,7 +83,7 @@ void Connection::Flush(){
 	Mutex::Locker lock(wr_lock_);
 	InternalFlush();
 }
-void Connection::WriteAndFlush(void*buf,unsigned int size){
+void Connection::WriteAndFlush(const void*buf,unsigned int size){
 	if(!this->Connected()){
 		return;
 	}
@@ -91,7 +91,7 @@ void Connection::WriteAndFlush(void*buf,unsigned int size){
 	wr_buf_->Write(buf,size);
 	InternalFlush();
 }
-void Connection::Write(void*buf,unsigned int size){
+void Connection::Write(const void*buf,unsigned int size){
 	if(!this->Connected()){
 		return;
 	}
@@ -185,18 +185,17 @@ void Connection::OnWrite(){
 		}else{
 			return;
 		}
-	}else{
-		if(__sync_bool_compare_and_swap(&this->shut_down_after_write_,1,1)){
-			Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
-			if(__sync_bool_compare_and_swap(&this->close_,0,1)){
-				io_event_.DisAllowAll();
-				this->lis_->L_Connection_OnClose(this,0);
-			}
-		}else{
-			this->lis_->L_Connection_WriteComplete(this);
-			io_event_.DisAllowWrite();
+	}
+	if(__sync_bool_compare_and_swap(&this->shut_down_after_write_,1,1)){
+		Socket::ShutDown(this->io_event_.Fd(),true,true,NULL);
+		if(__sync_bool_compare_and_swap(&this->close_,0,1)){
+			io_event_.DisAllowAll();
+			this->lis_->L_Connection_OnClose(this,0);
 		}
-
+	}else{
+		io_event_.DisAllowWrite();
+		this->lis_->L_Connection_WriteComplete(this);
+		
 	}
 }
 
