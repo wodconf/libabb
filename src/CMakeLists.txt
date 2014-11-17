@@ -33,6 +33,8 @@ SET( ABB_SRC
 	abb/base/md5.cpp
 	abb/base/sha1.cpp
 	abb/base/daemon.cpp
+	abb/base/buffer_reader.cpp
+	abb/base/buffer_writer.cpp
 	)
 
 ADD_LIBRARY(abb SHARED ${ABB_SRC})
